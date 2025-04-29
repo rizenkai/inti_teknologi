@@ -130,7 +130,7 @@ const UserManagement = () => {
     setAddError('');
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/auth/register', newUser, {
+      await axios.post('http://localhost:5000/api/users', newUser, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAddDialog(false);
