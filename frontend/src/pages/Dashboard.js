@@ -27,6 +27,19 @@ import {
 import { format } from 'date-fns';
 
 const Dashboard = () => {
+  // NEW: State for Add Document Dialog
+  const [addDialog, setAddDialog] = useState(false);
+
+  const [newDocTitle, setNewDocTitle] = useState('');
+  const [addError, setAddError] = useState('');
+  const [addLoading, setAddLoading] = useState(false);
+  // Check user role (from localStorage)
+  let userRole = '';
+  try {
+    const user = JSON.parse(localStorage.getItem('user'));
+    userRole = user?.role || '';
+  } catch {}
+
   const [documents, setDocuments] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [editDialog, setEditDialog] = useState(false);
@@ -36,12 +49,9 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(false);
 
   const statusOptions = [
-    'pending',
     'in_progress',
     'review',
     'completed',
-    'approved',
-    'rejected'
   ];
 
   useEffect(() => {
@@ -105,6 +115,17 @@ const Dashboard = () => {
         Document Management System
       </Typography>
       
+      {/* NEW: Add Document Button for Admin */}
+      {userRole === 'admin' && (
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ mb: 2 }}
+          onClick={() => setAddDialog(true)}
+        >
+          Tambah Dokumen
+        </Button>
+      )}
       <TextField
         fullWidth
         label="Search documents..."
@@ -189,6 +210,53 @@ const Dashboard = () => {
           <Button onClick={() => setEditDialog(false)}>Cancel</Button>
           <Button onClick={handleStatusUpdate} variant="contained">
             Update
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* NEW: Add Document Dialog */}
+      <Dialog open={addDialog} onClose={() => setAddDialog(false)}>
+        <DialogTitle>Tambah Dokumen Baru</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Judul Dokumen"
+            type="text"
+            fullWidth
+            value={newDocTitle}
+            onChange={e => setNewDocTitle(e.target.value)}
+          />
+          {addError && <Alert severity="error" sx={{ mt: 2 }}>{addError}</Alert>}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddDialog(false)}>Batal</Button>
+          <Button
+            onClick={async () => {
+              setAddLoading(true);
+              setAddError('');
+              try {
+                const token = localStorage.getItem('token');
+                await axios.post('http://localhost:5000/api/documents/manual', {
+                  title: newDocTitle
+                }, {
+                  headers: { Authorization: `Bearer ${token}` }
+                });
+                setAddDialog(false);
+                setNewDocTitle('');
+                fetchDocuments();
+              } catch (err) {
+                const errorMsg = err.response?.data?.message || 'Gagal menambah dokumen';
+                console.error('Error response:', err.response?.data);
+                setAddError(errorMsg);
+              } finally {
+                setAddLoading(false);
+              }
+            }}
+            variant="contained"
+            disabled={addLoading || !newDocTitle}
+          >
+            {addLoading ? <CircularProgress size={22} /> : 'Tambah'}
           </Button>
         </DialogActions>
       </Dialog>

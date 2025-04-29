@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Dokumen</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, button {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            display: none;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tambah Dokumen Baru</h1>
+    
+    <div class="form-group">
+        <label for="token">Token (dari localStorage):</label>
+        <input type="text" id="token" placeholder="Paste token dari localStorage">
+    </div>
+    
+    <div class="form-group">
+        <label for="title">Judul Dokumen:</label>
+        <input type="text" id="title" placeholder="Masukkan judul dokumen">
+    </div>
+    
+    <button onclick="addDocument()">Tambah Dokumen</button>
+    
+    <div id="result"></div>
+    
+    <script>
+        // Auto-fill token from localStorage if available
+        window.onload = function() {
+            try {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    document.getElementById('token').value = token;
+                }
+            } catch (e) {
+                console.error('Error getting token from localStorage:', e);
+            }
+        };
+        
+        async function addDocument() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            
+            const token = document.getElementById('token').value.trim();
+            const title = document.getElementById('title').value.trim();
+            
+            if (!token) {
+                resultDiv.innerHTML = '<p class="error">Token diperlukan!</p>';
+                return;
+            }
+            
+            if (!title) {
+                resultDiv.innerHTML = '<p class="error">Judul dokumen diperlukan!</p>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<p>Mengirim request...</p>';
+            
+            try {
+                // Coba endpoint pertama
+                await sendRequest('http://localhost:5000/api/admin/add-document', token, title, resultDiv);
+            } catch (error) {
+                console.error('Error with first endpoint:', error);
+                resultDiv.innerHTML += '<p class="error">Endpoint pertama gagal, mencoba endpoint kedua...</p>';
+                
+                try {
+                    // Coba endpoint kedua
+                    await sendRequest('http://localhost:5000/api/documents/new', token, title, resultDiv);
+                } catch (error2) {
+                    console.error('Error with second endpoint:', error2);
+                    resultDiv.innerHTML += '<p class="error">Endpoint kedua gagal, mencoba endpoint ketiga...</p>';
+                    
+                    try {
+                        // Coba endpoint ketiga
+                        await sendRequest('http://localhost:5000/api/documents/manual', token, title, resultDiv);
+                    } catch (error3) {
+                        console.error('Error with third endpoint:', error3);
+                        resultDiv.innerHTML = '<p class="error">Semua endpoint gagal. Periksa server backend dan token.</p>';
+                        resultDiv.innerHTML += '<p class="error">Detail error: ' + (error3.message || 'Unknown error') + '</p>';
+                    }
+                }
+            }
+        }
+        
+        async function sendRequest(url, token, title, resultDiv) {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ title })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                resultDiv.innerHTML = '<p class="success">Dokumen berhasil ditambahkan!</p>';
+                resultDiv.innerHTML += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                return data;
+            } else {
+                throw new Error(data.message || 'Request failed');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -6,12 +6,16 @@ const {
   updateDocument,
   deleteDocument,
   downloadDocument,
-  updateDocumentStatus
+  updateDocumentStatus,
+  createDocumentManual
 } = require('../controllers/documentController');
+const { addNewDocument } = require('../controllers/newDocumentController');
 const { protect, authorize } = require('../middleware/auth');
 
 router.get('/', protect, getDocuments);
 router.post('/', protect, authorize('admin'), uploadDocument);
+router.post('/manual', protect, authorize('admin'), createDocumentManual);
+router.post('/new', protect, authorize('admin'), addNewDocument);
 router.put('/:id', protect, authorize('admin'), updateDocument);
 router.delete('/:id', protect, authorize('admin'), deleteDocument);
 router.get('/:id/download', protect, downloadDocument);

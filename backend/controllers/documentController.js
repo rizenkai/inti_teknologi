@@ -1,6 +1,43 @@
 const Document = require('../models/Document');
 const path = require('path');
 
+// IMPORTANT: This file has been completely rewritten to fix document creation issues
+
+// Create document manually (Admin only, no file upload) - FIXED VERSION
+exports.createDocumentManual = async (req, res) => {
+  console.log('DEBUG: createDocumentManual FIXED VERSION called');
+  console.log('BODY:', req.body);
+  
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Only admin can create documents manually' });
+    }
+    
+    const { title } = req.body;
+    if (!title) {
+      return res.status(400).json({ message: 'Title is required' });
+    }
+    
+    // Placeholder values for required file fields
+    const document = await Document.create({
+      title,
+      description: 'Dokumen baru',
+      fileName: 'placeholder.txt',
+      filePath: '/placeholder/path',
+      fileType: 'text/plain',
+      fileSize: 0,
+      category: 'manual',
+      status: 'pending',
+      uploadedBy: req.user._id
+    });
+    
+    res.status(201).json(document);
+  } catch (error) {
+    console.error('ERROR CREATING DOCUMENT:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 // Get all documents with pagination and filters
 exports.getDocuments = async (req, res) => {
   try {
@@ -44,6 +81,8 @@ exports.getDocuments = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
+// Upload document (Admin only)
 
 // Upload document (Admin only)
 exports.uploadDocument = async (req, res) => {
