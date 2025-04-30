@@ -46,9 +46,11 @@ const Login = () => {
       
       if (data && data.token) {
         localStorage.setItem('token', data.token);
+        // Simpan data user lengkap termasuk fullname
         localStorage.setItem('user', JSON.stringify({
           id: data._id,
           username: data.username,
+          fullname: data.fullname,
           role: data.role,
         }));
         navigate('/');

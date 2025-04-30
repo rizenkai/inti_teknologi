@@ -10,6 +10,7 @@ import Layout from './components/Layout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import UserManagement from './pages/UserManagement';
+import Documents from './pages/Documents';
 
 // Protected Route Component
 const PrivateRoute = ({ children }) => {
@@ -52,7 +53,7 @@ function App() {
             element={
               <PrivateRoute>
                 <Layout>
-                  <div>Documents Content</div>
+                  <Documents />
                 </Layout>
               </PrivateRoute>
             }

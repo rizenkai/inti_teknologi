@@ -68,7 +68,7 @@ const UserManagement = () => {
   
   // Fetch users on component mount
   useEffect(() => {
-    if (userRole === 'admin') {
+    if (userRole === 'admin' || userRole === 'owner') {
       fetchUsers();
     }
   }, [userRole]);
@@ -205,8 +205,8 @@ const UserManagement = () => {
     }
   };
   
-  // If user is not admin, show access denied
-  if (userRole !== 'admin') {
+  // Si el usuario no es admin ni owner, mostrar acceso denegado
+  if (userRole !== 'admin' && userRole !== 'owner') {
     return (
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Alert severity="error">
@@ -222,14 +222,16 @@ const UserManagement = () => {
         User Profile
       </Typography>
       
-      <Button
-        variant="contained"
-        color="primary"
-        sx={{ mb: 2 }}
-        onClick={() => setAddDialog(true)}
-      >
-        Add New User
-      </Button>
+      {userRole === 'admin' && (
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ mb: 2 }}
+          onClick={() => setAddDialog(true)}
+        >
+          Add New User
+        </Button>
+      )}
       
       {loading ? (
         <Box display="flex" justifyContent="center" my={4}>
@@ -259,20 +261,26 @@ const UserManagement = () => {
                   <TableCell>{user.role}</TableCell>
                   <TableCell>{formatDate(user.createdAt)}</TableCell>
                   <TableCell>
-                    <IconButton 
-                      color="primary" 
-                      onClick={() => handleEditOpen(user)}
-                      size="small"
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton 
-                      color="error" 
-                      onClick={() => handleDeleteOpen(user._id)}
-                      size="small"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
+                    {userRole === 'admin' ? (
+                      <>
+                        <IconButton 
+                          color="primary" 
+                          onClick={() => handleEditOpen(user)}
+                          size="small"
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton 
+                          color="error" 
+                          onClick={() => handleDeleteOpen(user._id)}
+                          size="small"
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </>
+                    ) : (
+                      <Typography variant="body2" color="textSecondary">No actions available</Typography>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

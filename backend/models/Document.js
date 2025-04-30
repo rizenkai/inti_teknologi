@@ -10,6 +10,21 @@ const documentSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  // Campos adicionales para documentos de materiales
+  bp: {
+    type: Number, // Double para BP (Kg)
+    default: null
+  },
+  kodeBahan: {
+    type: String, // Varchar para Kode Bahan
+    trim: true,
+    default: ''
+  },
+  tipeBahan: {
+    type: String, // Enum para Tipe Bahan
+    enum: ['Silinder', 'Kubus', 'Balok', 'Paving', 'Scoup', ''],
+    default: ''
+  },
   fileName: {
     type: String,
     required: true

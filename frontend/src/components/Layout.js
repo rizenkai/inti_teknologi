@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
 import {
   Box,
   Drawer,
@@ -13,6 +14,7 @@ import {
   ListItemIcon,
   ListItemText,
   useTheme,
+  Avatar,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -21,6 +23,7 @@ import {
   Description as DocumentIcon,
   People as PeopleIcon,
   Logout as LogoutIcon,
+  AccountCircle as AccountCircleIcon,
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 
@@ -72,9 +75,52 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 const Layout = ({ children }) => {
   const [open, setOpen] = useState(true);
+  const [user, setUser] = useState(null);
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // Get token from localStorage
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+        
+        // Get user data from localStorage if available
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          setUser(JSON.parse(userData));
+        } else {
+          // If not in localStorage, fetch from API
+          const response = await axios.get('http://localhost:5000/api/users/me', {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          
+          // Set user data from response
+          setUser(response.data);
+          // Save to localStorage for future use
+          localStorage.setItem('user', JSON.stringify(response.data));
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        // Handle unauthorized error
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          navigate('/login');
+        }
+      }
+    };
+    
+    fetchUserData();
+  }, [navigate]);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -84,11 +130,22 @@ const Layout = ({ children }) => {
     setOpen(false);
   };
 
-  const menuItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-    { text: 'Documents', icon: <DocumentIcon />, path: '/documents' },
-    { text: 'Users', icon: <PeopleIcon />, path: '/users' },
-  ];
+  // Filtrar elementos del menú según el rol del usuario
+  const getMenuItems = () => {
+    const baseItems = [
+      { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
+      { text: 'Documents', icon: <DocumentIcon />, path: '/documents' },
+    ];
+    
+    // Añadir opción de Users para admin, staff y owner
+    if (user && user.role && (user.role === 'admin' || user.role === 'staff' || user.role === 'owner')) {
+      baseItems.push({ text: 'Users', icon: <PeopleIcon />, path: '/users' });
+    }
+    
+    return baseItems;
+  };
+  
+  const menuItems = getMenuItems();
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -108,9 +165,39 @@ const Layout = ({ children }) => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             Document Management System
           </Typography>
+          
+          {/* User info in top right corner */}
+          {user && (
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  mr: 2, 
+                  color: '#ffffff', 
+                  fontWeight: 'bold',
+                  textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
+                  fontSize: '1.1rem'
+                }}
+              >
+                {user.fullname || user.name || user.username}
+              </Typography>
+              <Avatar 
+                sx={{ 
+                  bgcolor: '#ffffff', 
+                  color: theme.palette.primary.main,
+                  fontWeight: 'bold',
+                  boxShadow: '0px 0px 8px rgba(255,255,255,0.5)'
+                }}
+              >
+                {user.fullname ? user.fullname.charAt(0).toUpperCase() : 
+                 user.name ? user.name.charAt(0).toUpperCase() : 
+                 user.username ? user.username.charAt(0).toUpperCase() : 'U'}
+              </Avatar>
+            </Box>
+          )}
         </Toolbar>
       </AppBarStyled>
       <Drawer

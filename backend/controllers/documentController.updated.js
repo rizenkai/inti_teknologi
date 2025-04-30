@@ -53,28 +53,27 @@ exports.getDocuments = async (req, res) => {
     let query = {};
 
     // Apply filters if they exist
-    if (req.query.category) {
-      query.category = req.query.category;
-    }
     if (req.query.status) {
       query.status = req.query.status;
     }
-    if (req.query.search) {
-      query.title = { $regex: req.query.search, $options: 'i' };
+
+    if (req.query.category) {
+      query.category = req.query.category;
     }
 
-    // For regular users, only show documents they can access
+    // Regular users can only see completed/approved documents
     if (req.user.role === 'user') {
       query.status = { $in: ['completed', 'approved'] };
     }
 
+    // Count total documents matching query
+    const total = await Document.countDocuments(query);
+
+    // Fetch documents with pagination
     const documents = await Document.find(query)
-      .populate('uploadedBy', 'username fullname')
       .sort({ submissionDate: -1 })
       .skip(startIndex)
       .limit(limit);
-
-    const total = await Document.countDocuments(query);
 
     res.json({
       documents,
@@ -120,12 +119,10 @@ exports.uploadDocument = async (req, res) => {
         try {
           fs.unlinkSync(req.file.path);
         } catch (err) {
-          console.error('Error deleting duplicate file:', err);
+          console.error('Error deleting file for duplicate title:', err);
         }
       }
-      return res.status(400).json({ 
-        message: 'Document with this title already exists. Please use a different title.'
-      });
+      return res.status(400).json({ message: 'Document with this title already exists.' });
     }
 
     // Get file information from multer
@@ -135,35 +132,35 @@ exports.uploadDocument = async (req, res) => {
     const relativePath = filePath.split('uploads')[1];
     const storedPath = 'uploads' + relativePath;
 
-    // Create document in database with unique ID to prevent duplicates
+    // Create new document
     const document = await Document.create({
       title: title.trim(),
-      description: description || 'No description provided',
+      description: description || '',
       fileName: filename,
       filePath: storedPath,
       fileType: mimetype,
       fileSize: size,
       category: category || 'general',
-      status: status || 'completed', // Default to completed so users can see it
+      status: status || 'pending',
       uploadedBy: req.user._id
     });
 
-    // Return created document
     res.status(201).json({
       success: true,
-      message: 'Document uploaded successfully',
       document
     });
   } catch (error) {
-    // If there was an error and a file was uploaded, delete it
+    console.error('Error uploading document:', error);
+    
+    // Delete uploaded file if there was an error
     if (req.file && req.file.path) {
       try {
         fs.unlinkSync(req.file.path);
       } catch (err) {
-        console.error('Error deleting file after failed upload:', err);
+        console.error('Error deleting file after upload error:', err);
       }
     }
-    console.error('Error uploading document:', error);
+    
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
@@ -182,9 +179,15 @@ exports.updateDocumentFile = async (req, res) => {
     }
 
     const { documentId } = req.body;
-    
-    // Validate required fields
     if (!documentId) {
+      // If file was uploaded, delete it to avoid orphaned files
+      if (req.file && req.file.path) {
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (err) {
+          console.error('Error deleting file for missing document ID:', err);
+        }
+      }
       return res.status(400).json({ message: 'Document ID is required' });
     }
 
@@ -234,19 +237,20 @@ exports.updateDocumentFile = async (req, res) => {
     // Return updated document
     res.status(200).json({
       success: true,
-      message: 'Document file updated successfully',
       document
     });
   } catch (error) {
-    // If there was an error and a file was uploaded, delete it
+    console.error('Error updating document file:', error);
+    
+    // Delete uploaded file if there was an error
     if (req.file && req.file.path) {
       try {
         fs.unlinkSync(req.file.path);
       } catch (err) {
-        console.error('Error deleting file after failed update:', err);
+        console.error('Error deleting file after update error:', err);
       }
     }
-    console.error('Error updating document file:', error);
+    
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
@@ -328,27 +332,24 @@ exports.downloadDocument = async (req, res) => {
 // Update document status (Staff and Admin only)
 exports.updateDocumentStatus = async (req, res) => {
   try {
-    if (!['admin', 'staff'].includes(req.user.role)) {
+    if (req.user.role !== 'admin' && req.user.role !== 'staff') {
       return res.status(403).json({ message: 'Not authorized to update document status' });
     }
 
-    const document = await Document.findById(req.params.id);
-    if (!document) {
-      return res.status(404).json({ message: 'Document not found' });
-    }
-
-    // Staff can only update status
-    if (req.user.role === 'staff') {
-      if (Object.keys(req.body).length > 1 || !req.body.status) {
-        return res.status(403).json({ message: 'Staff can only update document status' });
-      }
+    const { status } = req.body;
+    if (!status) {
+      return res.status(400).json({ message: 'Status is required' });
     }
 
     const updatedDocument = await Document.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      { status, lastModified: new Date() },
       { new: true, runValidators: true }
     );
+
+    if (!updatedDocument) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
 
     res.json(updatedDocument);
   } catch (error) {
@@ -368,9 +369,41 @@ exports.updateDocument = async (req, res) => {
       return res.status(404).json({ message: 'Document not found' });
     }
 
+    // Extraer los campos que se pueden actualizar
+    const { status, bp, kodeBahan, tipeBahan } = req.body;
+    
+    // Preparar objeto de actualización
+    const updateData = {};
+    
+    // Actualizar status si está presente
+    if (status) {
+      updateData.status = status;
+    }
+    
+    // Actualizar campos adicionales si el usuario es admin o staff
+    if (req.user.role === 'admin' || req.user.role === 'staff') {
+      // Actualizar BP si está presente (puede ser null)
+      if (bp !== undefined) {
+        updateData.bp = bp;
+      }
+      
+      // Actualizar Kode Bahan si está presente
+      if (kodeBahan !== undefined) {
+        updateData.kodeBahan = kodeBahan;
+      }
+      
+      // Actualizar Tipe Bahan si está presente
+      if (tipeBahan !== undefined) {
+        updateData.tipeBahan = tipeBahan;
+      }
+    }
+    
+    // Actualizar fecha de última modificación
+    updateData.lastModified = new Date();
+    
     const updatedDocument = await Document.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     );
 
@@ -405,40 +438,6 @@ exports.deleteDocument = async (req, res) => {
     
     res.json({ message: 'Document removed successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-};
-
-// Download document
-exports.downloadDocument = async (req, res) => {
-  try {
-    const document = await Document.findById(req.params.id);
-    if (!document) {
-      return res.status(404).json({ message: 'Document not found' });
-    }
-
-    // Regular users can only download completed/approved documents
-    if (req.user.role === 'user' && !['completed', 'approved'].includes(document.status)) {
-      return res.status(403).json({ 
-        message: 'You can only download documents that are completed or approved' 
-      });
-    }
-
-    // Check if file exists
-    const filePath = path.join(__dirname, '..', document.filePath);
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ message: 'File not found on server' });
-    }
-
-    // Set appropriate headers for download
-    res.setHeader('Content-Disposition', `attachment; filename="${document.fileName}"`);
-    res.setHeader('Content-Type', document.fileType);
-    
-    // Stream the file to the response
-    const fileStream = fs.createReadStream(filePath);
-    fileStream.pipe(res);
-  } catch (error) {
-    console.error('Error downloading document:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
