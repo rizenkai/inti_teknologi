@@ -11,6 +11,8 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import UserManagement from './pages/UserManagement';
 import Documents from './pages/Documents';
+import ActivityLog from './pages/ActivityLog';
+import Landing from './pages/Landing';
 
 // Protected Route Component
 const PrivateRoute = ({ children }) => {
@@ -37,9 +39,10 @@ function App() {
       <CssBaseline />
       <Router>
         <Routes>
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route
-            path="/"
+            path="/dashboard"
             element={
               <PrivateRoute>
                 <Layout>
@@ -68,6 +71,7 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route path="/activity-log" element={<PrivateRoute><Layout><ActivityLog /></Layout></PrivateRoute>} />
         </Routes>
       </Router>
     </ThemeProvider>

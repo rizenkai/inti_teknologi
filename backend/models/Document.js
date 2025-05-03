@@ -25,14 +25,19 @@ const documentSchema = new mongoose.Schema({
     enum: ['Silinder', 'Kubus', 'Balok', 'Paving', 'Scoup', ''],
     default: ''
   },
+  placeholderId: { 
+    type: String, 
+    unique: true, 
+    sparse: true 
+  }, // ID placeholder angka unik, hanya untuk dokumen placeholder
   fileName: {
     type: String,
     required: true
   },
-  filePath: {
-    type: String,
-    required: true
-  },
+  filePath: { 
+    type: String, 
+    required: true 
+  }, // Path file asli (atau '/placeholder' jika belum ada file)
   fileType: {
     type: String,
     required: true
@@ -51,6 +56,11 @@ const documentSchema = new mongoose.Schema({
     required: true
   },
   uploadedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  targetUser: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true

@@ -3,18 +3,10 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import {
   Box,
-  Drawer,
-  AppBar,
-  Toolbar,
-  List,
   Typography,
-  Divider,
   IconButton,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  useTheme,
   Avatar,
+  Link,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -24,59 +16,13 @@ import {
   People as PeopleIcon,
   Logout as LogoutIcon,
   AccountCircle as AccountCircleIcon,
+  History as HistoryIcon,
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
-
-const drawerWidth = 240;
-
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginLeft: `-${drawerWidth}px`,
-    ...(open && {
-      transition: theme.transitions.create('margin', {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      marginLeft: 0,
-    }),
-  }),
-);
-
-const AppBarStyled = styled(AppBar, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    ...(open && {
-      width: `calc(100% - ${drawerWidth}px)`,
-      marginLeft: `${drawerWidth}px`,
-      transition: theme.transitions.create(['margin', 'width'], {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-    }),
-  }),
-);
-
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(0, 1),
-  ...theme.mixins.toolbar,
-  justifyContent: 'flex-end',
-}));
 
 const Layout = ({ children }) => {
   const [open, setOpen] = useState(true);
   const [user, setUser] = useState(null);
-  const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -133,7 +79,7 @@ const Layout = ({ children }) => {
   // Filtrar elementos del menú según el rol del usuario
   const getMenuItems = () => {
     const baseItems = [
-      { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
+      { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
       { text: 'Documents', icon: <DocumentIcon />, path: '/documents' },
     ];
     
@@ -153,99 +99,99 @@ const Layout = ({ children }) => {
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
-      <AppBarStyled position="fixed" open={open}>
-        <Toolbar>
+    <Box sx={{
+      minHeight: '100vh',
+      background: 'linear-gradient(120deg, #f7f7fa 0%, #e2e6f3 100%)',
+      display: 'flex',
+      flexDirection: 'row',
+      fontFamily: 'Poppins, Arial, Helvetica, sans-serif',
+    }}>
+      {/* SIDEBAR */}
+      <Box sx={{
+        width: { xs: 64, md: 90, lg: 100 },
+        background: '#fff',
+        borderRadius: '32px',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
+        m: 2,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        py: 3,
+        gap: 2,
+        position: 'sticky',
+        top: 0,
+        zIndex: 10
+      }}>
+        {/* Logo */}
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h5" sx={{ fontWeight: 700, letterSpacing: 2, color: '#222' }}>IntiDocs</Typography>
+        </Box>
+        {/* Navigation Icons */}
+        {menuItems.map((item) => (
           <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{ mr: 2, ...(open && { display: 'none' }) }}
+            key={item.text}
+            onClick={() => navigate(item.path)}
+            sx={{
+              color: location.pathname === item.path ? '#3b82f6' : '#b0b3c6',
+              background: location.pathname === item.path ? '#e7f0fe' : 'transparent',
+              mb: 2,
+              borderRadius: '16px',
+              p: 1.5
+            }}
           >
-            <MenuIcon />
+            {item.icon}
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+        ))}
+        {/* Activity Log khusus admin/owner */}
+        {['admin', 'owner'].includes(user?.role) && (
+          <IconButton
+            onClick={() => navigate('/activity-log')}
+            sx={{
+              color: location.pathname === '/activity-log' ? '#3b82f6' : '#b0b3c6',
+              background: location.pathname === '/activity-log' ? '#e7f0fe' : 'transparent',
+              mt: 2,
+              borderRadius: '16px',
+              p: 1.5
+            }}
+          >
+            <HistoryIcon />
+          </IconButton>
+        )}
+        {/* Logout */}
+        <Box sx={{ flexGrow: 1 }} />
+        <IconButton
+          onClick={handleLogout}
+          sx={{ color: '#b0b3c6', background: 'transparent', mb: 1, borderRadius: '16px', p: 1.5 }}
+        >
+          <LogoutIcon />
+        </IconButton>
+      </Box>
+
+      {/* MAIN CONTENT AREA */}
+      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh', pl: { xs: 1, md: 4 }, pr: { xs: 1, md: 4 }, pt: 3 }}>
+        {/* HEADER */}
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, color: '#21243d', letterSpacing: 1 }}>
             Document Management System
           </Typography>
-          
-          {/* User info in top right corner */}
+          {/* User Info */}
           {user && (
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Typography 
-                variant="h6" 
-                sx={{ 
-                  mr: 2, 
-                  color: '#ffffff', 
-                  fontWeight: 'bold',
-                  textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
-                  fontSize: '1.1rem'
-                }}
-              >
-                {user.fullname || user.name || user.username}
-              </Typography>
-              <Avatar 
-                sx={{ 
-                  bgcolor: '#ffffff', 
-                  color: theme.palette.primary.main,
-                  fontWeight: 'bold',
-                  boxShadow: '0px 0px 8px rgba(255,255,255,0.5)'
-                }}
-              >
-                {user.fullname ? user.fullname.charAt(0).toUpperCase() : 
-                 user.name ? user.name.charAt(0).toUpperCase() : 
-                 user.username ? user.username.charAt(0).toUpperCase() : 'U'}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, background: '#fff', px: 3, py: 1, borderRadius: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+              <Avatar sx={{ bgcolor: '#3b82f6', color: '#fff', fontWeight: 600 }}>
+                {user.fullname ? user.fullname.charAt(0).toUpperCase() : user.username.charAt(0).toUpperCase()}
               </Avatar>
+              <Box>
+                <Typography sx={{ fontWeight: 600, color: '#222', fontSize: '1rem' }}>{user.fullname || user.username}</Typography>
+                <Typography sx={{ color: '#7a7a8c', fontSize: '0.9rem' }}>{user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : ''}</Typography>
+              </Box>
             </Box>
           )}
-        </Toolbar>
-      </AppBarStyled>
-      <Drawer
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: drawerWidth,
-            boxSizing: 'border-box',
-          },
-        }}
-        variant="persistent"
-        anchor="left"
-        open={open}
-      >
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            <ChevronLeftIcon />
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List>
-          {menuItems.map((item) => (
-            <ListItem
-              button
-              key={item.text}
-              onClick={() => navigate(item.path)}
-              selected={location.pathname === item.path}
-            >
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItem>
-          ))}
-        </List>
-        <Divider />
-        <List>
-          <ListItem button onClick={handleLogout}>
-            <ListItemIcon>
-              <LogoutIcon />
-            </ListItemIcon>
-            <ListItemText primary="Logout" />
-          </ListItem>
-        </List>
-      </Drawer>
-      <Main open={open}>
-        <DrawerHeader />
-        {children}
-      </Main>
+        </Box>
+        {/* MAIN CONTENT (children) */}
+        <Box sx={{ flex: 1, width: '100%' }}>
+          {children}
+        </Box>
+      </Box>
     </Box>
   );
 };

@@ -51,9 +51,12 @@ const Documents = () => {
     title: '',
     description: '',
     category: 'general',
-    status: 'completed'
+    status: 'completed',
+    targetUser: ''
   });
-  
+  const [userList, setUserList] = useState([]);
+  const [targetUser, setTargetUser] = useState('');
+
   // Get user role from localStorage
   let userRole = '';
   try {
@@ -86,20 +89,13 @@ const Documents = () => {
         params: { _t: new Date().getTime() }
       });
       
-      // If user is not admin, only show completed documents
-      if (userRole !== 'admin') {
-        const completedDocs = response.data.documents.filter(doc => 
-          doc.status === 'completed' || doc.status === 'approved'
-        );
-        setDocuments(completedDocs);
-      } else {
-        // Ensure we don't have duplicates by using document ID as unique key
-        const uniqueDocs = {};
-        response.data.documents.forEach(doc => {
-          uniqueDocs[doc._id] = doc;
-        });
-        setDocuments(Object.values(uniqueDocs));
-      }
+      // Semua role (admin, staff, user) dapat melihat seluruh dokumen yang diberikan backend
+      // Tidak perlu filter tambahan di frontend
+      const uniqueDocs = {};
+      (response.data.documents || []).forEach(doc => {
+        uniqueDocs[doc._id] = doc;
+      });
+      setDocuments(Object.values(uniqueDocs));
     } catch (error) {
       console.error('Error fetching documents:', error);
       setError(error.response?.data?.message || 'Failed to fetch documents');
@@ -107,6 +103,18 @@ const Documents = () => {
       setLoading(false);
     }
   };
+  
+  // Fetch user list only for admin/staff
+  useEffect(() => {
+    if (userRole === 'admin' || userRole === 'staff') {
+      const token = localStorage.getItem('token');
+      axios.get('http://localhost:5000/api/auth/regular-users', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => setUserList(res.data))
+      .catch(() => setUserList([]));
+    }
+  }, [userRole]);
   
   // Handle file selection
   const handleFileChange = (e) => {
@@ -124,55 +132,49 @@ const Documents = () => {
   
   // Handle document download
   const handleDownloadDocument = async (documentId) => {
+    let originalContent = null;
     try {
       const token = localStorage.getItem('token');
-      
       // Show loading indicator
-      const downloadButton = document.getElementById(`download-${documentId}`);
+      const downloadButton = window.document.getElementById(`download-${documentId}`);
       if (downloadButton) {
-        // Save original content
-        const originalContent = downloadButton.innerHTML;
+        originalContent = downloadButton.innerHTML;
         downloadButton.innerHTML = '...';
         downloadButton.disabled = true;
       }
-      
       // Make API request to download the document
       const response = await axios.get(`http://localhost:5000/api/documents/${documentId}/download`, {
         headers: { Authorization: `Bearer ${token}` },
-        responseType: 'blob' // Important for file downloads
+        responseType: 'blob'
       });
-      
+      // Get filename from Content-Disposition header
+      let filename = 'document';
+      const disposition = response.headers['content-disposition'];
+      if (disposition && disposition.indexOf('filename=') !== -1) {
+        filename = decodeURIComponent(disposition.split('filename=')[1].replace(/['"\s]/g, ''));
+      } else {
+        // fallback: cari nama file di state dokumen
+        const doc = documents.find(doc => doc._id === documentId);
+        if (doc && doc.fileName) filename = doc.fileName;
+      }
       // Create a blob URL and trigger download
-      const blob = new Blob([response.data]);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      
-      // Get document from state to use filename
-      const document = documents.find(doc => doc._id === documentId);
-      a.download = document?.fileName || 'document';
-      
-      // Trigger download
-      document.body.appendChild(a);
-      a.click();
-      
-      // Clean up
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = window.document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      window.document.body.appendChild(link);
+      link.click();
+      link.remove();
       window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
     } catch (error) {
       console.error('Error downloading document:', error);
       alert('Failed to download document: ' + (error.response?.data?.message || 'Unknown error'));
     } finally {
       // Reset download button
-      const downloadButton = document.getElementById(`download-${documentId}`);
+      const downloadButton = window.document.getElementById(`download-${documentId}`);
       if (downloadButton) {
         // Restore button
-        downloadButton.innerHTML = '';
-        const icon = document.createElement('span');
-        icon.className = 'MuiSvgIcon-root';
-        icon.innerHTML = '<svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"></path></svg>';
-        downloadButton.appendChild(icon);
+        downloadButton.innerHTML = originalContent || '';
         downloadButton.disabled = false;
       }
     }
@@ -213,6 +215,11 @@ const Documents = () => {
         formData.append('status', documentData.status);
       }
       
+      // Only add targetUser if admin or staff
+      if (userRole === 'admin' || userRole === 'staff') {
+        formData.append('targetUser', documentData.targetUser);
+      }
+      
       // Add a unique identifier to prevent caching issues
       const timestamp = new Date().getTime();
       formData.append('timestamp', timestamp);
@@ -233,7 +240,8 @@ const Documents = () => {
           title: '',
           description: '',
           category: 'general',
-          status: 'completed'
+          status: 'completed',
+          targetUser: ''
         });
         
         // Wait a moment before fetching to ensure server has processed the upload
@@ -257,11 +265,21 @@ const Documents = () => {
   
 
   
-  // Filter documents based on search term
-  const filteredDocuments = documents.filter(doc => 
-    doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doc.description?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter documents based on search term (title, placeholder id, etc)
+  const filteredDocuments = documents.filter(doc => {
+    const search = searchTerm.toLowerCase();
+    // Cari berdasarkan title, placeholder id (angka di filePath), dan juga _id
+    const idPlaceholder = (/^\d{3,5}$/.test(doc.filePath) ? doc.filePath : doc._id).toString();
+    return (
+      doc.title.toLowerCase().includes(search) ||
+      idPlaceholder.includes(search) ||
+      (doc.fileName && doc.fileName.toLowerCase().includes(search)) ||
+      (doc.targetUser && (
+        doc.targetUser.username?.toLowerCase().includes(search) ||
+        doc.targetUser.fullname?.toLowerCase().includes(search)
+      ))
+    );
+  });
   
   // Format date for display
   const formatDate = (date) => {
@@ -274,9 +292,9 @@ const Documents = () => {
   
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Documents
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h4" gutterBottom>Document List</Typography>
+      </Box>
       
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={12} md={8}>
@@ -290,20 +308,6 @@ const Documents = () => {
               endAdornment: <SearchIcon color="action" />
             }}
           />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          {userRole === 'admin' && (
-            <Button
-              fullWidth
-              variant="contained"
-              color="primary"
-              startIcon={<AddIcon />}
-              onClick={() => setUploadDialog(true)}
-              sx={{ height: '100%' }}
-            >
-              Upload Document
-            </Button>
-          )}
         </Grid>
       </Grid>
       
@@ -324,20 +328,29 @@ const Documents = () => {
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell>ID</TableCell>
                 <TableCell>Title</TableCell>
-                <TableCell>Description</TableCell>
                 <TableCell>File Type</TableCell>
                 <TableCell>Status</TableCell>
-                <TableCell>Uploaded Date</TableCell>
+                <TableCell>User Tujuan</TableCell>
+                <TableCell>Submitted Date</TableCell>
+                <TableCell>Document Uploaded</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredDocuments.map((doc) => (
                 <TableRow key={doc._id}>
+                  {/* Kolom ID: tampilkan placeholderId jika ada, jika tidak tampilkan _id */}
+                  <TableCell align="left">
+                    {doc.placeholderId ? doc.placeholderId : doc._id}
+                  </TableCell>
                   <TableCell>{doc.title}</TableCell>
-                  <TableCell>{doc.description}</TableCell>
-                  <TableCell>{doc.fileType}</TableCell>
+                  <TableCell>{
+                    doc.fileName && doc.fileName !== 'placeholder.txt'
+                      ? (doc.fileName.split('.').pop() || '-').toLowerCase()
+                      : '-'
+                  }</TableCell>
                   <TableCell>
                     <Box
                       sx={{
@@ -345,53 +358,76 @@ const Documents = () => {
                           doc.status === 'completed' ? 'success.light' : 
                           doc.status === 'approved' ? 'success.main' :
                           doc.status === 'pending' ? 'warning.light' :
-                          doc.status === 'in_progress' ? 'info.light' :
-                          doc.status === 'review' ? 'secondary.light' :
-                          'error.light',
-                        color: 'white',
+                          'grey.200',
+                        color: 'black',
                         borderRadius: 1,
                         px: 1,
-                        py: 0.5,
-                        display: 'inline-block'
+                        display: 'inline-block',
+                        fontWeight: 600
                       }}
                     >
-                      {doc.status.replace('_', ' ').toUpperCase()}
+                      {doc.status.toUpperCase()}
                     </Box>
                   </TableCell>
-                  <TableCell>{formatDate(doc.submissionDate)}</TableCell>
+                  <TableCell>{doc.targetUser ? `${doc.targetUser.username} - ${doc.targetUser.fullname}` : '-'}</TableCell>
+                  <TableCell>{doc.submissionDate ? formatDate(doc.submissionDate) : '-'}</TableCell>
+                  <TableCell>{doc.fileName && doc.fileName !== 'placeholder.txt' ? formatDate(doc.lastModified) : '-'}</TableCell>
                   <TableCell>
-                    <Box sx={{ display: 'flex' }}>
-                      <IconButton 
-                        id={`download-${doc._id}`}
-                        color="primary" 
-                        onClick={() => handleDownloadDocument(doc._id)}
-                        title="Download Document"
-                        size="small"
-                      >
-                        <DownloadIcon />
-                      </IconButton>
-                      
-                      {userRole === 'admin' && (
-                        <IconButton 
-                          color="secondary" 
-                          onClick={() => {
-                            // Set the selected document for updating
-                            setSelectedDocument(doc);
-                            setDocumentData({
-                              title: doc.title,
-                              description: doc.description || '',
-                              category: doc.category || 'general',
-                              status: doc.status || 'completed'
-                            });
-                            setUploadDialog(true);
-                          }}
-                          title="Upload File"
-                          size="small"
-                        >
-                          <AddIcon />
-                        </IconButton>
-                      )}
-                    </Box>
+                    {/* Jika dokumen masih placeholder/manual dan status belum completed, tampilkan "waiting to complete" */}
+                    {doc.fileName === 'placeholder.txt' && doc.status !== 'completed' ? (
+                      <span style={{ color: '#aaa', fontWeight: 500 }}>waiting to complete</span>
+                    ) : (
+                      // Tampilkan tombol download & aksi lain jika sudah completed/file sudah diupload
+                      <>
+                        {doc.fileName && doc.fileName !== 'placeholder.txt' && (
+                          <IconButton id={`download-${doc._id}`} onClick={() => handleDownloadDocument(doc._id)}>
+                            <DownloadIcon />
+                          </IconButton>
+                        )}
+                        
+                        {(userRole === 'admin' || userRole === 'staff') && (
+                          doc.filePath && doc.fileName && doc.status === 'completed' ? (
+                            <IconButton 
+                              color="secondary" 
+                              onClick={() => {
+                                setSelectedDocument(doc);
+                                setDocumentData({
+                                  title: doc.title,
+                                  description: doc.description || '',
+                                  category: doc.category || 'general',
+                                  status: doc.status || 'completed',
+                                  targetUser: doc.targetUser || ''
+                                });
+                                setUploadDialog(true);
+                              }}
+                              title="Edit File Document"
+                              size="small"
+                            >
+                              <DownloadIcon style={{ transform: 'rotate(180deg)' }} />
+                            </IconButton>
+                          ) : (
+                            <IconButton 
+                              color="secondary" 
+                              onClick={() => {
+                                setSelectedDocument(doc);
+                                setDocumentData({
+                                  title: doc.title,
+                                  description: doc.description || '',
+                                  category: doc.category || 'general',
+                                  status: doc.status || 'completed',
+                                  targetUser: doc.targetUser || ''
+                                });
+                                setUploadDialog(true);
+                              }}
+                              title="Upload File"
+                              size="small"
+                            >
+                              <AddIcon />
+                            </IconButton>
+                          )
+                        )}
+                      </>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -469,6 +505,24 @@ const Documents = () => {
                   </FormControl>
                 </Grid>
               </>
+            )}
+            {/* User Tujuan tampil untuk admin dan staff saat membuat dokumen baru */}
+            {(!selectedDocument && (userRole === 'admin' || userRole === 'staff')) && (
+              <FormControl fullWidth sx={{ mb: 2 }}>
+                <InputLabel>User Tujuan *</InputLabel>
+                <Select
+                  name="targetUser"
+                  value={documentData.targetUser || ''}
+                  onChange={handleInputChange}
+                  required
+                >
+                  {userList.map((user) => (
+                    <MenuItem key={user._id} value={user._id}>
+                      {user.username} - {user.fullname}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             )}
             <Grid item xs={12}>
               <Button

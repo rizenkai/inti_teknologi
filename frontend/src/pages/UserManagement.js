@@ -56,19 +56,23 @@ const UserManagement = () => {
   const [deleteUserId, setDeleteUserId] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   
+  // State for search user
+  const [searchUser, setSearchUser] = useState('');
+  
   // Role options
   const roleOptions = ['owner', 'admin', 'staff', 'user'];
   
-  // Check if current user is admin
-  let userRole = '';
-  try {
-    const user = JSON.parse(localStorage.getItem('user'));
-    userRole = user?.role || '';
-  } catch {}
+  // Cek role user dari localStorage
+  const userRole = JSON.parse(localStorage.getItem('user') || '{}').role;
   
+  // Jika role owner, izinkan akses tampilan user management, tapi tanpa add/edit/delete
+  const canAccess = userRole === 'admin' || userRole === 'owner' || userRole === 'staff';
+  // Untuk owner, tidak boleh add/edit/delete
+  const canAdd = userRole === 'admin';
+
   // Fetch users on component mount
   useEffect(() => {
-    if (userRole === 'admin' || userRole === 'owner') {
+    if (userRole === 'admin' || userRole === 'owner' || userRole === 'staff') {
       fetchUsers();
     }
   }, [userRole]);
@@ -205,237 +209,237 @@ const UserManagement = () => {
     }
   };
   
-  // Si el usuario no es admin ni owner, mostrar acceso denegado
-  if (userRole !== 'admin' && userRole !== 'owner') {
-    return (
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Alert severity="error">
-          You don't have permission to access this page. Only admin users can manage users.
-        </Alert>
-      </Container>
-    );
-  }
-  
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        User Profile
-      </Typography>
-      
-      {userRole === 'admin' && (
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ mb: 2 }}
-          onClick={() => setAddDialog(true)}
-        >
-          Add New User
-        </Button>
-      )}
-      
-      {loading ? (
-        <Box display="flex" justifyContent="center" my={4}>
-          <CircularProgress />
-        </Box>
-      ) : error ? (
-        <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
-          {error}
+      <Typography variant="h4" gutterBottom>User Management</Typography>
+      {!canAccess ? (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          User role {userRole} is not authorized to access this route
         </Alert>
       ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Username</TableCell>
-                <TableCell>Fullname</TableCell>
-                <TableCell>Role</TableCell>
-                <TableCell>Created At</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user._id}>
-                  <TableCell>{user.username}</TableCell>
-                  <TableCell>{user.fullname}</TableCell>
-                  <TableCell>{user.role}</TableCell>
-                  <TableCell>{formatDate(user.createdAt)}</TableCell>
-                  <TableCell>
-                    {userRole === 'admin' ? (
-                      <>
-                        <IconButton 
-                          color="primary" 
-                          onClick={() => handleEditOpen(user)}
-                          size="small"
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton 
-                          color="error" 
-                          onClick={() => handleDeleteOpen(user._id)}
-                          size="small"
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </>
-                    ) : (
-                      <Typography variant="body2" color="textSecondary">No actions available</Typography>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <>
+          {canAdd && (
+            <Button
+              variant="contained"
+              sx={{ mb: 2 }}
+              onClick={() => setAddDialog(true)}
+            >
+              Add User
+            </Button>
+          )}
+          {/* Search user input for admin, staff, owner */}
+          {(userRole === 'admin' || userRole === 'staff' || userRole === 'owner') && (
+            <TextField
+              label="Search user by username or fullname"
+              variant="outlined"
+              size="small"
+              value={searchUser}
+              onChange={e => setSearchUser(e.target.value)}
+              sx={{ mb: 2, ml: { xs: 0, sm: 2 }, width: '320px' }}
+            />
+          )}
+          {loading ? (
+            <Box display="flex" justifyContent="center" my={4}>
+              <CircularProgress />
+            </Box>
+          ) : error ? (
+            <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
+              {error}
+            </Alert>
+          ) : (
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    {(userRole === 'admin' || userRole === 'staff') && <TableCell>User ID</TableCell>}
+                    <TableCell>Username</TableCell>
+                    <TableCell>Full Name</TableCell>
+                    <TableCell>Role</TableCell>
+                    <TableCell>Date Created</TableCell>
+                    {canAdd && <TableCell>Actions</TableCell>}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {users.filter(user =>
+                    user.username.toLowerCase().includes(searchUser.toLowerCase()) ||
+                    user.fullname.toLowerCase().includes(searchUser.toLowerCase())
+                  ).map(user => (
+                    <TableRow key={user._id}>
+                      {(userRole === 'admin' || userRole === 'staff') && (
+                        <TableCell>{user._id.substring(0, 8)}</TableCell>
+                      )}
+                      <TableCell>{user.username}</TableCell>
+                      <TableCell>{user.fullname}</TableCell>
+                      <TableCell>{user.role}</TableCell>
+                      <TableCell>{formatDate(user.createdAt)}</TableCell>
+                      {canAdd && (
+                        <TableCell>
+                          <IconButton onClick={() => handleEditOpen(user)}><EditIcon /></IconButton>
+                          <IconButton onClick={() => handleDeleteOpen(user._id)}><DeleteIcon /></IconButton>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </>
       )}
       
-      {/* Add User Dialog */}
-      <Dialog open={addDialog} onClose={() => setAddDialog(false)}>
-        <DialogTitle>Add New User</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            name="username"
-            label="Username"
-            type="text"
-            fullWidth
-            value={newUser.username}
-            onChange={handleNewUserChange}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            name="fullname"
-            label="Full Name"
-            type="text"
-            fullWidth
-            value={newUser.fullname}
-            onChange={handleNewUserChange}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            name="password"
-            label="Password"
-            type="password"
-            fullWidth
-            value={newUser.password}
-            onChange={handleNewUserChange}
-            sx={{ mb: 2 }}
-          />
-          <FormControl fullWidth>
-            <InputLabel>Role</InputLabel>
-            <Select
-              name="role"
-              value={newUser.role}
-              label="Role"
+      {/* Dialog tambah user hanya untuk admin */}
+      {canAdd && (
+        <Dialog open={addDialog} onClose={() => setAddDialog(false)}>
+          <DialogTitle>Add New User</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              name="username"
+              label="Username"
+              type="text"
+              fullWidth
+              value={newUser.username}
               onChange={handleNewUserChange}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              margin="dense"
+              name="fullname"
+              label="Full Name"
+              type="text"
+              fullWidth
+              value={newUser.fullname}
+              onChange={handleNewUserChange}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              margin="dense"
+              name="password"
+              label="Password"
+              type="password"
+              fullWidth
+              value={newUser.password}
+              onChange={handleNewUserChange}
+              sx={{ mb: 2 }}
+            />
+            <FormControl fullWidth>
+              <InputLabel>Role</InputLabel>
+              <Select
+                name="role"
+                value={newUser.role}
+                label="Role"
+                onChange={handleNewUserChange}
+              >
+                {roleOptions.map((role) => (
+                  <MenuItem key={role} value={role}>
+                    {role.charAt(0).toUpperCase() + role.slice(1)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {addError && <Alert severity="error" sx={{ mt: 2 }}>{addError}</Alert>}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setAddDialog(false)}>Cancel</Button>
+            <Button
+              onClick={handleAddUser}
+              variant="contained"
+              disabled={addLoading || !newUser.username || !newUser.fullname || !newUser.password}
             >
-              {roleOptions.map((role) => (
-                <MenuItem key={role} value={role}>
-                  {role.charAt(0).toUpperCase() + role.slice(1)}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          {addError && <Alert severity="error" sx={{ mt: 2 }}>{addError}</Alert>}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setAddDialog(false)}>Cancel</Button>
-          <Button
-            onClick={handleAddUser}
-            variant="contained"
-            disabled={addLoading || !newUser.username || !newUser.fullname || !newUser.password}
-          >
-            {addLoading ? <CircularProgress size={22} /> : 'Add User'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+              {addLoading ? <CircularProgress size={22} /> : 'Add User'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
       
-      {/* Edit User Dialog */}
-      <Dialog open={editDialog} onClose={() => setEditDialog(false)}>
-        <DialogTitle>Edit User</DialogTitle>
-        <DialogContent>
-          <TextField
-            margin="dense"
-            name="username"
-            label="Username"
-            type="text"
-            fullWidth
-            value={selectedUser?.username || ''}
-            disabled
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            name="fullname"
-            label="Full Name"
-            type="text"
-            fullWidth
-            value={selectedUser?.fullname || ''}
-            onChange={handleEditUserChange}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            name="password"
-            label="New Password (leave blank to keep current)"
-            type="password"
-            fullWidth
-            value={selectedUser?.password || ''}
-            onChange={handleEditUserChange}
-            sx={{ mb: 2 }}
-          />
-          <FormControl fullWidth>
-            <InputLabel>Role</InputLabel>
-            <Select
-              name="role"
-              value={selectedUser?.role || ''}
-              label="Role"
+      {/* Dialog edit user hanya untuk admin */}
+      {canAdd && (
+        <Dialog open={editDialog} onClose={() => setEditDialog(false)}>
+          <DialogTitle>Edit User</DialogTitle>
+          <DialogContent>
+            <TextField
+              margin="dense"
+              name="username"
+              label="Username"
+              type="text"
+              fullWidth
+              value={selectedUser?.username || ''}
+              disabled
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              margin="dense"
+              name="fullname"
+              label="Full Name"
+              type="text"
+              fullWidth
+              value={selectedUser?.fullname || ''}
               onChange={handleEditUserChange}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              margin="dense"
+              name="password"
+              label="New Password (leave blank to keep current)"
+              type="password"
+              fullWidth
+              value={selectedUser?.password || ''}
+              onChange={handleEditUserChange}
+              sx={{ mb: 2 }}
+            />
+            <FormControl fullWidth>
+              <InputLabel>Role</InputLabel>
+              <Select
+                name="role"
+                value={selectedUser?.role || ''}
+                label="Role"
+                onChange={handleEditUserChange}
+              >
+                {roleOptions.map((role) => (
+                  <MenuItem key={role} value={role}>
+                    {role.charAt(0).toUpperCase() + role.slice(1)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {editError && <Alert severity="error" sx={{ mt: 2 }}>{editError}</Alert>}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setEditDialog(false)}>Cancel</Button>
+            <Button
+              onClick={handleUpdateUser}
+              variant="contained"
+              disabled={editLoading || !selectedUser?.fullname}
             >
-              {roleOptions.map((role) => (
-                <MenuItem key={role} value={role}>
-                  {role.charAt(0).toUpperCase() + role.slice(1)}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          {editError && <Alert severity="error" sx={{ mt: 2 }}>{editError}</Alert>}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditDialog(false)}>Cancel</Button>
-          <Button
-            onClick={handleUpdateUser}
-            variant="contained"
-            disabled={editLoading || !selectedUser?.fullname}
-          >
-            {editLoading ? <CircularProgress size={22} /> : 'Update User'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+              {editLoading ? <CircularProgress size={22} /> : 'Update User'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
       
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialog} onClose={() => setDeleteDialog(false)}>
-        <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Are you sure you want to delete this user? This action cannot be undone.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialog(false)}>Cancel</Button>
-          <Button
-            onClick={handleDeleteUser}
-            variant="contained"
-            color="error"
-            disabled={deleteLoading}
-          >
-            {deleteLoading ? <CircularProgress size={22} /> : 'Delete'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {canAdd && (
+        <Dialog open={deleteDialog} onClose={() => setDeleteDialog(false)}>
+          <DialogTitle>Confirm Delete</DialogTitle>
+          <DialogContent>
+            <Typography>
+              Are you sure you want to delete this user? This action cannot be undone.
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteDialog(false)}>Cancel</Button>
+            <Button
+              onClick={handleDeleteUser}
+              variant="contained"
+              color="error"
+              disabled={deleteLoading}
+            >
+              {deleteLoading ? <CircularProgress size={22} /> : 'Delete'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </Container>
   );
 };

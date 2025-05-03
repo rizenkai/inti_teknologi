@@ -25,7 +25,10 @@ import {
   MenuItem,
   CircularProgress,
   Alert,
+  IconButton,
+  Autocomplete
 } from '@mui/material';
+import DownloadIcon from '@mui/icons-material/Download';
 import { format } from 'date-fns';
 
 const Dashboard = () => {
@@ -41,6 +44,9 @@ const Dashboard = () => {
   const [newDocBP, setNewDocBP] = useState('');
   const [newDocKodeBahan, setNewDocKodeBahan] = useState('');
   const [newDocTipeBahan, setNewDocTipeBahan] = useState('');
+  const [userList, setUserList] = useState([]);
+  const [targetUser, setTargetUser] = useState('');
+
   // Check user role (from localStorage)
   let userRole = '';
   try {
@@ -60,6 +66,18 @@ const Dashboard = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  useEffect(() => {
+    // Fetch user list only for admin/staff
+    if (userRole === 'admin' || userRole === 'staff') {
+      const token = localStorage.getItem('token');
+      axios.get('http://localhost:5000/api/auth/regular-users', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => setUserList(res.data))
+      .catch(() => setUserList([]));
+    }
+  }, [userRole]);
 
   const statusOptions = [
     'in_progress',
@@ -111,6 +129,7 @@ const Dashboard = () => {
     setNewBP(document.bp !== null && document.bp !== undefined ? document.bp.toString() : '');
     setNewKodeBahan(document.kodeBahan || '');
     setNewTipeBahan(document.tipeBahan || '');
+    setTargetUser(document.targetUser?._id || '');
     setEditDialog(true);
   };
 
@@ -138,39 +157,34 @@ const Dashboard = () => {
   const handleDownloadDocument = async (documentId) => {
     try {
       const token = localStorage.getItem('token');
-      
-      // Show loading indicator
       setLoading(true);
-      
       // Make API request to download the document
       const response = await axios.get(`http://localhost:5000/api/documents/${documentId}/download`, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob' // Important for file downloads
       });
-      
+      // Get filename from Content-Disposition header
+      let filename = 'document';
+      const disposition = response.headers['content-disposition'];
+      if (disposition && disposition.indexOf('filename=') !== -1) {
+        filename = decodeURIComponent(disposition.split('filename=')[1].replace(/['"\s]/g, ''));
+      } else {
+        // fallback: cari nama file di state dokumen
+        const doc = documents.find(doc => doc._id === documentId);
+        if (doc && doc.fileName) filename = doc.fileName;
+      }
       // Create a blob URL and trigger download
-      const blob = new Blob([response.data]);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      
-      // Get document from state to use filename
-      const document = documents.find(doc => doc._id === documentId);
-      a.download = document?.fileName || 'document';
-      
-      // Trigger download
-      document.body.appendChild(a);
-      a.click();
-      
-      // Clean up
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = window.document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      window.document.body.appendChild(link);
+      link.click();
+      link.remove();
       window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
     } catch (error) {
       console.error('Error downloading document:', error);
       setError('Failed to download document: ' + (error.response?.data?.message || 'Unknown error'));
-      
-      // If unauthorized, redirect to login
       if (error.response && error.response.status === 401) {
         localStorage.removeItem('token');
         navigate('/login');
@@ -214,6 +228,7 @@ const Dashboard = () => {
         updateData.bp = newBP ? parseFloat(newBP) : null;
         updateData.kodeBahan = newKodeBahan;
         updateData.tipeBahan = newTipeBahan;
+        updateData.targetUser = targetUser;
       }
       
       await axios.put(
@@ -232,9 +247,21 @@ const Dashboard = () => {
     }
   };
 
-  const filteredDocuments = documents.filter(doc =>
-    doc.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter documents based on search term (title, placeholder id, etc)
+  const filteredDocuments = documents.filter(doc => {
+    const search = searchTerm.toLowerCase();
+    // Cari berdasarkan title, placeholder id (angka di filePath), dan juga _id
+    const idPlaceholder = (/^\d{3,5}$/.test(doc.filePath) ? doc.filePath : doc._id).toString();
+    return (
+      doc.title.toLowerCase().includes(search) ||
+      idPlaceholder.includes(search) ||
+      (doc.fileName && doc.fileName.toLowerCase().includes(search)) ||
+      (doc.targetUser && (
+        doc.targetUser.username?.toLowerCase().includes(search) ||
+        doc.targetUser.fullname?.toLowerCase().includes(search)
+      ))
+    );
+  });
 
   const formatDate = (date) => {
     try {
@@ -247,21 +274,19 @@ const Dashboard = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Document Management System
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h4" gutterBottom>Dashboard</Typography>
+        {/* Show Add button for admin and staff */}
+        {(userRole === 'admin' || userRole === 'staff') && (
+          <Button
+            variant="contained"
+            onClick={() => setAddDialog(true)}
+          >
+            Add New Document
+          </Button>
+        )}
+      </Box>
       
-      {/* NEW: Add Document Button for Admin */}
-      {userRole === 'admin' && (
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ mb: 2 }}
-          onClick={() => setAddDialog(true)}
-        >
-          Tambah Dokumen
-        </Button>
-      )}
       <TextField
         fullWidth
         label="Search documents..."
@@ -292,13 +317,17 @@ const Dashboard = () => {
               <TableCell>Tipe Bahan</TableCell>
               <TableCell>Submission Date</TableCell>
               <TableCell>Document Uploaded</TableCell>
+              <TableCell>User Tujuan</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {filteredDocuments.map((doc) => (
               <TableRow key={doc._id}>
-                <TableCell>{doc._id.substring(0, 3)}</TableCell>
+                {/* Kolom ID: tampilkan placeholderId jika ada, jika tidak tampilkan _id */}
+                <TableCell align="left">
+                  {doc.placeholderId ? doc.placeholderId : doc._id}
+                </TableCell>
                 <TableCell>{doc.title}</TableCell>
                 <TableCell>{doc.status}</TableCell>
                 <TableCell>{doc.bp !== null && doc.bp !== undefined ? doc.bp : '-'}</TableCell>
@@ -306,23 +335,16 @@ const Dashboard = () => {
                 <TableCell>{doc.tipeBahan || '-'}</TableCell>
                 <TableCell>{formatDate(doc.submissionDate)}</TableCell>
                 <TableCell>{formatDate(doc.lastModified)}</TableCell>
+                <TableCell>{doc.targetUser ? `${doc.targetUser.username} - ${doc.targetUser.fullname}` : '-'}</TableCell>
                 <TableCell>
-                  {userRole === 'user' || userRole === 'owner' ? (
-                    <Button
-                      variant="contained"
-                      size="small"
-                      color="primary"
-                      onClick={() => handleDownloadDocument(doc._id)}
-                    >
-                      Download
-                    </Button>
-                  ) : (
+                  {/* Admin & staff: tombol Edit, Delete selalu tampil. Download hanya jika sudah upload. User/owner: hanya download/waiting */}
+                  {(userRole === 'admin' || userRole === 'staff') ? (
                     <>
                       <Button
                         variant="outlined"
                         size="small"
                         onClick={() => handleEdit(doc)}
-                        sx={{ mr: 1 }}
+                        sx={{ ml: 0 }}
                       >
                         Edit
                       </Button>
@@ -331,10 +353,24 @@ const Dashboard = () => {
                         size="small"
                         color="error"
                         onClick={() => handleDelete(doc)}
+                        sx={{ ml: 1 }}
                       >
                         Delete
                       </Button>
+                      {doc.fileName && doc.fileName !== 'placeholder.txt' && (
+                        <IconButton onClick={() => handleDownloadDocument(doc._id)} sx={{ ml: 1 }}>
+                          <DownloadIcon />
+                        </IconButton>
+                      )}
                     </>
+                  ) : (
+                    (!doc.fileName || doc.fileName === 'placeholder.txt') ? (
+                      <span style={{ color: '#aaa', fontWeight: 500 }}>waiting</span>
+                    ) : (
+                      <IconButton onClick={() => handleDownloadDocument(doc._id)}>
+                        <DownloadIcon />
+                      </IconButton>
+                    )
                   )}
                 </TableCell>
               </TableRow>
@@ -409,6 +445,19 @@ const Dashboard = () => {
                     </Select>
                   </FormControl>
                 </Box>
+                
+                {/* Pilih user tujuan dokumen dengan fitur search */}
+                <Autocomplete
+                  options={userList}
+                  getOptionLabel={(option) => `${option.username} - ${option.fullname}`}
+                  value={userList.find(user => user._id === targetUser) || null}
+                  onChange={(_, value) => setTargetUser(value ? value._id : '')}
+                  renderInput={(params) => (
+                    <TextField {...params} label="User Tujuan" variant="outlined" required />
+                  )}
+                  isOptionEqualToValue={(option, value) => option._id === value._id}
+                  sx={{ flexGrow: 1, minWidth: '200px', mt: 1 }}
+                />
               </>
             )}
           </Box>
@@ -454,6 +503,7 @@ const Dashboard = () => {
                     value={newDocBP}
                     onChange={e => setNewDocBP(e.target.value)}
                     sx={{ flexGrow: 1, minWidth: '200px' }}
+                    required
                   />
                   
                   {/* Campo Kode Bahan */}
@@ -464,15 +514,17 @@ const Dashboard = () => {
                     value={newDocKodeBahan}
                     onChange={e => setNewDocKodeBahan(e.target.value)}
                     sx={{ flexGrow: 1, minWidth: '200px' }}
+                    required
                   />
                   
                   {/* Campo Tipe Bahan (dropdown) */}
-                  <FormControl sx={{ flexGrow: 1, minWidth: '200px', mt: 1 }}>
+                  <FormControl sx={{ flexGrow: 1, minWidth: '200px', mt: 1 }} required>
                     <InputLabel>Tipe Bahan</InputLabel>
                     <Select
                       value={newDocTipeBahan}
                       label="Tipe Bahan"
                       onChange={e => setNewDocTipeBahan(e.target.value)}
+                      required
                     >
                       <MenuItem value=""><em>None</em></MenuItem>
                       <MenuItem value="Silinder">Silinder</MenuItem>
@@ -483,6 +535,19 @@ const Dashboard = () => {
                     </Select>
                   </FormControl>
                 </Box>
+                
+                {/* Pilih user tujuan dokumen dengan fitur search */}
+                <Autocomplete
+                  options={userList}
+                  getOptionLabel={(option) => `${option.username} - ${option.fullname}`}
+                  value={userList.find(user => user._id === targetUser) || null}
+                  onChange={(_, value) => setTargetUser(value ? value._id : '')}
+                  renderInput={(params) => (
+                    <TextField {...params} label="User Tujuan" variant="outlined" required />
+                  )}
+                  isOptionEqualToValue={(option, value) => option._id === value._id}
+                  sx={{ flexGrow: 1, minWidth: '200px', mt: 1 }}
+                />
               </>
             )}
             
@@ -498,6 +563,13 @@ const Dashboard = () => {
               try {
                 const token = localStorage.getItem('token');
                 
+                // Validasi wajib BP, Kode Bahan, Tipe Bahan untuk admin dan staff
+                if ((userRole === 'admin' || userRole === 'staff') && (!newDocBP || !newDocKodeBahan || !newDocTipeBahan)) {
+                  setAddError('BP, Kode Bahan, dan Tipe Bahan wajib diisi!');
+                  setAddLoading(false);
+                  return;
+                }
+                
                 // Preparar datos del documento incluyendo los campos adicionales
                 const documentData = {
                   title: newDocTitle
@@ -509,6 +581,7 @@ const Dashboard = () => {
                   documentData.bp = newDocBP ? parseFloat(newDocBP) : null;
                   documentData.kodeBahan = newDocKodeBahan;
                   documentData.tipeBahan = newDocTipeBahan;
+                  documentData.targetUser = targetUser;
                 }
                 
                 await axios.post('http://localhost:5000/api/documents/manual', documentData, {
@@ -520,6 +593,7 @@ const Dashboard = () => {
                 setNewDocBP('');
                 setNewDocKodeBahan('');
                 setNewDocTipeBahan('');
+                setTargetUser('');
                 fetchDocumentsDebounced();
               } catch (err) {
                 const errorMsg = err.response?.data?.message || 'Gagal menambah dokumen';
@@ -557,6 +631,9 @@ const Dashboard = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      {error && (
+        <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>
+      )}
     </Container>
   );
 };

@@ -1,6 +1,8 @@
 const Document = require('../models/Document');
 const path = require('path');
 const fs = require('fs');
+const generatePlaceholderId = require('../utils/generatePlaceholderId');
+const activityLogController = require('./activityLogController');
 
 // IMPORTANT: This file has been completely rewritten to fix document creation issues
 
@@ -14,17 +16,22 @@ exports.createDocumentManual = async (req, res) => {
       return res.status(403).json({ message: 'Only admin and staff can create documents manually' });
     }
     
-    const { title, description, category, status, bp, kodeBahan, tipeBahan } = req.body;
+    const { title, description, category, status, bp, kodeBahan, tipeBahan, targetUser } = req.body;
     if (!title) {
       return res.status(400).json({ message: 'Title is required' });
     }
+    if (!targetUser) {
+      return res.status(400).json({ message: 'Target user is required' });
+    }
     
     // Placeholder values for required file fields
+    // Jika dokumen manual/placeholder, filePath hanya angka (tanpa prefix /placeholder/)
+    const placeholderId = await generatePlaceholderId();
     const document = await Document.create({
       title,
       description: description || 'Dokumen baru',
       fileName: 'placeholder.txt',
-      filePath: '/placeholder/path',
+      filePath: '/placeholder', // Ubah filePath menjadi '/placeholder'
       fileType: 'text/plain',
       fileSize: 0,
       category: category || 'manual',
@@ -33,9 +40,19 @@ exports.createDocumentManual = async (req, res) => {
       bp: bp || null,
       kodeBahan: kodeBahan || '',
       tipeBahan: tipeBahan || '',
-      uploadedBy: req.user._id
+      uploadedBy: req.user._id,
+      targetUser,
+      placeholderId // Tambahkan placeholderId
     });
-    
+    // Log aktivitas pembuatan placeholder
+    await activityLogController.createLog({
+      action: 'create_placeholder',
+      description: `${req.user.username} membuat placeholder ${placeholderId} (${title})`,
+      documentId: document._id,
+      userId: req.user._id,
+      username: req.user.username,
+      userRole: req.user.role
+    });
     res.status(201).json(document);
   } catch (error) {
     console.error('ERROR CREATING DOCUMENT:', error);
@@ -65,11 +82,18 @@ exports.getDocuments = async (req, res) => {
 
     // For regular users, only show documents they can access
     if (req.user.role === 'user') {
-      query.status = { $in: ['completed', 'approved'] };
+      // Hilangkan filter status, user bisa lihat semua dokumen yang targetUser dia atau dokumen umum
+      query.$or = [
+        { targetUser: req.user._id },
+        { targetUser: { $exists: false } },
+        { targetUser: null }
+      ];
     }
+    // Untuk admin dan staff: tampilkan semua dokumen tanpa filter tambahan
 
     const documents = await Document.find(query)
       .populate('uploadedBy', 'username fullname')
+      .populate('targetUser', 'username fullname')
       .sort({ submissionDate: -1 })
       .skip(startIndex)
       .limit(limit);
@@ -87,12 +111,12 @@ exports.getDocuments = async (req, res) => {
   }
 };
 
-// Upload document (Admin only)
+// Upload document (Admin and Staff)
 exports.uploadDocument = async (req, res) => {
   try {
-    // Verify user is admin
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Only admin can upload documents' });
+    // Allow admin and staff
+    if (req.user.role !== 'admin' && req.user.role !== 'staff') {
+      return res.status(403).json({ message: 'Only admin and staff can upload documents' });
     }
 
     // Check if file was uploaded
@@ -104,76 +128,74 @@ exports.uploadDocument = async (req, res) => {
     
     // If documentId is provided, update existing document with file
     if (documentId) {
-      return await this.updateDocumentFile(req, res);
+      return await exports.updateDocumentFile(req, res);
     }
     
-    // Validate required fields for new document
-    if (!title) {
-      return res.status(400).json({ message: 'Document title is required' });
-    }
-
-    // Check if document with the same title already exists
-    const existingDocument = await Document.findOne({ title: title.trim() });
-    if (existingDocument) {
-      // If file was uploaded, delete it to avoid orphaned files
-      if (req.file && req.file.path) {
-        try {
+    // --- Tambahan validasi: Jika judul sudah ada (placeholder), update dokumen lama, JANGAN buat dokumen baru ---
+    // Pastikan judul dokumen unik
+    const existing = await Document.findOne({ title });
+    if (existing) {
+      // Jika dokumen sudah ada dan filePath-nya berupa angka (placeholder), update dokumen tersebut
+      if (existing.filePath === '/placeholder') {
+        // Simulasikan request update file dokumen lama
+        req.body.documentId = existing._id.toString();
+        return await exports.updateDocumentFile(req, res);
+      } else {
+        // Hapus file yang sudah diupload jika duplikat
+        if (req.file && req.file.path) {
           fs.unlinkSync(req.file.path);
-        } catch (err) {
-          console.error('Error deleting duplicate file:', err);
         }
+        return res.status(409).json({ message: 'Document with this title already exists' });
       }
-      return res.status(400).json({ 
-        message: 'Document with this title already exists. Please use a different title.'
-      });
     }
 
-    // Get file information from multer
-    const { filename, path: filePath, mimetype, size } = req.file;
-    
-    // Create relative path for storage in database
-    const relativePath = filePath.split('uploads')[1];
-    const storedPath = 'uploads' + relativePath;
+    // Validate required fields
+    if (!title) {
+      return res.status(400).json({ message: 'Title is required' });
+    }
+    // Pastikan judul dokumen unik
+    const existingDoc = await Document.findOne({ title });
+    if (existingDoc) {
+      // Hapus file yang sudah diupload jika duplikat
+      if (req.file && req.file.path) {
+        fs.unlinkSync(req.file.path);
+      }
+      return res.status(409).json({ message: 'Document with this title already exists' });
+    }
 
-    // Create document in database with unique ID to prevent duplicates
     const document = await Document.create({
-      title: title.trim(),
-      description: description || 'No description provided',
-      fileName: filename,
-      filePath: storedPath,
-      fileType: mimetype,
-      fileSize: size,
-      category: category || 'general',
-      status: status || 'completed', // Default to completed so users can see it
+      title,
+      description: description || 'Dokumen baru',
+      fileName: req.file.filename,
+      filePath: req.file.path,
+      fileType: req.file.mimetype,
+      fileSize: req.file.size,
+      category: category || 'upload',
+      status: status || 'completed',
       uploadedBy: req.user._id
     });
-
-    // Return created document
-    res.status(201).json({
-      success: true,
-      message: 'Document uploaded successfully',
-      document
+    // Log aktivitas upload file BARU (pertama kali)
+    await activityLogController.createLog({
+      action: 'upload_file',
+      description: `${req.user.username} mengupload file dokumen baru (${title})`,
+      documentId: document._id,
+      userId: req.user._id,
+      username: req.user.username,
+      userRole: req.user.role
     });
+    res.status(201).json(document);
   } catch (error) {
-    // If there was an error and a file was uploaded, delete it
-    if (req.file && req.file.path) {
-      try {
-        fs.unlinkSync(req.file.path);
-      } catch (err) {
-        console.error('Error deleting file after failed upload:', err);
-      }
-    }
-    console.error('Error uploading document:', error);
+    console.error('ERROR UPLOADING DOCUMENT:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
-// Update document file (Admin only)
+// Update document file (Admin and Staff)
 exports.updateDocumentFile = async (req, res) => {
   try {
-    // Verify user is admin
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Only admin can update document files' });
+    // Allow admin and staff
+    if (req.user.role !== 'admin' && req.user.role !== 'staff') {
+      return res.status(403).json({ message: 'Only admin and staff can update document files' });
     }
 
     // Check if file was uploaded
@@ -202,6 +224,9 @@ exports.updateDocumentFile = async (req, res) => {
       return res.status(404).json({ message: 'Document not found' });
     }
 
+    // Cek: apakah filePath masih placeholder (angka saja)?
+    const isFirstUpload = document.filePath === '/placeholder';
+
     // Delete old file if it exists and is not a placeholder
     if (document.filePath && document.filePath !== '/placeholder/path') {
       const oldFilePath = path.join(__dirname, '..', document.filePath);
@@ -223,13 +248,41 @@ exports.updateDocumentFile = async (req, res) => {
 
     // Update document with new file information
     document.fileName = filename;
-    document.filePath = storedPath;
+    // Perbaikan: deteksi upload pertama kali SEBELUM update filePath!
+    if (isFirstUpload) {
+      // upload pertama kali, filePath tetap angka placeholder
+      // setelah upload pertama, filePath HARUS diubah ke path file agar replace berikutnya terdeteksi
+      document.filePath = storedPath;
+    } else {
+      document.filePath = storedPath;
+    }
     document.fileType = mimetype;
     document.fileSize = size;
     document.lastModified = new Date();
     
     // Save updated document
     await document.save();
+
+    // Log aktivitas: upload pertama atau replace file?
+    if (isFirstUpload) {
+      await activityLogController.createLog({
+        action: 'upload_file',
+        description: `${req.user.username} mengupload file dokumen baru (${document.title})`,
+        documentId: document._id,
+        userId: req.user._id,
+        username: req.user.username,
+        userRole: req.user.role
+      });
+    } else {
+      await activityLogController.createLog({
+        action: 'replace_file',
+        description: `${req.user.username} mengganti file dokumen (${document.title}) dengan file baru`,
+        documentId: document._id,
+        userId: req.user._id,
+        username: req.user.username,
+        userRole: req.user.role
+      });
+    }
 
     // Return updated document
     res.status(200).json({
@@ -272,52 +325,25 @@ exports.downloadDocument = async (req, res) => {
       });
     }
 
-    // Check if file exists and is not a placeholder
-    if (!document.filePath || document.filePath === '/placeholder/path') {
-      console.log('No file available for this document');
-      return res.status(404).json({ message: 'No file available for this document' });
-    }
-
-    console.log(`File path from database: ${document.filePath}`);
-    
-    // Normalize the file path
-    let filePath;
-    if (document.filePath.startsWith('/')) {
-      // Handle absolute path
-      filePath = path.join(__dirname, '..', document.filePath.substring(1));
-    } else {
-      // Handle relative path
-      filePath = path.join(__dirname, '..', document.filePath);
-    }
-    
-    console.log(`Resolved file path: ${filePath}`);
-
-    // Check if file exists on disk
+    // Cross-platform path normalization
+    let normalizedPath = document.filePath.replace(/\\/g, '/'); // replace backslashes with slashes
+    const filePath = path.join(__dirname, '..', normalizedPath);
+    console.log('Resolved file path:', filePath, 'Exists:', fs.existsSync(filePath));
     if (!fs.existsSync(filePath)) {
-      console.log(`File not found at path: ${filePath}`);
       return res.status(404).json({ message: 'File not found on server' });
     }
 
-    console.log('File exists, preparing download...');
-
-    // Get file stats to check size
-    const stats = fs.statSync(filePath);
-    console.log(`File size: ${stats.size} bytes`);
-
     // Set appropriate headers for download
-    res.setHeader('Content-Disposition', `attachment; filename="${document.fileName || 'document'}"`);
-    res.setHeader('Content-Type', document.fileType || 'application/octet-stream');
-    res.setHeader('Content-Length', stats.size);
+    res.setHeader('Content-Disposition', `attachment; filename="${document.fileName}"`);
+    res.setHeader('Content-Type', document.fileType);
+    // For CSV: force correct extension if fileType is csv
+    if (document.fileType === 'text/csv' && !document.fileName.endsWith('.csv')) {
+      res.setHeader('Content-Disposition', `attachment; filename="${document.fileName}.csv"`);
+      res.setHeader('Content-Type', 'text/csv');
+    }
     
     // Stream the file to the response
     const fileStream = fs.createReadStream(filePath);
-    fileStream.on('error', (err) => {
-      console.error('Error streaming file:', err);
-      if (!res.headersSent) {
-        res.status(500).json({ message: 'Error streaming file', error: err.message });
-      }
-    });
-    
     fileStream.pipe(res);
   } catch (error) {
     console.error('Error downloading document:', error);
@@ -344,12 +370,23 @@ exports.updateDocumentStatus = async (req, res) => {
       }
     }
 
+    const oldStatus = document.status;
     const updatedDocument = await Document.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true }
     );
-
+    // Log aktivitas edit status
+    if (req.body.status && req.body.status !== oldStatus) {
+      await activityLogController.createLog({
+        action: 'edit_status',
+        description: `${req.user.username} mengubah status dokumen (${document.title}) dari ${oldStatus} ke ${req.body.status}`,
+        documentId: document._id,
+        userId: req.user._id,
+        username: req.user.username,
+        userRole: req.user.role
+      });
+    }
     res.json(updatedDocument);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -368,23 +405,35 @@ exports.updateDocument = async (req, res) => {
       return res.status(404).json({ message: 'Document not found' });
     }
 
+    // Cek perubahan status untuk log activity
+    const oldStatus = document.status;
     const updatedDocument = await Document.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true }
     );
-
+    // Log jika status berubah
+    if (req.body.status && req.body.status !== oldStatus) {
+      await activityLogController.createLog({
+        action: 'edit_status',
+        description: `${req.user.username} mengubah status dokumen (${document.title}) dari ${oldStatus} ke ${req.body.status}`,
+        documentId: document._id,
+        userId: req.user._id,
+        username: req.user.username,
+        userRole: req.user.role
+      });
+    }
     res.json(updatedDocument);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
-// Delete document (Admin only)
+// Delete document (Admin and Staff)
 exports.deleteDocument = async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Only admin can delete documents' });
+    if (req.user.role !== 'admin' && req.user.role !== 'staff') {
+      return res.status(403).json({ message: 'Only admin and staff can delete documents' });
     }
 
     const document = await Document.findById(req.params.id);
@@ -402,7 +451,15 @@ exports.deleteDocument = async (req, res) => {
         fs.unlinkSync(filePath);
       }
     }
-    
+    // Log aktivitas hapus placeholder
+    await activityLogController.createLog({
+      action: 'delete_placeholder',
+      description: `${req.user.username} menghapus placeholder/dokumen (${document.title})`,
+      documentId: document._id,
+      userId: req.user._id,
+      username: req.user.username,
+      userRole: req.user.role
+    });
     res.json({ message: 'Document removed successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -424,8 +481,10 @@ exports.downloadDocument = async (req, res) => {
       });
     }
 
-    // Check if file exists
-    const filePath = path.join(__dirname, '..', document.filePath);
+    // Cross-platform path normalization
+    let normalizedPath = document.filePath.replace(/\\/g, '/'); // replace backslashes with slashes
+    const filePath = path.join(__dirname, '..', normalizedPath);
+    console.log('Resolved file path:', filePath, 'Exists:', fs.existsSync(filePath));
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ message: 'File not found on server' });
     }
@@ -433,6 +492,11 @@ exports.downloadDocument = async (req, res) => {
     // Set appropriate headers for download
     res.setHeader('Content-Disposition', `attachment; filename="${document.fileName}"`);
     res.setHeader('Content-Type', document.fileType);
+    // For CSV: force correct extension if fileType is csv
+    if (document.fileType === 'text/csv' && !document.fileName.endsWith('.csv')) {
+      res.setHeader('Content-Disposition', `attachment; filename="${document.fileName}.csv"`);
+      res.setHeader('Content-Type', 'text/csv');
+    }
     
     // Stream the file to the response
     const fileStream = fs.createReadStream(filePath);

@@ -10,7 +10,12 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+const corsOptions = {
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  credentials: true,
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -27,11 +32,13 @@ const authRoutes = require('./routes/auth');
 const documentRoutes = require('./routes/documents');
 const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/users');
+const activityLogRoutes = require('./routes/activityLog');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/activity-log', activityLogRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

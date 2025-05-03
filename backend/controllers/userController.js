@@ -4,8 +4,8 @@ const bcrypt = require('bcryptjs');
 // Get all users
 exports.getAllUsers = async (req, res) => {
   try {
-    // Only admin can access all users
-    if (req.user.role !== 'admin') {
+    // Admin, staff, dan owner bisa akses semua user
+    if (req.user.role !== 'admin' && req.user.role !== 'staff' && req.user.role !== 'owner') {
       return res.status(403).json({ message: 'Not authorized to access this resource' });
     }
     
@@ -154,6 +154,19 @@ exports.deleteUser = async (req, res) => {
     
     await user.deleteOne();
     res.json({ message: 'User deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Get all users with role 'user' (for document assignment)
+exports.getAllRegularUsers = async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'staff') {
+      return res.status(403).json({ message: 'Not authorized to access this resource' });
+    }
+    const users = await User.find({ role: 'user' }).select('_id username fullname');
+    res.json(users);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

@@ -17,18 +17,18 @@ const upload = require('../middleware/upload');
 router.get('/', protect, getDocuments);
 
 // Upload document with file (admin only)
-router.post('/', protect, authorize('admin'), upload.single('file'), uploadDocument);
+router.post('/', protect, authorize('admin','staff'), upload.single('file'), uploadDocument);
 
 // Create document manually without file (admin only)
-router.post('/manual', protect, authorize('admin'), createDocumentManual);
+router.post('/manual', protect, authorize('admin', 'staff'), createDocumentManual);
 
 // Legacy route removed to avoid duplication
 
-// Update document (admin only)
-router.put('/:id', protect, authorize('admin'), updateDocument);
+// Update document (admin and staff)
+router.put('/:id', protect, authorize('admin', 'staff'), updateDocument);
 
-// Delete document (admin only)
-router.delete('/:id', protect, authorize('admin'), deleteDocument);
+// Delete document (admin and staff)
+router.delete('/:id', protect, authorize('admin', 'staff'), deleteDocument);
 
 // Download document (all authenticated users)
 router.get('/:id/download', protect, downloadDocument);
