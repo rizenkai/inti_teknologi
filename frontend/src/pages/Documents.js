@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { debounce } from 'lodash';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
   Box,
@@ -55,7 +54,6 @@ const Documents = () => {
     targetUser: ''
   });
   const [userList, setUserList] = useState([]);
-  const [targetUser, setTargetUser] = useState('');
 
   // Get user role from localStorage
   let userRole = '';
@@ -68,14 +66,6 @@ const Documents = () => {
   useEffect(() => {
     fetchDocuments();
   }, []);
-  
-  // Avoid duplicate fetching by debouncing
-  const fetchDocumentsDebounced = useCallback(
-    debounce(() => {
-      fetchDocuments();
-    }, 300),
-    []
-  );
   
   // Function to fetch documents
   const fetchDocuments = async () => {

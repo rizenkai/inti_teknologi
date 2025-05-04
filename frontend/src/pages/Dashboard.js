@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { debounce } from 'lodash';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -90,12 +90,9 @@ const Dashboard = () => {
   }, []);
   
   // Avoid duplicate fetching by debouncing
-  const fetchDocumentsDebounced = useCallback(
-    debounce(() => {
-      fetchDocuments();
-    }, 300),
-    []
-  );
+  const fetchDocumentsDebounced = debounce(() => {
+    fetchDocuments();
+  }, 300);
 
   const fetchDocuments = async () => {
     setLoading(true);
@@ -131,21 +128,6 @@ const Dashboard = () => {
     setNewTipeBahan(document.tipeBahan || '');
     setTargetUser(document.targetUser?._id || '');
     setEditDialog(true);
-  };
-
-  const handleStatusUpdate = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      await axios.patch(
-        `http://localhost:5000/api/documents/${selectedDocument._id}/status`,
-        { status: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setEditDialog(false);
-      fetchDocumentsDebounced();
-    } catch (error) {
-      console.error('Error updating document status:', error);
-    }
   };
 
   const handleDelete = (document) => {
@@ -301,7 +283,7 @@ const Dashboard = () => {
           <CircularProgress />
         </Box>
       ) : error ? (
-        <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
+        <Alert severity="error" sx={{ mt: 2 }}>
           {error}
         </Alert>
       ) : (

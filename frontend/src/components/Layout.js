@@ -6,22 +6,16 @@ import {
   Typography,
   IconButton,
   Avatar,
-  Link,
 } from '@mui/material';
 import {
-  Menu as MenuIcon,
-  ChevronLeft as ChevronLeftIcon,
   Dashboard as DashboardIcon,
   Description as DocumentIcon,
   People as PeopleIcon,
   Logout as LogoutIcon,
-  AccountCircle as AccountCircleIcon,
   History as HistoryIcon,
 } from '@mui/icons-material';
-import { styled } from '@mui/material/styles';
 
 const Layout = ({ children }) => {
-  const [open, setOpen] = useState(true);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -67,14 +61,6 @@ const Layout = ({ children }) => {
     
     fetchUserData();
   }, [navigate]);
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
 
   // Filtrar elementos del menú según el rol del usuario
   const getMenuItems = () => {
