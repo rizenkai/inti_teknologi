@@ -16,8 +16,8 @@ exports.createDocumentManual = async (req, res) => {
       return res.status(403).json({ message: 'Only admin and staff can create documents manually' });
     }
     
-    const { title, description, category, status, bp, kodeBahan, tipeBahan, targetUser } = req.body;
-    if (!title) {
+    const { namaProyek, description, category, status, bp, kodeBahan, mutuBahan, tipeBahan, targetUser } = req.body;
+    if (!namaProyek) {
       return res.status(400).json({ message: 'Title is required' });
     }
     if (!targetUser) {
@@ -28,10 +28,10 @@ exports.createDocumentManual = async (req, res) => {
     // Jika dokumen manual/placeholder, filePath hanya angka (tanpa prefix /placeholder/)
     const placeholderId = await generatePlaceholderId();
     const document = await Document.create({
-      title,
+      namaProyek,
       description: description || 'Dokumen baru',
       fileName: 'placeholder.txt',
-      filePath: '/placeholder', // Ubah filePath menjadi '/placeholder'
+      filePath: `/placeholder/${placeholderId}`,
       fileType: 'text/plain',
       fileSize: 0,
       category: category || 'manual',
@@ -39,6 +39,7 @@ exports.createDocumentManual = async (req, res) => {
       // Campos adicionales para materiales
       bp: bp || null,
       kodeBahan: kodeBahan || '',
+      mutuBahan: mutuBahan || '',
       tipeBahan: tipeBahan || '',
       uploadedBy: req.user._id,
       targetUser,
@@ -47,7 +48,7 @@ exports.createDocumentManual = async (req, res) => {
     // Log aktivitas pembuatan placeholder
     await activityLogController.createLog({
       action: 'create_placeholder',
-      description: `${req.user.username} membuat placeholder ${placeholderId} (${title})`,
+      description: `${req.user.username} membuat placeholder ${placeholderId} (${namaProyek})`,
       documentId: document._id,
       userId: req.user._id,
       username: req.user.username,
@@ -77,7 +78,7 @@ exports.getDocuments = async (req, res) => {
       query.status = req.query.status;
     }
     if (req.query.search) {
-      query.title = { $regex: req.query.search, $options: 'i' };
+      query.namaProyek = { $regex: req.query.search, $options: 'i' };
     }
 
     // For regular users, only show documents they can access
@@ -124,7 +125,7 @@ exports.uploadDocument = async (req, res) => {
       return res.status(400).json({ message: 'Please upload a file' });
     }
 
-    const { title, description, category, status, documentId } = req.body;
+    const { namaProyek, description, category, status, documentId } = req.body;
     
     // If documentId is provided, update existing document with file
     if (documentId) {
@@ -132,8 +133,8 @@ exports.uploadDocument = async (req, res) => {
     }
     
     // --- Tambahan validasi: Jika judul sudah ada (placeholder), update dokumen lama, JANGAN buat dokumen baru ---
-    // Pastikan judul dokumen unik
-    const existing = await Document.findOne({ title });
+    // Pastikan namaProyek unik
+    const existing = await Document.findOne({ namaProyek });
     if (existing) {
       // Jika dokumen sudah ada dan filePath-nya berupa angka (placeholder), update dokumen tersebut
       if (existing.filePath === '/placeholder') {
@@ -145,26 +146,26 @@ exports.uploadDocument = async (req, res) => {
         if (req.file && req.file.path) {
           fs.unlinkSync(req.file.path);
         }
-        return res.status(409).json({ message: 'Document with this title already exists' });
+        return res.status(409).json({ message: 'Document with this namaProyek already exists' });
       }
     }
 
     // Validate required fields
-    if (!title) {
-      return res.status(400).json({ message: 'Title is required' });
+    if (!namaProyek) {
+      return res.status(400).json({ message: 'Nama Proyek is required' });
     }
-    // Pastikan judul dokumen unik
-    const existingDoc = await Document.findOne({ title });
+    // Pastikan namaProyek unik
+    const existingDoc = await Document.findOne({ namaProyek });
     if (existingDoc) {
       // Hapus file yang sudah diupload jika duplikat
       if (req.file && req.file.path) {
         fs.unlinkSync(req.file.path);
       }
-      return res.status(409).json({ message: 'Document with this title already exists' });
+      return res.status(409).json({ message: 'Document with this namaProyek already exists' });
     }
 
     const document = await Document.create({
-      title,
+      namaProyek,
       description: description || 'Dokumen baru',
       fileName: req.file.filename,
       filePath: req.file.path,
@@ -177,7 +178,7 @@ exports.uploadDocument = async (req, res) => {
     // Log aktivitas upload file BARU (pertama kali)
     await activityLogController.createLog({
       action: 'upload_file',
-      description: `${req.user.username} mengupload file dokumen baru (${title})`,
+      description: `${req.user.username} mengupload file dokumen baru (${namaProyek})`,
       documentId: document._id,
       userId: req.user._id,
       username: req.user.username,
@@ -267,7 +268,7 @@ exports.updateDocumentFile = async (req, res) => {
     if (isFirstUpload) {
       await activityLogController.createLog({
         action: 'upload_file',
-        description: `${req.user.username} mengupload file dokumen baru (${document.title})`,
+        description: `${req.user.username} mengupload file dokumen baru (${document.namaProyek})`,
         documentId: document._id,
         userId: req.user._id,
         username: req.user.username,
@@ -276,7 +277,7 @@ exports.updateDocumentFile = async (req, res) => {
     } else {
       await activityLogController.createLog({
         action: 'replace_file',
-        description: `${req.user.username} mengganti file dokumen (${document.title}) dengan file baru`,
+        description: `${req.user.username} mengganti file dokumen (${document.namaProyek}) dengan file baru`,
         documentId: document._id,
         userId: req.user._id,
         username: req.user.username,
@@ -315,7 +316,7 @@ exports.downloadDocument = async (req, res) => {
       return res.status(404).json({ message: 'Document not found' });
     }
 
-    console.log(`Document found: ${document.title}, Status: ${document.status}`);
+    console.log(`Document found: ${document.namaProyek}, Status: ${document.status}`);
 
     // Regular users can only download completed/approved documents
     if (req.user.role === 'user' && !['completed', 'approved'].includes(document.status)) {
@@ -380,7 +381,7 @@ exports.updateDocumentStatus = async (req, res) => {
     if (req.body.status && req.body.status !== oldStatus) {
       await activityLogController.createLog({
         action: 'edit_status',
-        description: `${req.user.username} mengubah status dokumen (${document.title}) dari ${oldStatus} ke ${req.body.status}`,
+        description: `${req.user.username} mengubah status dokumen (${document.namaProyek}) dari ${oldStatus} ke ${req.body.status}`,
         documentId: document._id,
         userId: req.user._id,
         username: req.user.username,
@@ -405,18 +406,28 @@ exports.updateDocument = async (req, res) => {
       return res.status(404).json({ message: 'Document not found' });
     }
 
+    // Siapkan objek updateData agar hanya field yang diizinkan yang diupdate
+    const updateData = {};
+    if (req.body.status !== undefined) updateData.status = req.body.status;
+    if (req.body.bp !== undefined) updateData.bp = req.body.bp;
+    if (req.body.kodeBahan !== undefined) updateData.kodeBahan = req.body.kodeBahan;
+    if (req.body.mutuBahan !== undefined) updateData.mutuBahan = req.body.mutuBahan;
+    if (req.body.tipeBahan !== undefined) updateData.tipeBahan = req.body.tipeBahan;
+    if (req.body.targetUser !== undefined) updateData.targetUser = req.body.targetUser;
+    updateData.lastModified = new Date();
+
     // Cek perubahan status untuk log activity
     const oldStatus = document.status;
     const updatedDocument = await Document.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     );
     // Log jika status berubah
     if (req.body.status && req.body.status !== oldStatus) {
       await activityLogController.createLog({
         action: 'edit_status',
-        description: `${req.user.username} mengubah status dokumen (${document.title}) dari ${oldStatus} ke ${req.body.status}`,
+        description: `${req.user.username} mengubah status dokumen (${document.namaProyek}) dari ${oldStatus} ke ${req.body.status}`,
         documentId: document._id,
         userId: req.user._id,
         username: req.user.username,
@@ -454,7 +465,7 @@ exports.deleteDocument = async (req, res) => {
     // Log aktivitas hapus placeholder
     await activityLogController.createLog({
       action: 'delete_placeholder',
-      description: `${req.user.username} menghapus placeholder/dokumen (${document.title})`,
+      description: `${req.user.username} menghapus placeholder/dokumen (${document.namaProyek})`,
       documentId: document._id,
       userId: req.user._id,
       username: req.user.username,

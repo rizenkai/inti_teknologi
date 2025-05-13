@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const documentSchema = new mongoose.Schema({
-  title: {
+  namaProyek: {
     type: String,
     required: true,
     trim: true
@@ -17,6 +17,11 @@ const documentSchema = new mongoose.Schema({
   },
   kodeBahan: {
     type: String, // Varchar para Kode Bahan
+    trim: true,
+    default: ''
+  },
+  mutuBahan: {
+    type: String,
     trim: true,
     default: ''
   },

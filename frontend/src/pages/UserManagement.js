@@ -211,7 +211,7 @@ const UserManagement = () => {
   
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h4" gutterBottom>User Management</Typography>
+      <Typography variant="h4" gutterBottom sx={{ color: '#fff', fontWeight: 800, letterSpacing: 1 }}>User Management</Typography>
       {!canAccess ? (
         <Alert severity="error" sx={{ mt: 2 }}>
           User role {userRole} is not authorized to access this route
@@ -221,7 +221,15 @@ const UserManagement = () => {
           {canAdd && (
             <Button
               variant="contained"
-              sx={{ mb: 2 }}
+              sx={{
+                mb: 2,
+                background: 'linear-gradient(90deg, #41e3ff 0%, #1ec6e6 100%)',
+                color: '#0a1929',
+                fontWeight: 700,
+                borderRadius: 2,
+                boxShadow: '0 2px 8px 0 rgba(65,227,255,0.12)',
+                '&:hover': { background: 'linear-gradient(90deg, #1ec6e6 0%, #41e3ff 100%)' }
+              }}
               onClick={() => setAddDialog(true)}
             >
               Add User
@@ -235,7 +243,25 @@ const UserManagement = () => {
               size="small"
               value={searchUser}
               onChange={e => setSearchUser(e.target.value)}
-              sx={{ mb: 2, ml: { xs: 0, sm: 2 }, width: '320px' }}
+              InputProps={{
+                style: {
+                  color: '#fff',
+                  background: 'rgba(65,227,255,0.10)',
+                  borderRadius: 12,
+                  border: '1.5px solid #41e3ff',
+                  boxShadow: '0 1px 4px 0 rgba(65,227,255,0.12)'
+                }
+              }}
+              InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+              sx={{
+                mb: 2,
+                ml: { xs: 0, sm: 2 },
+                width: '320px',
+                input: { color: '#fff' },
+                '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' },
+                '& input::placeholder': { color: '#bdbdbd', opacity: 1 },
+                borderRadius: 2,
+              }}
             />
           )}
           {loading ? (
@@ -247,16 +273,22 @@ const UserManagement = () => {
               {error}
             </Alert>
           ) : (
-            <TableContainer component={Paper}>
+            <TableContainer component={Paper} sx={{
+              background: 'rgba(20,32,54,0.82)',
+              borderRadius: 3,
+              boxShadow: '0 2px 16px rgba(65,227,255,0.18)',
+              border: '1.5px solid #41e3ff',
+              backdropFilter: 'blur(8px)',
+            }}>
               <Table>
                 <TableHead>
-                  <TableRow>
-                    {(userRole === 'admin' || userRole === 'staff') && <TableCell>User ID</TableCell>}
-                    <TableCell>Username</TableCell>
-                    <TableCell>Full Name</TableCell>
-                    <TableCell>Role</TableCell>
-                    <TableCell>Date Created</TableCell>
-                    {canAdd && <TableCell>Actions</TableCell>}
+                  <TableRow sx={{ background: 'rgba(65,227,255,0.10)' }}>
+                    {(userRole === 'admin' || userRole === 'staff') && <TableCell sx={{ color: '#fff', fontWeight: 700, letterSpacing: 0.5 }}>User ID</TableCell>}
+                    <TableCell sx={{ color: '#fff', fontWeight: 700, letterSpacing: 0.5 }}>Username</TableCell>
+                    <TableCell sx={{ color: '#fff', fontWeight: 700, letterSpacing: 0.5 }}>Full Name</TableCell>
+                    <TableCell sx={{ color: '#fff', fontWeight: 700, letterSpacing: 0.5 }}>Role</TableCell>
+                    <TableCell sx={{ color: '#fff', fontWeight: 700, letterSpacing: 0.5 }}>Date Created</TableCell>
+                    {canAdd && <TableCell sx={{ color: '#fff', fontWeight: 700, letterSpacing: 0.5 }}>Actions</TableCell>}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -266,16 +298,16 @@ const UserManagement = () => {
                   ).map(user => (
                     <TableRow key={user._id}>
                       {(userRole === 'admin' || userRole === 'staff') && (
-                        <TableCell>{user._id.substring(0, 8)}</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{user._id.substring(0, 8)}</TableCell>
                       )}
-                      <TableCell>{user.username}</TableCell>
-                      <TableCell>{user.fullname}</TableCell>
-                      <TableCell>{user.role}</TableCell>
-                      <TableCell>{formatDate(user.createdAt)}</TableCell>
+                      <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{user.username}</TableCell>
+                      <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{user.fullname}</TableCell>
+                      <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{user.role}</TableCell>
+                      <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{formatDate(user.createdAt)}</TableCell>
                       {canAdd && (
-                        <TableCell>
-                          <IconButton onClick={() => handleEditOpen(user)}><EditIcon /></IconButton>
-                          <IconButton onClick={() => handleDeleteOpen(user._id)}><DeleteIcon /></IconButton>
+                        <TableCell sx={{ color: '#fff', fontWeight: 500 }}>
+                          <IconButton onClick={() => handleEditOpen(user)} sx={{ color: '#fff' }}><EditIcon sx={{ color: '#fff' }} /></IconButton>
+                          <IconButton onClick={() => handleDeleteOpen(user._id)} sx={{ color: '#fff' }}><DeleteIcon sx={{ color: '#fff' }} /></IconButton>
                         </TableCell>
                       )}
                     </TableRow>
@@ -289,8 +321,22 @@ const UserManagement = () => {
       
       {/* Dialog tambah user hanya untuk admin */}
       {canAdd && (
-        <Dialog open={addDialog} onClose={() => setAddDialog(false)}>
-          <DialogTitle>Add New User</DialogTitle>
+        <Dialog open={addDialog} onClose={() => setAddDialog(false)} maxWidth="md" fullWidth
+  PaperProps={{
+    sx: {
+      background: 'rgba(20,32,54,0.92)',
+      color: '#fff',
+      borderRadius: 3,
+      boxShadow: '0 8px 32px 0 rgba(65,227,255,0.10)',
+      border: '1.5px solid #41e3ff',
+      backdropFilter: 'blur(8px)',
+      p: { xs: 2, md: 4 },
+    }
+  }}
+>
+          <DialogTitle sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 22, pb: 2, fontFamily: 'Open Sans, Arial, Helvetica, sans-serif' }}>
+            Add New User
+          </DialogTitle>
           <DialogContent>
             <TextField
               autoFocus
@@ -301,7 +347,22 @@ const UserManagement = () => {
               fullWidth
               value={newUser.username}
               onChange={handleNewUserChange}
-              sx={{ mb: 2 }}
+              InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+              InputProps={{
+                style: {
+                  color: '#fff',
+                  background: 'rgba(65,227,255,0.15)',
+                  borderRadius: 8,
+                  border: '1.5px solid #41e3ff',
+                  fontFamily: 'Open Sans',
+                  fontWeight: 600,
+                },
+                sx: {
+                  '& input': { color: '#fff' },
+                  '& input::placeholder': { color: '#bdbdbd', opacity: 1 },
+                }
+              }}
+              sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' } }}
             />
             <TextField
               margin="dense"
@@ -311,7 +372,22 @@ const UserManagement = () => {
               fullWidth
               value={newUser.fullname}
               onChange={handleNewUserChange}
-              sx={{ mb: 2 }}
+              InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+              InputProps={{
+                style: {
+                  color: '#fff',
+                  background: 'rgba(65,227,255,0.15)',
+                  borderRadius: 8,
+                  border: '1.5px solid #41e3ff',
+                  fontFamily: 'Open Sans',
+                  fontWeight: 600,
+                },
+                sx: {
+                  '& input': { color: '#fff' },
+                  '& input::placeholder': { color: '#bdbdbd', opacity: 1 },
+                }
+              }}
+              sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' } }}
             />
             <TextField
               margin="dense"
@@ -321,15 +397,56 @@ const UserManagement = () => {
               fullWidth
               value={newUser.password}
               onChange={handleNewUserChange}
-              sx={{ mb: 2 }}
+              InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+              InputProps={{
+                style: {
+                  color: '#fff',
+                  background: 'rgba(65,227,255,0.15)',
+                  borderRadius: 8,
+                  border: '1.5px solid #41e3ff',
+                  fontFamily: 'Open Sans',
+                  fontWeight: 600,
+                },
+                sx: {
+                  '& input': { color: '#fff' },
+                  '& input::placeholder': { color: '#bdbdbd', opacity: 1 },
+                }
+              }}
+              sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' } }}
             />
-            <FormControl fullWidth>
-              <InputLabel>Role</InputLabel>
+            <FormControl fullWidth sx={{ mb: 2, bgcolor: '#162336', borderRadius: 2 }}>
+              <InputLabel sx={{ color: '#b5eaff', fontWeight: 600 }}>Role</InputLabel>
               <Select
                 name="role"
                 value={newUser.role}
                 label="Role"
                 onChange={handleNewUserChange}
+                sx={{
+                  color: '#fff',
+                  background: '#162336',
+                  borderRadius: 2,
+                  fontWeight: 600,
+                  fontFamily: 'Open Sans',
+                  '& .MuiSelect-select': {
+                    color: '#fff',
+                    background: '#162336',
+                    borderRadius: 2,
+                    fontWeight: 600,
+                    fontFamily: 'Open Sans',
+                  },
+                  '& fieldset': {
+                    borderColor: '#41e3ff',
+                  },
+                }}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      background: '#162336',
+                      color: '#fff',
+                      borderRadius: 2,
+                    },
+                  },
+                }}
               >
                 {roleOptions.map((role) => (
                   <MenuItem key={role} value={role}>
@@ -340,14 +457,34 @@ const UserManagement = () => {
             </FormControl>
             {addError && <Alert severity="error" sx={{ mt: 2 }}>{addError}</Alert>}
           </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setAddDialog(false)}>Cancel</Button>
+          <DialogActions sx={{ px: 3, pb: 3 }}>
+            <Button 
+              onClick={() => setAddDialog(false)}
+              variant="outlined"
+              sx={{ 
+                color: '#41e3ff', 
+                borderColor: '#41e3ff',
+                '&:hover': { borderColor: '#41e3ff', background: 'rgba(65,227,255,0.08)' }
+              }}
+            >
+              Cancel
+            </Button>
             <Button
               onClick={handleAddUser}
               variant="contained"
               disabled={addLoading || !newUser.username || !newUser.fullname || !newUser.password}
+              sx={{
+                ml: 2,
+                background: 'linear-gradient(90deg, #41e3ff 0%, #1ec6e6 100%)',
+                color: '#0a1929',
+                fontWeight: 700,
+                borderRadius: 2,
+                boxShadow: '0 2px 8px 0 rgba(65,227,255,0.12)',
+                '&:hover': { background: '#65e7ff' },
+                '&.Mui-disabled': { background: 'rgba(65,227,255,0.3)', color: '#193549' }
+              }}
             >
-              {addLoading ? <CircularProgress size={22} /> : 'Add User'}
+              {addLoading ? <CircularProgress size={22} color="inherit" /> : 'Add User'}
             </Button>
           </DialogActions>
         </Dialog>
@@ -355,46 +492,131 @@ const UserManagement = () => {
       
       {/* Dialog edit user hanya untuk admin */}
       {canAdd && (
-        <Dialog open={editDialog} onClose={() => setEditDialog(false)}>
-          <DialogTitle>Edit User</DialogTitle>
+        <Dialog open={editDialog} onClose={() => setEditDialog(false)} maxWidth="md" fullWidth
+  PaperProps={{
+    sx: {
+      background: 'rgba(20,32,54,0.92)',
+      color: '#fff',
+      borderRadius: 3,
+      boxShadow: '0 8px 32px 0 rgba(65,227,255,0.10)',
+      border: '1.5px solid #41e3ff',
+      backdropFilter: 'blur(8px)',
+      p: { xs: 2, md: 4 },
+    }
+  }}
+>
+          <DialogTitle sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 22, pb: 2, fontFamily: 'Open Sans, Arial, Helvetica, sans-serif' }}>
+            Edit User
+          </DialogTitle>
           <DialogContent>
             <TextField
-              margin="dense"
-              name="username"
-              label="Username"
-              type="text"
-              fullWidth
-              value={selectedUser?.username || ''}
-              disabled
-              sx={{ mb: 2 }}
-            />
+  margin="dense"
+  name="username"
+  label="Username"
+  type="text"
+  fullWidth
+  value={selectedUser?.username || ''}
+  disabled
+  InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+  InputProps={{
+    style: {
+      color: '#fff',
+      background: 'rgba(65,227,255,0.15)',
+      borderRadius: 8,
+      border: '1.5px solid #41e3ff',
+      fontFamily: 'Open Sans',
+      fontWeight: 600,
+    },
+    sx: {
+      '& input': { color: '#fff' },
+      '& input::placeholder': { color: '#bdbdbd', opacity: 1 },
+    }
+  }}
+  sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' } }}
+/>
             <TextField
-              margin="dense"
-              name="fullname"
-              label="Full Name"
-              type="text"
-              fullWidth
-              value={selectedUser?.fullname || ''}
-              onChange={handleEditUserChange}
-              sx={{ mb: 2 }}
-            />
+  margin="dense"
+  name="fullname"
+  label="Full Name"
+  type="text"
+  fullWidth
+  value={selectedUser?.fullname || ''}
+  onChange={handleEditUserChange}
+  InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+  InputProps={{
+    style: {
+      color: '#fff',
+      background: 'rgba(65,227,255,0.15)',
+      borderRadius: 8,
+      border: '1.5px solid #41e3ff',
+      fontFamily: 'Open Sans',
+      fontWeight: 600,
+    },
+    sx: {
+      '& input': { color: '#fff' },
+      '& input::placeholder': { color: '#bdbdbd', opacity: 1 },
+    }
+  }}
+  sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' } }}
+/>
             <TextField
-              margin="dense"
-              name="password"
-              label="New Password (leave blank to keep current)"
-              type="password"
-              fullWidth
-              value={selectedUser?.password || ''}
-              onChange={handleEditUserChange}
-              sx={{ mb: 2 }}
-            />
-            <FormControl fullWidth>
-              <InputLabel>Role</InputLabel>
+  margin="dense"
+  name="password"
+  label="New Password (leave blank to keep current)"
+  type="password"
+  fullWidth
+  value={selectedUser?.password || ''}
+  onChange={handleEditUserChange}
+  InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+  InputProps={{
+    style: {
+      color: '#fff',
+      background: 'rgba(65,227,255,0.15)',
+      borderRadius: 8,
+      border: '1.5px solid #41e3ff',
+      fontFamily: 'Open Sans',
+      fontWeight: 600,
+    },
+    sx: {
+      '& input': { color: '#fff' },
+      '& input::placeholder': { color: '#bdbdbd', opacity: 1 },
+    }
+  }}
+  sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' } }}
+/>
+            <FormControl fullWidth sx={{ mb: 2, bgcolor: '#162336', borderRadius: 2 }}>
+              <InputLabel sx={{ color: '#b5eaff', fontWeight: 600 }}>Role</InputLabel>
               <Select
                 name="role"
                 value={selectedUser?.role || ''}
                 label="Role"
                 onChange={handleEditUserChange}
+                sx={{
+                  color: '#fff',
+                  background: '#162336',
+                  borderRadius: 2,
+                  fontWeight: 600,
+                  fontFamily: 'Open Sans',
+                  '& .MuiSelect-select': {
+                    color: '#fff',
+                    background: '#162336',
+                    borderRadius: 2,
+                    fontWeight: 600,
+                    fontFamily: 'Open Sans',
+                  },
+                  '& fieldset': {
+                    borderColor: '#41e3ff',
+                  },
+                }}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      background: '#162336',
+                      color: '#fff',
+                      borderRadius: 2,
+                    },
+                  },
+                }}
               >
                 {roleOptions.map((role) => (
                   <MenuItem key={role} value={role}>
@@ -405,14 +627,34 @@ const UserManagement = () => {
             </FormControl>
             {editError && <Alert severity="error" sx={{ mt: 2 }}>{editError}</Alert>}
           </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setEditDialog(false)}>Cancel</Button>
+          <DialogActions sx={{ px: 3, pb: 3 }}>
+            <Button 
+              onClick={() => setEditDialog(false)}
+              variant="outlined"
+              sx={{ 
+                color: '#41e3ff', 
+                borderColor: '#41e3ff',
+                '&:hover': { borderColor: '#41e3ff', background: 'rgba(65,227,255,0.08)' }
+              }}
+            >
+              Cancel
+            </Button>
             <Button
               onClick={handleUpdateUser}
               variant="contained"
               disabled={editLoading || !selectedUser?.fullname}
+              sx={{
+                ml: 2,
+                background: 'linear-gradient(90deg, #41e3ff 0%, #1ec6e6 100%)',
+                color: '#0a1929',
+                fontWeight: 700,
+                borderRadius: 2,
+                boxShadow: '0 2px 8px 0 rgba(65,227,255,0.12)',
+                '&:hover': { background: '#65e7ff' },
+                '&.Mui-disabled': { background: 'rgba(65,227,255,0.3)', color: '#193549' }
+              }}
             >
-              {editLoading ? <CircularProgress size={22} /> : 'Update User'}
+              {editLoading ? <CircularProgress size={22} color="inherit" /> : 'Update User'}
             </Button>
           </DialogActions>
         </Dialog>

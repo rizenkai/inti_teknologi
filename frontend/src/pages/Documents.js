@@ -261,7 +261,7 @@ const Documents = () => {
     // Cari berdasarkan title, placeholder id (angka di filePath), dan juga _id
     const idPlaceholder = (/^\d{3,5}$/.test(doc.filePath) ? doc.filePath : doc._id).toString();
     return (
-      doc.title.toLowerCase().includes(search) ||
+      doc.namaProyek || doc.title.toLowerCase().includes(search) ||
       idPlaceholder.includes(search) ||
       (doc.fileName && doc.fileName.toLowerCase().includes(search)) ||
       (doc.targetUser && (
@@ -283,7 +283,7 @@ const Documents = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h4" gutterBottom>Document List</Typography>
+        <Typography variant="h4" gutterBottom sx={{ color: '#fff', fontWeight: 800, letterSpacing: 1 }}>Document List</Typography>
       </Box>
       
       <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -295,7 +295,21 @@ const Documents = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             InputProps={{
-              endAdornment: <SearchIcon color="action" />
+              endAdornment: <SearchIcon sx={{ color: '#41e3ff' }} />,
+              style: {
+                color: '#fff',
+                background: 'rgba(65,227,255,0.10)',
+                borderRadius: 12,
+                border: '1.5px solid #41e3ff',
+                boxShadow: '0 1px 4px 0 rgba(65,227,255,0.12)'
+              }
+            }}
+            InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+            sx={{
+              input: { color: '#fff' },
+              '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' },
+              '& input::placeholder': { color: '#bdbdbd', opacity: 1 },
+              borderRadius: 2,
             }}
           />
         </Grid>
@@ -314,55 +328,75 @@ const Documents = () => {
       ) : filteredDocuments.length === 0 ? (
         <Alert severity="info">No documents found</Alert>
       ) : (
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{
+           background: 'rgba(20,32,54,0.82)',
+           borderRadius: 3,
+           boxShadow: '0 2px 16px rgba(65,227,255,0.18)',
+           border: '1.5px solid #41e3ff',
+           backdropFilter: 'blur(8px)',
+         }}>
           <Table>
             <TableHead>
-              <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Title</TableCell>
-                <TableCell>File Type</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>User Tujuan</TableCell>
-                <TableCell>Submitted Date</TableCell>
-                <TableCell>Document Uploaded</TableCell>
-                <TableCell>Actions</TableCell>
+              <TableRow sx={{ background: 'rgba(65,227,255,0.10)' }}>
+                <TableCell sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 16 }}>ID</TableCell>
+                <TableCell sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 16 }}>Nama Proyek</TableCell>
+                <TableCell sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 16 }}>File Type</TableCell>
+                <TableCell sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 16 }}>Status</TableCell>
+                <TableCell sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 16 }}>User Tujuan</TableCell>
+                <TableCell sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 16 }}>Submitted Date</TableCell>
+                <TableCell sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 16 }}>Document Uploaded</TableCell>
+                <TableCell sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 16 }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredDocuments.map((doc) => (
-                <TableRow key={doc._id}>
+                <TableRow key={doc._id} sx={{ '&:hover': { background: 'rgba(65,227,255,0.10)' } }}>
                   {/* Kolom ID: tampilkan placeholderId jika ada, jika tidak tampilkan _id */}
-                  <TableCell align="left">
+                  <TableCell align="left" sx={{ color: '#fff', fontWeight: 500 }}>
                     {doc.placeholderId ? doc.placeholderId : doc._id}
                   </TableCell>
-                  <TableCell>{doc.title}</TableCell>
-                  <TableCell>{
+                  <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{doc.namaProyek || doc.title}</TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{
                     doc.fileName && doc.fileName !== 'placeholder.txt'
                       ? (doc.fileName.split('.').pop() || '-').toLowerCase()
                       : '-'
-                  }</TableCell>
-                  <TableCell>
+                    }
+                  </TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 700, letterSpacing: 0.5 }}>
                     <Box
                       sx={{
-                        backgroundColor: 
-                          doc.status === 'completed' ? 'success.light' : 
-                          doc.status === 'approved' ? 'success.main' :
-                          doc.status === 'pending' ? 'warning.light' :
-                          'grey.200',
-                        color: 'black',
-                        borderRadius: 1,
-                        px: 1,
+                        backgroundColor:
+                          doc.status === 'pending'
+                            ? '#FFE082'
+                            : doc.status === 'in_progress'
+                            ? '#80D8FF'
+                            : doc.status === 'review'
+                            ? '#FFAB91'
+                            : doc.status === 'completed'
+                            ? '#A5D6A7'
+                            : '#bdbdbd',
+                        color:
+                          doc.status === 'pending' || doc.status === 'review'
+                            ? '#212121'
+                            : '#0a1929',
+                        px: 2,
+                        py: 0.5,
+                        borderRadius: 2,
+                        fontWeight: 700,
+                        fontSize: 14,
                         display: 'inline-block',
-                        fontWeight: 600
+                        minWidth: 100,
+                        textAlign: 'center',
+                        letterSpacing: 1
                       }}
                     >
-                      {doc.status.toUpperCase()}
+                      {doc.status?.toUpperCase()}
                     </Box>
                   </TableCell>
-                  <TableCell>{doc.targetUser ? `${doc.targetUser.username} - ${doc.targetUser.fullname}` : '-'}</TableCell>
-                  <TableCell>{doc.submissionDate ? formatDate(doc.submissionDate) : '-'}</TableCell>
-                  <TableCell>{doc.fileName && doc.fileName !== 'placeholder.txt' ? formatDate(doc.lastModified) : '-'}</TableCell>
-                  <TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{doc.targetUser ? `${doc.targetUser.username} - ${doc.targetUser.fullname}` : '-'}</TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{doc.submissionDate ? formatDate(doc.submissionDate) : '-'}</TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{doc.fileName && doc.fileName !== 'placeholder.txt' ? formatDate(doc.lastModified) : '-'}</TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 500 }}>
                     {/* Jika dokumen masih placeholder/manual dan status belum completed, tampilkan "waiting to complete" */}
                     {doc.fileName === 'placeholder.txt' && doc.status !== 'completed' ? (
                       <span style={{ color: '#aaa', fontWeight: 500 }}>waiting to complete</span>
@@ -371,7 +405,7 @@ const Documents = () => {
                       <>
                         {doc.fileName && doc.fileName !== 'placeholder.txt' && (
                           <IconButton id={`download-${doc._id}`} onClick={() => handleDownloadDocument(doc._id)}>
-                            <DownloadIcon />
+                            <DownloadIcon sx={{ color: '#fff' }} />
                           </IconButton>
                         )}
                         
@@ -382,7 +416,7 @@ const Documents = () => {
                               onClick={() => {
                                 setSelectedDocument(doc);
                                 setDocumentData({
-                                  title: doc.title,
+                                  title: doc.namaProyek || doc.title,
                                   description: doc.description || '',
                                   category: doc.category || 'general',
                                   status: doc.status || 'completed',
@@ -393,7 +427,7 @@ const Documents = () => {
                               title="Edit File Document"
                               size="small"
                             >
-                              <DownloadIcon style={{ transform: 'rotate(180deg)' }} />
+                              <DownloadIcon sx={{ color: '#fff', transform: 'rotate(180deg)' }} />
                             </IconButton>
                           ) : (
                             <IconButton 
@@ -401,7 +435,7 @@ const Documents = () => {
                               onClick={() => {
                                 setSelectedDocument(doc);
                                 setDocumentData({
-                                  title: doc.title,
+                                  title: doc.namaProyek || doc.title,
                                   description: doc.description || '',
                                   category: doc.category || 'general',
                                   status: doc.status || 'completed',
@@ -412,7 +446,7 @@ const Documents = () => {
                               title="Upload File"
                               size="small"
                             >
-                              <AddIcon />
+                              <AddIcon sx={{ color: '#fff' }} />
                             </IconButton>
                           )
                         )}
@@ -441,24 +475,56 @@ const Documents = () => {
               <>
                 <Grid item xs={12}>
                   <TextField
-                    name="title"
-                    label="Document Title"
-                    fullWidth
-                    required
-                    value={documentData.title}
-                    onChange={handleInputChange}
-                  />
+  name="title"
+  label="Document Title"
+  fullWidth
+  required
+  value={documentData.title}
+  onChange={handleInputChange}
+  InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+  InputProps={{
+    style: {
+      color: '#fff',
+      background: 'rgba(65,227,255,0.15)',
+      borderRadius: 8,
+      border: '1.5px solid #41e3ff',
+      fontFamily: 'Open Sans',
+      fontWeight: 600,
+    },
+    sx: {
+      '& input': { color: '#fff' },
+      '& input::placeholder': { color: '#bdbdbd', opacity: 1 },
+    }
+  }}
+  sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' } }}
+/>
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
-                    name="description"
-                    label="Description"
-                    fullWidth
-                    multiline
-                    rows={3}
-                    value={documentData.description}
-                    onChange={handleInputChange}
-                  />
+  name="description"
+  label="Description"
+  fullWidth
+  multiline
+  rows={3}
+  value={documentData.description}
+  onChange={handleInputChange}
+  InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+  InputProps={{
+    style: {
+      color: '#fff',
+      background: 'rgba(65,227,255,0.10)',
+      borderRadius: 8,
+      border: '1.5px solid #41e3ff',
+      fontFamily: 'Open Sans',
+      fontWeight: 600,
+    },
+    sx: {
+      '& textarea': { color: '#fff' },
+      '& textarea::placeholder': { color: '#bdbdbd', opacity: 1 },
+    }
+  }}
+  sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' } }}
+/>
                 </Grid>
                 <Grid item xs={12} md={6}>
                   <FormControl fullWidth>

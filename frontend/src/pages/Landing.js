@@ -1,33 +1,39 @@
 import React from 'react';
 import { Box, Typography, Button, Grid, Paper } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { FaUserTie, FaFileAlt, FaClipboardList, FaLock, FaFolderOpen } from 'react-icons/fa';
+import { FaBuilding, FaFlask, FaTools, FaHardHat, FaAward, FaChartLine } from 'react-icons/fa';
 
-const features = [
+// Layanan pengujian yang ditawarkan
+const services = [
   {
-    title: 'User Management',
-    desc: 'Kelola user dengan role Admin, Staff, dan User. Admin dapat CRUD user, atur hak akses, dan monitoring aktivitas.',
-    icon: <FaUserTie size={38} color="#b5eaff" style={{ marginBottom: 12 }} />,
+    title: 'Pengujian Beton',
+    desc: 'Pengujian kuat tekan, slump test, dan analisis komposisi beton untuk memastikan kualitas dan keamanan struktur.',
+    icon: <FaBuilding size={38} color="#b5eaff" style={{ marginBottom: 12 }} />,
   },
   {
-    title: 'Document Workflow',
-    desc: 'Upload, download, dan update dokumen (PDF, Word, Excel, dll) dengan notifikasi status dan versi terbaru.',
-    icon: <FaFileAlt size={38} color="#b5eaff" style={{ marginBottom: 12 }} />,
+    title: 'Pengujian Besi & Baja',
+    desc: 'Uji tarik, kekerasan, dan komposisi material besi dan baja untuk memastikan kekuatan dan daya tahan.',
+    icon: <FaTools size={38} color="#b5eaff" style={{ marginBottom: 12 }} />,
   },
   {
-    title: 'Activity Log',
-    desc: 'Pantau semua aktivitas penting: upload, edit, status, dan akses dokumen secara transparan dan real-time.',
-    icon: <FaClipboardList size={38} color="#b5eaff" style={{ marginBottom: 12 }} />,
+    title: 'Analisis Laboratorium',
+    desc: 'Analisis komprehensif material konstruksi dengan peralatan laboratorium canggih dan standar internasional.',
+    icon: <FaFlask size={38} color="#b5eaff" style={{ marginBottom: 12 }} />,
   },
   {
-    title: 'Role Access',
-    desc: 'Kontrol penuh, aman, dan transparan dengan pengaturan hak akses yang fleksibel.',
-    icon: <FaLock size={38} color="#b5eaff" style={{ marginBottom: 12 }} />,
+    title: 'Konsultasi Teknis',
+    desc: 'Layanan konsultasi oleh ahli berpengalaman untuk membantu proyek konstruksi Anda memenuhi standar keamanan.',
+    icon: <FaHardHat size={38} color="#b5eaff" style={{ marginBottom: 12 }} />,
   },
   {
-    title: 'Unlimited Documents',
-    desc: 'Tidak ada batas jumlah dokumen, upload, atau aktivitas untuk semua user.',
-    icon: <FaFolderOpen size={38} color="#b5eaff" style={{ marginBottom: 12 }} />,
+    title: 'Sertifikasi Material',
+    desc: 'Penerbitan sertifikat kualitas material yang diakui secara nasional untuk kebutuhan proyek dan tender.',
+    icon: <FaAward size={38} color="#b5eaff" style={{ marginBottom: 12 }} />,
+  },
+  {
+    title: 'Monitoring Kualitas',
+    desc: 'Layanan pemantauan kualitas berkelanjutan selama proyek konstruksi untuk memastikan standar terpenuhi.',
+    icon: <FaChartLine size={38} color="#b5eaff" style={{ marginBottom: 12 }} />,
   },
 ];
 
@@ -43,7 +49,7 @@ const Landing = () => {
       display: 'flex',
       flexDirection: 'column',
       position: 'relative',
-      backgroundImage: "url('/Frame211332.png')",
+      backgroundImage: "url('/Frame211332.jpg')",
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
       backgroundSize: 'cover',
@@ -72,7 +78,7 @@ const Landing = () => {
         px: 2,
         position: 'relative',
         zIndex: 1,
-        backgroundImage: "url('/Frame211332.png')",
+        backgroundImage: "url('/Frame211332.jpg')",
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',
@@ -92,13 +98,13 @@ const Landing = () => {
         }} />
         <Box sx={{ position: 'relative', zIndex: 1, width: '100%', px: { xs: 3, sm: 6, md: 10, lg: 16, xl: 24 }, boxSizing: 'border-box' }}>
           <Typography sx={{ fontWeight: 500, color: '#fff', fontSize: { xs: '1rem', md: '1.25rem' }, mb: 1, letterSpacing: 1, fontFamily: 'Open Sans' }}>
-            IntiDocs Document Management
+            INTI TEKNOLOGI PENGUJIAN MATERIAL
           </Typography>
           <Typography variant="h2" sx={{ fontWeight: 600, fontSize: { xs: '2.1rem', md: '3.5rem' }, mb: 2, color: '#fff', letterSpacing: 0.5, fontFamily: 'Open Sans', lineHeight: 1.13 }}>
-            Kolaborasi & kelola dokumen<br />lebih cepat, lebih mudah.
+            Keunggulan dalam Pengujian<br />Material Konstruksi
           </Typography>
-          <Typography sx={{ color: '#b5eaff', fontSize: { xs: '1rem', md: '1.25rem' }, mb: 4, fontFamily: 'Open Sans', maxWidth: 540, mx: 'auto' }}>
-            Upload, kelola, dan pantau dokumen serta aktivitas tim Anda dalam satu platform modern dan aman.
+          <Typography sx={{ color: '#b5eaff', fontSize: { xs: '1rem', md: '1.25rem' }, mb: 4, fontFamily: 'Open Sans', maxWidth: 640, mx: 'auto' }}>
+            Laboratorium terakreditasi dengan standar internasional untuk pengujian beton, besi, dan material konstruksi lainnya. Memastikan kualitas dan keamanan proyek Anda.
           </Typography>
           <Button
             variant="contained"
@@ -116,111 +122,146 @@ const Landing = () => {
           </Button>
         </Box>
       </Box>
-      {/* Features Section */}
-      <Box sx={{ px: { xs: 3, sm: 6, md: 10, lg: 16, xl: 24 }, py: { xs: 4, md: 8 }, display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: '#090d1f', boxSizing: 'border-box' }}>
+      {/* Services section */}
+      <Box sx={{
+        py: { xs: 8, md: 12 },
+        px: { xs: 2, sm: 4, md: 6 },
+        background: 'linear-gradient(180deg, rgba(9,13,31,0.95) 0%, rgba(16,24,40,0.95) 100%)',
+        position: 'relative',
+        zIndex: 1,
+      }}>
+        <Typography variant="h3" sx={{ textAlign: 'center', fontWeight: 700, fontSize: { xs: '1.8rem', md: '2.5rem' }, mb: 1, color: '#fff' }}>
+          Layanan Pengujian
+        </Typography>
+        <Typography sx={{ textAlign: 'center', color: '#b5eaff', fontSize: { xs: '1rem', md: '1.1rem' }, mb: 6, maxWidth: 700, mx: 'auto' }}>
+          Solusi komprehensif untuk kebutuhan pengujian material konstruksi Anda
+        </Typography>
+
         <Grid container spacing={4} justifyContent="center">
-          {features.map((feature, idx) => (
-            <Grid item xs={12} sm={6} md={4} key={feature.title}>
-              <Paper sx={{
+          {services.map((service, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index}>
+              <Paper elevation={0} sx={{
                 p: 3,
-                borderRadius: '16px',
-                background: 'rgba(20, 32, 54, 0.92)',
-                color: '#fff',
-                textAlign: 'center',
-                boxShadow: '0 4px 24px 0 rgba(65,227,255,0.10)',
-                minHeight: 170,
+                height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                justifyContent: 'center',
+                textAlign: 'center',
+                borderRadius: 4,
+                background: 'rgba(16,24,40,0.5)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(65,227,255,0.1)',
+                transition: 'transform 0.3s, box-shadow 0.3s',
+                '&:hover': {
+                  transform: 'translateY(-8px)',
+                  boxShadow: '0 12px 24px rgba(0,0,0,0.2)',
+                  border: '1px solid rgba(65,227,255,0.3)',
+                }
               }}>
-                {feature.icon}
-                <Typography variant="h6" sx={{ fontWeight: 700, color: '#fff', mb: 1, fontFamily: 'Open Sans' }}>{feature.title}</Typography>
-                <Typography sx={{ color: '#b5eaff', fontWeight: 400, fontSize: '1rem', fontFamily: 'Open Sans' }}>{feature.desc}</Typography>
+                {service.icon}
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, color: '#fff' }}>
+                  {service.title}
+                </Typography>
+                <Typography sx={{ color: '#b5eaff', fontSize: '0.95rem', lineHeight: 1.5 }}>
+                  {service.desc}
+                </Typography>
               </Paper>
             </Grid>
           ))}
         </Grid>
       </Box>
-      {/* Showcase Section (mockup images) */}
-      <Box sx={{ px: { xs: 3, sm: 6, md: 10, lg: 16, xl: 24 }, py: { xs: 4, md: 8 }, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 6, alignItems: 'center', justifyContent: 'center', backgroundColor: '#090d1f', boxSizing: 'border-box' }}>
-        <Box sx={{ flex: 1, mb: { xs: 4, md: 0 }, textAlign: { xs: 'center', md: 'left' } }}>
-          <Typography sx={{ color: '#41e3ff', fontWeight: 700, fontSize: '1.1rem', mb: 1, fontFamily: 'Open Sans' }}>Akses Cepat</Typography>
-          <Typography variant="h5" sx={{ fontWeight: 900, color: '#fff', mb: 2, fontFamily: 'Open Sans' }}>Semua dokumen & aktivitas dalam satu tempat</Typography>
-          <Typography sx={{ color: '#b5eaff', fontSize: '1rem', mb: 2, fontFamily: 'Open Sans' }}>
-            Cari, upload, download, dan kelola dokumen serta pantau log aktivitas tanpa ribet.
-          </Typography>
-        </Box>
-        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-          <Box
-            component="img"
-            src="/section_1.png"
-            alt="Section 1"
-            sx={{
-              width: '100%',
-              maxWidth: 340,
-              height: 220,
-              objectFit: 'cover',
-              borderRadius: '22px',
-              boxShadow: '0 4px 32px 0 rgba(65,227,255,0.09)',
-              background: '#181e2b'
-            }}
-          />
-        </Box>
+      {/* About Us section */}
+      <Box sx={{
+        py: { xs: 8, md: 12 },
+        px: { xs: 2, sm: 4, md: 6 },
+        background: 'linear-gradient(180deg, rgba(16,24,40,0.95) 0%, rgba(9,13,31,0.95) 100%)',
+        position: 'relative',
+        zIndex: 1,
+      }}>
+        <Typography variant="h3" sx={{ textAlign: 'center', fontWeight: 700, fontSize: { xs: '1.8rem', md: '2.5rem' }, mb: 2, color: '#fff' }}>
+          Tentang Kami
+        </Typography>
+        <Typography sx={{ color: '#b5eaff', fontSize: { xs: '1rem', md: '1.1rem' }, mb: 4, maxWidth: 800, mx: 'auto', textAlign: 'center' }}>
+          Berpengalaman lebih dari 15 tahun dalam industri pengujian material konstruksi
+        </Typography>
+        
+        <Grid container spacing={6} sx={{ mt: 2 }}>
+          <Grid item xs={12} md={6}>
+            <Box sx={{ p: 3, borderRadius: 4, background: 'rgba(16,24,40,0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(65,227,255,0.1)' }}>
+              <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: '#fff' }}>
+                Visi Kami
+              </Typography>
+              <Typography sx={{ color: '#b5eaff', fontSize: '1rem', lineHeight: 1.7 }}>
+                Menjadi laboratorium pengujian material konstruksi terkemuka di Indonesia yang dikenal karena keakuratan, integritas, dan layanan berkualitas tinggi, serta berkontribusi pada pembangunan infrastruktur yang aman dan berkelanjutan.
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Box sx={{ p: 3, borderRadius: 4, background: 'rgba(16,24,40,0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(65,227,255,0.1)' }}>
+              <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: '#fff' }}>
+                Misi Kami
+              </Typography>
+              <Typography sx={{ color: '#b5eaff', fontSize: '1rem', lineHeight: 1.7 }}>
+                Menyediakan layanan pengujian material yang akurat dan tepat waktu, mengembangkan metode pengujian inovatif, dan membantu klien memenuhi standar kualitas tertinggi dalam proyek konstruksi mereka melalui teknologi canggih dan tenaga ahli berpengalaman.
+              </Typography>
+            </Box>
+          </Grid>
+        </Grid>
       </Box>
-      <Box sx={{ px: { xs: 3, sm: 6, md: 10, lg: 16, xl: 24 }, py: { xs: 4, md: 8 }, display: 'flex', flexDirection: { xs: 'column', md: 'row-reverse' }, gap: 6, alignItems: 'center', justifyContent: 'center', backgroundColor: '#090d1f', boxSizing: 'border-box' }}>
-        <Box sx={{ flex: 1, mb: { xs: 4, md: 0 }, textAlign: { xs: 'center', md: 'left' } }}>
-          <Typography sx={{ color: '#41e3ff', fontWeight: 700, fontSize: '1.1rem', mb: 1, fontFamily: 'Open Sans' }}>Role & Hak Akses</Typography>
-          <Typography variant="h5" sx={{ fontWeight: 900, color: '#fff', mb: 2, fontFamily: 'Open Sans' }}>Kontrol penuh, aman, dan transparan</Typography>
-          <Typography sx={{ color: '#b5eaff', fontSize: '1rem', mb: 2, fontFamily: 'Open Sans' }}>
-            Admin bisa atur hak akses, staff fokus mengelola dokumen, user hanya akses dokumen yang diizinkan.
-          </Typography>
-        </Box>
-        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-          <Box
-            component="img"
-            src="/section_2.png"
-            alt="Section 2"
-            sx={{
-              width: '100%',
-              maxWidth: 340,
-              height: 220,
-              objectFit: 'cover',
-              borderRadius: '22px',
-              boxShadow: '0 4px 32px 0 rgba(65,227,255,0.09)',
-              background: '#181e2b'
-            }}
-          />
-        </Box>
-      </Box>
-      <Box sx={{ px: { xs: 3, sm: 6, md: 10, lg: 16, xl: 24 }, py: { xs: 4, md: 8 }, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 6, alignItems: 'center', justifyContent: 'center', backgroundColor: '#090d1f', boxSizing: 'border-box' }}>
-        <Box sx={{ flex: 1, mb: { xs: 4, md: 0 }, textAlign: { xs: 'center', md: 'left' } }}>
-          <Typography sx={{ color: '#41e3ff', fontWeight: 700, fontSize: '1.1rem', mb: 1, fontFamily: 'Open Sans' }}>Tanpa Batas</Typography>
-          <Typography variant="h5" sx={{ fontWeight: 900, color: '#fff', mb: 2, fontFamily: 'Open Sans' }}>Akses dokumen tanpa limit</Typography>
-          <Typography sx={{ color: '#b5eaff', fontSize: '1rem', mb: 2, fontFamily: 'Open Sans' }}>
-            Tidak ada batas jumlah dokumen, upload, atau aktivitas untuk semua user.
-          </Typography>
-        </Box>
-        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-          <Box
-            component="img"
-            src="/section_3.png"
-            alt="Section 3"
-            sx={{
-              width: '100%',
-              maxWidth: 340,
-              height: 220,
-              objectFit: 'cover',
-              borderRadius: '22px',
-              boxShadow: '0 4px 32px 0 rgba(65,227,255,0.09)',
-              background: '#181e2b'
-            }}
-          />
-        </Box>
+
+      {/* Contact section */}
+      <Box sx={{
+        py: { xs: 6, md: 8 },
+        px: { xs: 2, sm: 4, md: 6 },
+        background: 'linear-gradient(180deg, rgba(16,24,40,0.95) 0%, rgba(9,13,31,0.95) 100%)',
+        position: 'relative',
+        zIndex: 1,
+      }}>
+        <Typography variant="h3" sx={{ textAlign: 'center', fontWeight: 700, fontSize: { xs: '1.8rem', md: '2.5rem' }, mb: 2, color: '#fff' }}>
+          Hubungi Kami
+        </Typography>
+        <Typography sx={{ color: '#b5eaff', fontSize: { xs: '1rem', md: '1.1rem' }, mb: 4, maxWidth: 700, mx: 'auto', textAlign: 'center' }}>
+          Konsultasikan kebutuhan pengujian material proyek Anda dengan tim ahli kami
+        </Typography>
+        
+        <Grid container spacing={4} justifyContent="center">
+          <Grid item xs={12} sm={6} md={4}>
+            <Box sx={{ p: 3, borderRadius: 4, background: 'rgba(16,24,40,0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(65,227,255,0.1)', height: '100%', textAlign: 'center' }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: '#fff' }}>
+                Alamat Kantor
+              </Typography>
+              <Typography sx={{ color: '#b5eaff', fontSize: '0.95rem', lineHeight: 1.7 }}>
+                Jl. Teknik Sipil No. 123<br />
+                Kota Jakarta Selatan, 12345<br />
+                Indonesia
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <Box sx={{ p: 3, borderRadius: 4, background: 'rgba(16,24,40,0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(65,227,255,0.1)', height: '100%', textAlign: 'center' }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: '#fff' }}>
+                Kontak
+              </Typography>
+              <Typography sx={{ color: '#b5eaff', fontSize: '0.95rem', lineHeight: 1.7 }}>
+                Telepon: +62 21 1234 5678<br />
+                Email: info@intiteknologi.com<br />
+                Jam Kerja: Senin-Jumat, 08.00-17.00
+              </Typography>
+            </Box>
+          </Grid>
+        </Grid>
       </Box>
       {/* Footer */}
-      <Box sx={{ px: { xs: 2, md: 8 }, py: 4, textAlign: 'center', color: '#b5eaff', fontSize: '0.95rem', fontFamily: 'Open Sans', backgroundColor: '#090d1f' }}>
-        &copy; {new Date().getFullYear()} IntiDocs. All rights reserved.
+      <Box sx={{
+        py: 4,
+        px: { xs: 2, sm: 4, md: 6 },
+        background: '#090d1f',
+        borderTop: '1px solid rgba(65,227,255,0.1)',
+        textAlign: 'center',
+      }}>
+        <Typography sx={{ color: '#b5eaff', fontSize: '0.9rem' }}>
+          &copy; {new Date().getFullYear()} Inti Teknologi Pengujian Material. All rights reserved.
+        </Typography>
       </Box>
     </Box>
   );

@@ -52,7 +52,7 @@ const ActivityLog = () => {
                   <TableCell>{log.username}{log.userRole ? ` (${log.userRole.charAt(0).toUpperCase() + log.userRole.slice(1)})` : ''}</TableCell>
                   <TableCell>{log.action}</TableCell>
                   <TableCell>{log.description}</TableCell>
-                  <TableCell>{log.documentId ? (log.documentId.title || log.documentId.filePath) : '-'}</TableCell>
+                  <TableCell>{log.documentId ? (log.documentId.namaProyek || log.documentId.title || log.documentId.filePath) : '-'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
