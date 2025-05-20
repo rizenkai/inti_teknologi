@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
-  Container,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Paper,
   Button,
   TextField,
@@ -24,12 +19,14 @@ import {
   CircularProgress,
   Alert,
   IconButton,
-  Grid,
+  Avatar,
+  Divider
 } from '@mui/material';
 import { 
   CloudDownload as DownloadIcon, 
   Add as AddIcon,
-  Search as SearchIcon
+  Search as SearchIcon,
+  Delete as DeleteIcon
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 
@@ -306,171 +303,155 @@ const Documents = () => {
   };
   
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h4" gutterBottom sx={{ color: '#fff', fontWeight: 800, letterSpacing: 1 }}>Document List</Typography>
-      </Box>
-      
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={8}>
-          <TextField
-            fullWidth
-            placeholder="Cari Dokumen"
-            variant="outlined"
-            value={searchTerm}
-            onChange={(e) => {
-              console.log('Search term changed:', e.target.value);
-              setSearchTerm(e.target.value);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                console.log('Search submitted:', searchTerm);
-                // Force re-render to refresh filtered results
-                setSearchTerm(searchTerm.trim());
-              }
-            }}
-            InputProps={{
-              startAdornment: (
-                <Box component="span" sx={{ color: '#b5eaff', mr: 1, fontSize: 14, display: 'flex', alignItems: 'center' }}>
-                  <span style={{ marginRight: 4 }}>🔍</span>
-                </Box>
-              ),
-              style: {
-                color: '#fff',
-                background: 'rgba(65,227,255,0.10)',
-                borderRadius: 12,
-                border: '1.5px solid #41e3ff',
-                boxShadow: '0 1px 4px 0 rgba(65,227,255,0.12)'
-              }
-            }}
-            InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
-            sx={{
-              input: { color: '#fff' },
-              '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' },
-              '& input::placeholder': { color: '#bdbdbd', opacity: 1 },
-              borderRadius: 2,
-            }}
-          />
-        </Grid>
-      </Grid>
-      
-      {error && (
-        <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-      
-      {loading ? (
-        <Box display="flex" justifyContent="center" my={4}>
-          <CircularProgress />
-        </Box>
-      ) : filteredDocuments.length === 0 ? (
-        <Alert severity="info">No documents found</Alert>
-      ) : (
-        <TableContainer component={Paper} sx={{
-           background: 'rgba(20,32,54,0.82)',
-           borderRadius: 3,
-           boxShadow: '0 2px 16px rgba(65,227,255,0.18)',
-           border: '1.5px solid #41e3ff',
-           backdropFilter: 'blur(8px)',
-         }}>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ background: 'rgba(65,227,255,0.10)' }}>
-                <TableCell sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 16 }}>ID</TableCell>
-                <TableCell sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 16 }}>Nama Proyek</TableCell>
-                <TableCell sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 16 }}>File Type</TableCell>
-                <TableCell sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 16 }}>Status</TableCell>
-                <TableCell sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 16 }}>User Tujuan</TableCell>
-                <TableCell sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 16 }}>Submitted Date</TableCell>
-                <TableCell sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 16 }}>Document Uploaded</TableCell>
-                <TableCell sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 16 }}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
+    <Box sx={{ minHeight: '100vh', width: '100%', fontFamily: 'Open Sans, Arial, Helvetica, sans-serif', color: '#fff', backgroundImage: "url('/Frame211332.png')", backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundColor: '#090d1f', overflowX: 'hidden' }}>
+      {/* Konten utama */}
+      <Box sx={{ minHeight: '100vh', position: 'relative' }}>
+        {/* Overlay gradient agar teks tetap jelas */}
+        <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, background: 'radial-gradient(ellipse at 60% 40%, rgba(65,227,255,0.18) 0%, rgba(59,130,246,0.16) 40%, rgba(9,13,31,0.8) 100%)', pointerEvents: 'none' }} />
+
+        {/* Konten documents */}
+        <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', px: { xs: 1, sm: 2, md: 3 }, pt: 5, position: 'relative', zIndex: 1 }}>
+          <Typography variant="h4" sx={{ mb: 4, color: '#fff', fontWeight: 700 }}>
+            Document List
+          </Typography>
+
+          {/* Search & Add New Document */}
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, mb: 3, gap: 2 }}>
+            <TextField
+              InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+              InputProps={{ 
+                style: { color: '#fff', background: 'rgba(65,227,255,0.15)', borderRadius: 2 },
+                startAdornment: (
+                  <Box component="span" sx={{ color: '#b5eaff', mr: 1, fontSize: 14, display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: 4 }}>🔍</span>
+                  </Box>
+                )
+              }}
+              variant="outlined"
+              size="small"
+              placeholder="Cari Dokumen (Nama/ID)"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{ flexGrow: 1, maxWidth: { sm: 300 } }}
+            />
+
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => {
+                setUploadDialog(true);
+                setSelectedDocument(null); // Reset for new document
+                setDocumentData({
+                  title: '',
+                  description: '',
+                  status: 'pending',
+                });
+                setSelectedFile(null);
+              }}
+              sx={{ 
+                bgcolor: '#41e3ff', 
+                color: '#0a1929', 
+                fontWeight: 700,
+                '&:hover': { bgcolor: '#65e7ff' },
+                whiteSpace: 'nowrap',
+                px: 2
+              }}
+            >
+              ADD NEW DOCUMENT
+            </Button>
+          </Box>
+
+          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+              <CircularProgress sx={{ color: '#41e3ff' }} />
+            </Box>
+          ) : filteredDocuments.length === 0 ? (
+            <Box sx={{ textAlign: 'center', my: 4, p: 3, border: '1px dashed #41e3ff', borderRadius: 2 }}>
+              <Typography variant="h6" sx={{ color: '#b5eaff' }}>
+                No documents found
+              </Typography>
+            </Box>
+          ) : (
+            /* Grid kartu dokumen, maksimal 3 per baris, styling mirip Dashboard */
+            <Box sx={{ width: '100%', mb: 3, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' }, gap: { xs: 1.5, sm: 2, md: 4 } }}>
               {filteredDocuments.map((doc) => (
-                <TableRow key={doc._id} sx={{ '&:hover': { background: 'rgba(65,227,255,0.10)' } }}>
-                  {/* Kolom ID: tampilkan placeholderId jika ada, jika tidak tampilkan _id */}
-                  <TableCell align="left" sx={{ color: '#fff', fontWeight: 500 }}>
-                    {doc.placeholderId ? doc.placeholderId : doc._id}
-                  </TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{doc.namaProyek || doc.title}</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{
-                    doc.fileName && doc.fileName !== 'placeholder.txt'
-                      ? (doc.fileName.split('.').pop() || '-').toLowerCase()
-                      : '-'
-                    }
-                  </TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 700, letterSpacing: 0.5 }}>
-                    <Box
-                      sx={{
-                        backgroundColor:
-                          doc.status === 'pending'
-                            ? '#FFE082'
-                            : doc.status === 'in_progress'
-                            ? '#80D8FF'
-                            : doc.status === 'review'
-                            ? '#FFAB91'
-                            : doc.status === 'completed'
-                            ? '#A5D6A7'
-                            : '#bdbdbd',
-                        color:
-                          doc.status === 'pending' || doc.status === 'review'
-                            ? '#212121'
-                            : '#0a1929',
-                        px: 2,
-                        py: 0.5,
-                        borderRadius: 2,
-                        fontWeight: 700,
-                        fontSize: 14,
-                        display: 'inline-block',
-                        minWidth: 100,
-                        textAlign: 'center',
-                        letterSpacing: 1
-                      }}
-                    >
-                      {doc.status?.toUpperCase()}
+                <Box key={doc._id} sx={{ minWidth: { xs: 0, sm: 250, md: 320 }, maxWidth: '100%' }}>
+                  <Paper elevation={0} sx={{
+                    minHeight: { xs: 160, md: 220 },
+                    p: { xs: 1.5, sm: 2, md: 2.5 },
+                    border: '1.5px solid #41e3ff',
+                    borderRadius: 2,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                    transition: 'box-shadow 0.2s',
+                    '&:hover': { boxShadow: '0 4px 24px rgba(0,0,0,0.08)' },
+                    background: 'rgba(65,227,255,0.15)',
+                    backdropFilter: 'blur(8px)',
+                    color: '#fff',
+                  }}>
+                    <Typography variant="subtitle2" sx={{ mb: 0.5, fontSize: { xs: 11, md: 13 }, fontWeight: 500, color: '#b5eaff' }}>#{doc.placeholderId || doc._id}</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 700, fontSize: 18, mb: 0.5, color: '#fff' }}>{doc.namaProyek || doc.title}</Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <Box sx={{ px: 1.2, py: 0.2, bgcolor: statusColors[doc.status] || '#e7f6fd', color: '#222', borderRadius: 1, fontWeight: 600, fontSize: 13, minWidth: 86, textAlign: 'center' }}>
+                        {statusLabels[doc.status] || doc.status}
+                      </Box>
                     </Box>
-                  </TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{doc.targetUser ? `${doc.targetUser.username} - ${doc.targetUser.fullname}` : '-'}</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{doc.submissionDate ? formatDate(doc.submissionDate) : '-'}</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{doc.fileName && doc.fileName !== 'placeholder.txt' ? formatDate(doc.lastModified) : '-'}</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 500 }}>
-                    {/* Jika dokumen masih placeholder/manual dan status belum completed, tampilkan "waiting to complete" */}
-                    {doc.fileName === 'placeholder.txt' && doc.status !== 'completed' ? (
+                    
+                    {/* Tampilkan Tipe Pengujian */}
+                    <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between', color: '#b5eaff' }}>
+                      <span>Tipe Pengujian:</span> 
+                      <b style={{ color: '#fff' }}>
+                        {doc.tipePengujian || 
+                          (doc.mutuBahan && doc.mutuBahan.startsWith('T') ? 'Besi' : 
+                           doc.mutuBahan && doc.mutuBahan.startsWith('K') ? 'Beton' : '-')}
+                      </b>
+                    </Box>
+                    {/* Tampilkan BP atau Panjang Ulur */}
+                    {(() => {
+                      // Determine tipePengujian based on mutuBahan if not set
+                      const isBesi = doc.tipePengujian === 'Besi' || (doc.mutuBahan && doc.mutuBahan.startsWith('T'));
+                      
+                      return isBesi ? (
+                        <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between', color: '#b5eaff' }}>
+                          <span>Panjang Ulur (mm):</span> <b style={{ color: '#fff' }}>{doc.bp || '-'}</b>
+                        </Box>
+                      ) : (
+                        <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between', color: '#b5eaff' }}>
+                          <span>BP (Kg):</span> <b style={{ color: '#fff' }}>{doc.bp || '-'}</b>
+                        </Box>
+                      );
+                    })()}
+                    <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between', color: '#b5eaff' }}>
+                      <span>Mutu Bahan:</span> <b style={{ color: '#fff' }}>{doc.mutuBahan || '-'}</b>
+                    </Box>
+                    <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between', color: '#b5eaff' }}>
+                      <span>Tipe Bahan:</span> <b style={{ color: '#fff' }}>{doc.tipeBahan || '-'}</b>
+                    </Box>
+                    <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between', color: '#b5eaff' }}>
+                      <span>File Type:</span> <b style={{ color: '#fff' }}>{doc.fileType || (doc.filePath ? doc.filePath.split('.').pop() : '-')}</b>
+                    </Box>
+                    <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between', color: '#b5eaff' }}>
+                      <span>Submission:</span> <b style={{ color: '#fff' }}>{formatDate(doc.submissionDate)}</b>
+                    </Box>
+                    {doc.filePath && (
+                      <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between', color: '#b5eaff' }}>
+                        <span>Uploaded:</span> <b style={{ color: '#fff' }}>{formatDate(doc.uploadDate)}</b>
+                      </Box>
                       <span style={{ color: '#aaa', fontWeight: 500 }}>waiting to complete</span>
                     ) : (
                       // Tampilkan tombol download & aksi lain jika sudah completed/file sudah diupload
-                      <Box sx={{ display: 'flex', gap: 1 }}>
+                      <>
                         {doc.fileName && doc.fileName !== 'placeholder.txt' && (
-                          <Button
-                            variant="contained"
-                            size="small"
-                            startIcon={<DownloadIcon />}
-                            onClick={() => handleDownloadDocument(doc._id)}
-                            sx={{
-                              bgcolor: '#41e3ff',
-                              color: '#111a2b',
-                              fontWeight: 600,
-                              fontSize: '0.75rem',
-                              '&:hover': { bgcolor: '#1ec6e6' },
-                              borderRadius: 2,
-                              textTransform: 'none',
-                              boxShadow: '0 2px 8px rgba(65,227,255,0.25)'
-                            }}
-                          >
-                            Download
-                          </Button>
+                          <IconButton id={`download-${doc._id}`} onClick={() => handleDownloadDocument(doc._id)}>
+                            <DownloadIcon sx={{ color: '#fff' }} />
+                          </IconButton>
                         )}
                         
                         {(userRole === 'admin' || userRole === 'staff') && (
-                          // Cek apakah dokumen sudah memiliki file yang diupload
-                          // Jika fileName ada dan bukan placeholder.txt, berarti sudah ada file
-                          doc.fileName && doc.fileName !== 'placeholder.txt' ? (
-                            <Button
-                              variant="contained"
-                              size="small"
-                              startIcon={<DownloadIcon sx={{ transform: 'rotate(180deg)' }} />}
+                          doc.filePath && doc.fileName && doc.status === 'completed' ? (
+                            <IconButton 
+                              color="secondary" 
                               onClick={() => {
                                 setSelectedDocument(doc);
                                 setDocumentData({
@@ -482,24 +463,14 @@ const Documents = () => {
                                 });
                                 setUploadDialog(true);
                               }}
-                              sx={{
-                                bgcolor: '#ff9800',
-                                color: '#111a2b',
-                                fontWeight: 600,
-                                fontSize: '0.75rem',
-                                '&:hover': { bgcolor: '#f57c00' },
-                                borderRadius: 2,
-                                textTransform: 'none',
-                                boxShadow: '0 2px 8px rgba(255,152,0,0.25)'
-                              }}
+                              title="Edit File Document"
+                              size="small"
                             >
-                              Update
-                            </Button>
+                              <DownloadIcon sx={{ color: '#fff', transform: 'rotate(180deg)' }} />
+                            </IconButton>
                           ) : (
-                            <Button
-                              variant="contained"
-                              size="small"
-                              startIcon={<AddIcon />}
+                            <IconButton 
+                              color="secondary" 
                               onClick={() => {
                                 setSelectedDocument(doc);
                                 setDocumentData({
@@ -511,22 +482,14 @@ const Documents = () => {
                                 });
                                 setUploadDialog(true);
                               }}
-                              sx={{
-                                bgcolor: '#4caf50',
-                                color: '#111a2b',
-                                fontWeight: 600,
-                                fontSize: '0.75rem',
-                                '&:hover': { bgcolor: '#388e3c' },
-                                borderRadius: 2,
-                                textTransform: 'none',
-                                boxShadow: '0 2px 8px rgba(76,175,80,0.25)'
-                              }}
+                              title="Upload File"
+                              size="small"
                             >
-                              Upload
-                            </Button>
+                              <AddIcon sx={{ color: '#fff' }} />
+                            </IconButton>
                           )
                         )}
-                      </Box>
+                      </>
                     )}
                   </TableCell>
                 </TableRow>

@@ -26,8 +26,8 @@ const documentSchema = new mongoose.Schema({
     default: ''
   },
   tipeBahan: {
-    type: String, // Enum para Tipe Bahan
-    enum: ['Silinder', 'Kubus', 'Balok', 'Paving', 'Scoup', ''],
+    type: String, // Tipe Bahan (tidak lagi menggunakan enum)
+    trim: true,
     default: ''
   },
   placeholderId: { 

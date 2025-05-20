@@ -13,11 +13,32 @@ import UserManagement from './pages/UserManagement';
 import Documents from './pages/Documents';
 import ActivityLog from './pages/ActivityLog';
 import Landing from './pages/Landing';
+import EditInput from './pages/EditInput';
 
 // Protected Route Component
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
   return token ? children : <Navigate to="/login" />;
+};
+
+// Admin Route Component
+const AdminRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  const userStr = localStorage.getItem('user');
+  
+  if (!token) {
+    return <Navigate to="/login" />;
+  }
+  
+  if (userStr) {
+    const user = JSON.parse(userStr);
+    if (user.role === 'admin') {
+      return children;
+    }
+  }
+  
+  // Redirect to dashboard if not admin
+  return <Navigate to="/dashboard" />;
 };
 
 // Theme
@@ -72,6 +93,15 @@ function App() {
             }
           />
           <Route path="/activity-log" element={<PrivateRoute><Layout><ActivityLog /></Layout></PrivateRoute>} />
+          <Route path="/edit-input" 
+            element={
+              <AdminRoute>
+                <Layout>
+                  <EditInput />
+                </Layout>
+              </AdminRoute>
+            }
+          />
         </Routes>
       </Router>
     </ThemeProvider>

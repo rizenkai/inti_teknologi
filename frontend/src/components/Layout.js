@@ -18,6 +18,7 @@ import {
   History as HistoryIcon,
   Menu as MenuIcon,
   Close as CloseIcon,
+  Edit as EditIcon,
 } from '@mui/icons-material';
 
 const Layout = ({ children }) => {
@@ -79,6 +80,11 @@ const Layout = ({ children }) => {
     // Añadir opción de Users para admin, staff y owner
     if (user && user.role && (user.role === 'admin' || user.role === 'staff' || user.role === 'owner')) {
       baseItems.push({ text: 'Users', icon: <PeopleIcon />, path: '/users' });
+    }
+
+    // Añadir opción de Edit Input hanya untuk admin
+    if (user && user.role && user.role === 'admin') {
+      baseItems.push({ text: 'Edit Input', icon: <EditIcon />, path: '/edit-input' });
     }
     
     return baseItems;

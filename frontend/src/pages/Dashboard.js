@@ -51,6 +51,11 @@ const statusLabels = {
 };
 
 const Dashboard = () => {
+  // Deskripsi untuk tipe pengujian
+  const tipePengujianDescriptions = {
+    Beton: '',
+    Besi: ''
+  };
   const navigate = useNavigate();
   // NEW: State for Add Document Dialog
   const [addDialog, setAddDialog] = useState(false);
@@ -63,8 +68,13 @@ const Dashboard = () => {
   const [newDocBP, setNewDocBP] = useState('');
   const [newDocKodeBahan, setNewDocKodeBahan] = useState('');
   const [newDocTipeBahan, setNewDocTipeBahan] = useState('');
+  const [newDocTipePengujian, setNewDocTipePengujian] = useState('');
   const [userList, setUserList] = useState([]);
   const [targetUser, setTargetUser] = useState('');
+  
+  // State untuk opsi dropdown dari database
+  const [mutuBahanOptions, setMutuBahanOptions] = useState([]);
+  const [tipeBahanOptions, setTipeBahanOptions] = useState([]);
 
   // Check user role (from localStorage)
   let userRole = '';
@@ -93,10 +103,123 @@ const Dashboard = () => {
       axios.get('http://localhost:5000/api/auth/regular-users', {
         headers: { Authorization: `Bearer ${token}` }
       })
-      .then(res => setUserList(res.data))
-      .catch(() => setUserList([]));
+        .then(response => {
+          setUserList(response.data);
+        })
+        .catch(error => {
+          console.error('Error fetching users:', error);
+        });
+        
+      // Fetch input options for dropdowns
+      fetchInputOptions();
     }
+    
+    fetchDocuments();
   }, [userRole]);
+  
+  // Fungsi untuk mengambil opsi dropdown dari API
+  const fetchInputOptions = async () => {
+    try {
+      // Buat array untuk nilai default
+      const defaultMutuBahan = [
+        { _id: 'default-1', value: 'T 280', testType: 'Besi' },
+        { _id: 'default-2', value: 'T 420', testType: 'Besi' },
+        { _id: 'default-3', value: 'K 225', testType: 'Beton' },
+        { _id: 'default-4', value: 'K 250', testType: 'Beton' },
+        { _id: 'default-5', value: 'K 300', testType: 'Beton' },
+        { _id: 'default-6', value: 'K 350', testType: 'Beton' },
+        { _id: 'default-7', value: 'K 400', testType: 'Beton' },
+        { _id: 'default-8', value: 'K 450', testType: 'Beton' },
+        { _id: 'default-9', value: 'K 500', testType: 'Beton' },
+        { _id: 'default-10', value: 'K 600', testType: 'Beton' }
+      ];
+      
+      const defaultTipeBahan = [
+        { _id: 'default-11', value: 'BJTS (Ulir)', testType: 'Besi' },
+        { _id: 'default-12', value: 'BJTP (Polos)', testType: 'Besi' },
+        { _id: 'default-13', value: 'KUBUS', testType: 'Beton' },
+        { _id: 'default-14', value: 'SILINDER', testType: 'Beton' },
+        { _id: 'default-15', value: 'BALOK', testType: 'Beton' },
+        { _id: 'default-16', value: 'PAVING', testType: 'Beton' },
+        { _id: 'default-17', value: 'SCOUP', testType: 'Beton' }
+      ];
+      
+      const token = localStorage.getItem('token');
+      
+      // Fetch mutu bahan options
+      const mutuBahanResponse = await axios.get('http://localhost:5000/api/inputs/values?category=mutuBahan', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Gabungkan nilai default dengan nilai dari API
+      let combinedMutuBahan = [...defaultMutuBahan];
+      
+      if (mutuBahanResponse.data && mutuBahanResponse.data.length > 0) {
+        // Filter nilai dari API yang tidak ada di nilai default
+        const apiMutuBahan = mutuBahanResponse.data.filter(apiItem => {
+          return !defaultMutuBahan.some(defaultItem => 
+            defaultItem.value === apiItem.value && defaultItem.testType === apiItem.testType
+          );
+        });
+        
+        // Gabungkan nilai default dengan nilai dari API
+        combinedMutuBahan = [...defaultMutuBahan, ...apiMutuBahan];
+      }
+      
+      setMutuBahanOptions(combinedMutuBahan);
+      
+      // Fetch tipe bahan options
+      const tipeBahanResponse = await axios.get('http://localhost:5000/api/inputs/values?category=tipeBahan', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Gabungkan nilai default dengan nilai dari API
+      let combinedTipeBahan = [...defaultTipeBahan];
+      
+      if (tipeBahanResponse.data && tipeBahanResponse.data.length > 0) {
+        // Filter nilai dari API yang tidak ada di nilai default
+        const apiTipeBahan = tipeBahanResponse.data.filter(apiItem => {
+          return !defaultTipeBahan.some(defaultItem => 
+            defaultItem.value === apiItem.value && defaultItem.testType === apiItem.testType
+          );
+        });
+        
+        // Gabungkan nilai default dengan nilai dari API
+        combinedTipeBahan = [...defaultTipeBahan, ...apiTipeBahan];
+      }
+      
+      setTipeBahanOptions(combinedTipeBahan);
+    } catch (error) {
+      console.error('Error fetching input options:', error);
+      
+      // Jika terjadi error, gunakan nilai default saja
+      const defaultMutuBahan = [
+        { _id: 'default-1', value: 'T 280', testType: 'Besi' },
+        { _id: 'default-2', value: 'T 420', testType: 'Besi' },
+        { _id: 'default-3', value: 'K 225', testType: 'Beton' },
+        { _id: 'default-4', value: 'K 250', testType: 'Beton' },
+        { _id: 'default-5', value: 'K 300', testType: 'Beton' },
+        { _id: 'default-6', value: 'K 350', testType: 'Beton' },
+        { _id: 'default-7', value: 'K 400', testType: 'Beton' },
+        { _id: 'default-8', value: 'K 450', testType: 'Beton' },
+        { _id: 'default-9', value: 'K 500', testType: 'Beton' },
+        { _id: 'default-10', value: 'K 600', testType: 'Beton' }
+      ];
+      
+      const defaultTipeBahan = [
+        { _id: 'default-11', value: 'BJTS (Ulir)', testType: 'Besi' },
+        { _id: 'default-12', value: 'BJTP (Polos)', testType: 'Besi' },
+        { _id: 'default-13', value: 'KUBUS', testType: 'Beton' },
+        { _id: 'default-14', value: 'SILINDER', testType: 'Beton' },
+        { _id: 'default-15', value: 'BALOK', testType: 'Beton' },
+        { _id: 'default-16', value: 'PAVING', testType: 'Beton' },
+        { _id: 'default-17', value: 'SCOUP', testType: 'Beton' }
+      ];
+      
+      setMutuBahanOptions(defaultMutuBahan);
+      setTipeBahanOptions(defaultTipeBahan);
+    }
+  };
 
   const statusOptions = [
     'in_progress',
@@ -146,6 +269,13 @@ const Dashboard = () => {
     setNewMutuBahan(document.mutuBahan || '');
     setNewTipeBahan(document.tipeBahan || '');
     setTargetUser(document.targetUser?._id || '');
+    
+    // Determine tipePengujian based on mutuBahan if not explicitly set
+    const derivedTipePengujian = document.tipePengujian || 
+      (document.mutuBahan && document.mutuBahan.startsWith('T') ? 'Besi' : 
+       document.mutuBahan && document.mutuBahan.startsWith('K') ? 'Beton' : '');
+    setNewDocTipePengujian(derivedTipePengujian);
+    
     setEditDialog(true);
   };
 
@@ -229,6 +359,7 @@ const Dashboard = () => {
         updateData.bp = newBP ? parseFloat(newBP) : null;
         updateData.mutuBahan = newMutuBahan;
         updateData.tipeBahan = newTipeBahan;
+        updateData.tipePengujian = newDocTipePengujian;
         updateData.targetUser = targetUser;
       }
       
@@ -250,16 +381,36 @@ const Dashboard = () => {
 
   // Filter documents based on search term (namaProyek, placeholder id, etc)
   const filteredDocuments = documents.filter(doc => {
-    const search = searchTerm.toLowerCase();
+    if (!searchTerm || searchTerm.trim() === '') return true; // Show all documents if search is empty
+    
+    const search = searchTerm.toLowerCase().trim();
     // Cari berdasarkan namaProyek, placeholder id (placeholderId, filePath, _id), dan user tujuan
+    const namaProyek = (doc.namaProyek || doc.title || '').toString().toLowerCase();
     const placeholderId = (doc.placeholderId || '').toString().toLowerCase();
     const filePathId = (doc.filePath || '').toString().toLowerCase();
     const docId = (doc._id || '').toString().toLowerCase();
+    const bpValue = (doc.bp !== null && doc.bp !== undefined) ? doc.bp.toString().toLowerCase() : '';
+    const mutuBahan = (doc.mutuBahan || '').toString().toLowerCase();
+    const tipeBahan = (doc.tipeBahan || '').toString().toLowerCase();
+    
+    // Log para depuración
+    console.log(`Searching for: ${search} in doc:`, {
+      id: docId,
+      namaProyek,
+      placeholderId,
+      bp: bpValue,
+      mutuBahan,
+      tipeBahan
+    });
+    
     return (
-      (doc.namaProyek || doc.title || '').toLowerCase().includes(search) ||
+      namaProyek.includes(search) ||
       placeholderId.includes(search) ||
       filePathId.includes(search) ||
       docId.includes(search) ||
+      bpValue.includes(search) ||
+      mutuBahan.includes(search) ||
+      tipeBahan.includes(search) ||
       (doc.targetUser && (
         (doc.targetUser.username || '').toLowerCase().includes(search) ||
         (doc.targetUser.fullname || '').toLowerCase().includes(search)
@@ -334,14 +485,41 @@ const Dashboard = () => {
       <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, mb: 3, gap: 2 }}>
         <TextField
   InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
-  InputProps={{ style: { color: '#fff', background: 'rgba(65,227,255,0.15)', borderRadius: 2 } }}
+  InputProps={{ 
+    style: { color: '#fff', background: 'rgba(65,227,255,0.15)', borderRadius: 2 },
+    startAdornment: (
+      <Box component="span" sx={{ color: '#b5eaff', mr: 1, fontSize: 14, display: 'flex', alignItems: 'center' }}>
+        <span style={{ marginRight: 4 }}>🔍</span>
+      </Box>
+    )
+  }}
           variant="outlined"
           size="small"
-          placeholder="Cari Dokumen"
+          placeholder="Cari Dokumen (Nama/ID)"
           value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            console.log('Search term changed:', e.target.value);
+            setSearchTerm(e.target.value);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              console.log('Search submitted:', searchTerm);
+              // Refresh the filtered documents
+              const filtered = documents.filter(doc => {
+                if (!searchTerm || searchTerm.trim() === '') return true;
+                const search = searchTerm.toLowerCase().trim();
+                return (
+                  (doc.namaProyek || doc.title || '').toString().toLowerCase().includes(search) ||
+                  (doc._id || '').toString().toLowerCase().includes(search) ||
+                  (doc.bp !== null && doc.bp !== undefined ? doc.bp.toString().toLowerCase() : '').includes(search) ||
+                  (doc.mutuBahan || '').toString().toLowerCase().includes(search) ||
+                  (doc.tipeBahan || '').toString().toLowerCase().includes(search)
+                );
+              });
+              console.log('Filtered documents:', filtered.length);
+            }
+          }}
           sx={{ bgcolor: 'rgba(20,32,54,0.88)', borderRadius: 2, border: '1.5px solid #41e3ff', input: { color: '#fff' }, width: '100%', flex: 1, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' }, '& input::placeholder': { color: '#bdbdbd', opacity: 1 }, mb: { xs: 1, sm: 0 } }}
-
         />
         {(userRole === 'admin' || userRole === 'staff') && (
           <Button
@@ -402,15 +580,61 @@ const Dashboard = () => {
                   {statusLabels[doc.status] || doc.status}
                 </Box>
               </Box>
+              
+              {/* Tampilkan Tipe Pengujian */}
               <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between', color: '#b5eaff' }}>
-                <span>BP (Kg):</span> <b style={{ color: '#fff' }}>{doc.bp || '-'}</b>
+                <span>Tipe Pengujian:</span> 
+                <b style={{ color: '#fff' }}>
+                  {doc.tipePengujian || 
+                    (doc.mutuBahan && doc.mutuBahan.startsWith('T') ? 'Besi' : 
+                     doc.mutuBahan && doc.mutuBahan.startsWith('K') ? 'Beton' : '-')}
+                </b>
               </Box>
+              {(() => {
+  // Determine tipePengujian based on mutuBahan if not set
+  const isBesi = doc.tipePengujian === 'Besi' || (doc.mutuBahan && doc.mutuBahan.startsWith('T'));
+  
+  return isBesi ? (
+    <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between', color: '#b5eaff' }}>
+      <span>Panjang Ulur (mm):</span> <b style={{ color: '#fff' }}>{doc.bp || '-'}</b>
+    </Box>
+  ) : (
+    <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between', color: '#b5eaff' }}>
+      <span>BP (Kg):</span> <b style={{ color: '#fff' }}>{doc.bp || '-'}</b>
+    </Box>
+  );
+})()}
               <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between', color: '#b5eaff' }}>
                 <span>Mutu Bahan:</span> <b style={{ color: '#fff' }}>{doc.mutuBahan || '-'}</b>
               </Box>
-              <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between' }}>
-                <span>Tipe Bahan:</span> <b>{doc.tipeBahan || '-'}</b>
-              </Box>
+              {(() => {
+  // Determine tipePengujian based on mutuBahan if not set
+  const isBesi = doc.tipePengujian === 'Besi' || (doc.mutuBahan && doc.mutuBahan.startsWith('T'));
+  
+  return isBesi ? (
+    <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between' }}>
+      <span>Tipe Bahan:</span> <b>{doc.tipeBahan === 'Silinder' ? 'BJTS (Ulir)' : doc.tipeBahan === 'Kubus' ? 'BJTP (Polos)' : (doc.tipeBahan || '-')}</b>
+    </Box>
+  ) : (
+    <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between' }}>
+      <span>Tipe Bahan:</span> <b>{doc.tipeBahan ? doc.tipeBahan.charAt(0).toUpperCase() + doc.tipeBahan.slice(1).toLowerCase() : '-'}</b>
+    </Box>
+  );
+})()}
+{/* Show description for tipePengujian in card */}
+{(() => {
+  // Determine tipePengujian based on mutuBahan if not set
+  const derivedTipePengujian = doc.tipePengujian || 
+    (doc.mutuBahan && doc.mutuBahan.startsWith('T') ? 'Besi' : 
+     doc.mutuBahan && doc.mutuBahan.startsWith('K') ? 'Beton' : null);
+  
+  // Only show description for Beton, not for Besi
+  return derivedTipePengujian === 'Beton' && tipePengujianDescriptions[derivedTipePengujian] && (
+  <Box sx={{ fontSize: 13, color: '#b5eaff', fontStyle: 'italic', mb: 0.5 }}>
+    {tipePengujianDescriptions[derivedTipePengujian]}
+  </Box>
+  );
+})()}
               <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between' }}>
                 <span>Submission:</span> <b>{formatDate(doc.submissionDate)}</b>
               </Box>
@@ -421,12 +645,34 @@ const Dashboard = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
                   {userRole === 'admin' || userRole === 'staff' ? (
                     <>
-                      <IconButton size="small" sx={{ ml: 0.5 }} onClick={() => handleEdit(doc)}>
-                        <span role="img" aria-label="edit" style={{ fontSize: 18, color: '#3b82f6' }}>✎</span>
-                      </IconButton>
-                      <IconButton size="small" sx={{ ml: 0.5 }} onClick={() => handleDelete(doc)}>
-                        <span role="img" aria-label="delete" style={{ fontSize: 18, color: '#e74c3c' }}>🗑️</span>
-                      </IconButton>
+                      <Button 
+                        onClick={() => handleEdit(doc)}
+                        sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          ml: 0.5, 
+                          p: 0.5, 
+                          borderRadius: 1,
+                          '&:hover': { bgcolor: 'rgba(59, 130, 246, 0.1)' }
+                        }}
+                      >
+                        <span role="img" aria-label="edit" style={{ fontSize: 18, color: '#3b82f6', marginRight: 4 }}>✎</span>
+                        <Typography sx={{ fontSize: 14, color: '#3b82f6', fontWeight: 600 }}>Edit</Typography>
+                      </Button>
+                      <Button 
+                        onClick={() => handleDelete(doc)}
+                        sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          ml: 1, 
+                          p: 0.5, 
+                          borderRadius: 1,
+                          '&:hover': { bgcolor: 'rgba(231, 76, 60, 0.1)' }
+                        }}
+                      >
+                        <span role="img" aria-label="delete" style={{ fontSize: 18, color: '#e74c3c', marginRight: 4 }}>🗑️</span>
+                        <Typography sx={{ fontSize: 14, color: '#e74c3c', fontWeight: 600 }}>Hapus</Typography>
+                      </Button>
                     </>
                   ) : null}
                 </Box>
@@ -435,7 +681,7 @@ const Dashboard = () => {
               {(doc.fileUrl || doc.hasFile || doc.file || doc.filename || doc.status === 'completed') && (
                 <Typography sx={{ color: '#8c8c8c', fontSize: 13, mt: 0 }}>
                   <span style={{ verticalAlign: 'middle', marginRight: 4 }}>📄</span>
-                  Document uploaded on {formatDate(doc.lastModified)}
+                  Completed on {formatDate(doc.lastModified)}
                 </Typography>
               )}
             </Paper>
@@ -509,10 +755,67 @@ const Dashboard = () => {
             {(userRole === 'admin' || userRole === 'staff') && (
               <>
                 <Typography variant="subnamaProyek1" sx={{ mt: 2, mb: 1 }}>
-                  Informasi Material
+                  Informasi Pengujian
                 </Typography>
                 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  {/* Dropdown Tipe Pengujian */}
+                  <FormControl sx={{ flexGrow: 1, minWidth: '200px', mb: 2, bgcolor: '#162336', borderRadius: 2 }}>
+                    <InputLabel sx={{ color: '#b5eaff', fontWeight: 600 }}>Tipe Pengujian</InputLabel>
+                    <Select
+                      value={newDocTipePengujian}
+                      label="Tipe Pengujian"
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setNewDocTipePengujian(value);
+                        
+                        // Reset fields when changing test type
+                        if (value === 'Besi') {
+                          // For Besi, set default values for its specific fields
+                          setNewMutuBahan('');
+                          setNewTipeBahan('');
+                        } else if (value === 'Beton') {
+                          // For Beton, reset to default values for concrete
+                          setNewMutuBahan('');
+                          setNewTipeBahan('');
+                        } else {
+                          // For None or any other value, clear all fields
+                          setNewMutuBahan('');
+                          setNewTipeBahan('');
+                        }
+                      }}
+                      sx={{
+                        color: '#fff',
+                        background: '#162336',
+                        borderRadius: 2,
+                        fontWeight: 600,
+                        fontFamily: 'Open Sans',
+                        '& .MuiSelect-select': {
+                          color: '#fff',
+                          background: '#162336',
+                          borderRadius: 2,
+                          fontWeight: 600,
+                          fontFamily: 'Open Sans',
+                        },
+                        '& fieldset': {
+                          borderColor: '#41e3ff',
+                        },
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            background: '#162336',
+                            color: '#fff',
+                            borderRadius: 2,
+                          },
+                        },
+                      }}
+                    >
+                      <MenuItem value="" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>None</MenuItem>
+                      <MenuItem value="Beton" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>Beton</MenuItem>
+                      <MenuItem value="Besi" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>Besi</MenuItem>
+                    </Select>
+                  </FormControl>
                   {/* Campo BP (Kg) */}
                   <>
 <TextField
@@ -529,7 +832,7 @@ const Dashboard = () => {
     },
   }}
   margin="dense"
-  label="BP (Kg)"
+  label={newDocTipePengujian === 'Besi' ? "Panjang Ulur (mm)" : "BP (Kg)"}
   type="number"
   inputProps={{ step: 'any', style: { color: '#fff', background: '#162336' }, autoComplete: 'off' }}
   value={newBP}
@@ -604,18 +907,27 @@ const Dashboard = () => {
                         },
                       }}
                     >
-                      <MenuItem value="K 125" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 125</MenuItem>
-                      <MenuItem value="K 150" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 150</MenuItem>
-                      <MenuItem value="K 175" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 175</MenuItem>
-                      <MenuItem value="K 200" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 200</MenuItem>
-                      <MenuItem value="K 225" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 225</MenuItem>
-                      <MenuItem value="K 250" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 250</MenuItem>
-                      <MenuItem value="K 300" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 300</MenuItem>
-                      <MenuItem value="K 350" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 350</MenuItem>
-                      <MenuItem value="K 400" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 400</MenuItem>
-                      <MenuItem value="K 450" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 450</MenuItem>
-                      <MenuItem value="K 500" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 500</MenuItem>
-                      <MenuItem value="K 600" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 600</MenuItem>
+                      {newDocTipePengujian === 'Besi' ? (
+                        <>
+                          <MenuItem value="T 280" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>T 280</MenuItem>
+                          <MenuItem value="T 420" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>T 420</MenuItem>
+                        </>
+                      ) : (
+                        <>
+                          <MenuItem value="K 125" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 125</MenuItem>
+                          <MenuItem value="K 150" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 150</MenuItem>
+                          <MenuItem value="K 175" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 175</MenuItem>
+                          <MenuItem value="K 200" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 200</MenuItem>
+                          <MenuItem value="K 225" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 225</MenuItem>
+                          <MenuItem value="K 250" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 250</MenuItem>
+                          <MenuItem value="K 300" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 300</MenuItem>
+                          <MenuItem value="K 350" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 350</MenuItem>
+                          <MenuItem value="K 400" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 400</MenuItem>
+                          <MenuItem value="K 450" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 450</MenuItem>
+                          <MenuItem value="K 500" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 500</MenuItem>
+                          <MenuItem value="K 600" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 600</MenuItem>
+                        </>
+                      )}
                     </Select>
                   </FormControl>
                   
@@ -653,12 +965,21 @@ const Dashboard = () => {
                         },
                       }}
                     >
-                      <MenuItem value="" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}><em>None</em></MenuItem>
-                      <MenuItem value="Silinder" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>Silinder</MenuItem>
-                      <MenuItem value="Kubus" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>Kubus</MenuItem>
-                      <MenuItem value="Balok" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>Balok</MenuItem>
-                      <MenuItem value="Paving" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>Paving</MenuItem>
-                      <MenuItem value="Scoup" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>Scoup</MenuItem>
+                      {newDocTipePengujian === 'Besi' ? (
+                        <>
+                          <MenuItem value="BJTS (Ulir)" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>BJTS (Ulir)</MenuItem>
+                          <MenuItem value="BJTP (Polos)" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>BJTP (Polos)</MenuItem>
+                        </>
+                      ) : (
+                        <>
+                          <MenuItem value="" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}><em>None</em></MenuItem>
+                          <MenuItem value="Silinder" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>Silinder</MenuItem>
+                          <MenuItem value="Kubus" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>Kubus</MenuItem>
+                          <MenuItem value="Balok" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>Balok</MenuItem>
+                          <MenuItem value="Paving" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>Paving</MenuItem>
+                          <MenuItem value="Scoup" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>Scoup</MenuItem>
+                        </>
+                      )}
                     </Select>
                   </FormControl>
                 </Box>
@@ -796,98 +1117,277 @@ const Dashboard = () => {
             {(userRole === 'admin' || userRole === 'staff') && (
               <>
                 <Typography variant="subnamaProyek1" sx={{ mt: 2, mb: 1 }}>
-                  Informasi Material
+                  Informasi Pengujian
                 </Typography>
                 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  {/* Campo BP (Kg) */}
-                  <TextField
-  margin="dense"
-  label="BP (Kg)"
-  type="number"
-  inputProps={{ 
-    step: 'any',
-    style: { color: '#fff', background: '#162336' }
-  }}
-  value={newDocBP}
-  onChange={e => setNewDocBP(e.target.value)}
-  required
-  InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
-  InputProps={{
-    style: {
-      color: '#fff',
-      background: '#162336',
-      borderRadius: 8,
-      border: '1.5px solid #41e3ff',
-      fontFamily: 'Open Sans',
-      fontWeight: 600,
-      paddingLeft: 8,
-    },
-  }}
-  sx={{
-    flexGrow: 1, 
-    minWidth: '200px',
-    mb: 2,
-    borderRadius: 2,
-    bgcolor: '#162336',
-    '& .MuiOutlinedInput-root': {
-      color: '#fff',
-      background: '#162336',
-      borderRadius: '8px',
-      border: '1.5px solid #41e3ff',
-      fontFamily: 'Open Sans',
-      fontWeight: 600,
-    },
-    '& .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#41e3ff',
-    },
-    '& input': {
-      color: '#fff',
-      background: '#162336',
-      borderRadius: '8px',
-      fontFamily: 'Open Sans',
-      fontWeight: 600,
-      '-webkit-text-fill-color': '#fff',
-      boxShadow: '0 0 0 1000px #162336 inset',
-    },
-    '& input::placeholder': {
-      color: '#b5eaff',
-      opacity: 1,
-    },
-  }}
-/>
+                  {/* Campo Tipe Pengujian (dropdown nativo) */}
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="subtitle2" sx={{ color: '#b5eaff', mb: 1, fontWeight: 600 }}>Tipe Pengujian</Typography>
+                    <Box
+                      component="select"
+                      value={newDocTipePengujian}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setNewDocTipePengujian(value);
+                        
+                        // Reset related fields when tipePengujian changes
+                        // Tidak mengisi nilai default, biarkan kosong
+                        setNewDocKodeBahan('');
+                        setNewDocTipeBahan('');
+                      }}
+                      sx={{
+                        width: '100%',
+                        p: 1.5,
+                        borderRadius: 1,
+                        border: '1px solid #41e3ff',
+                        bgcolor: '#0a1929',
+                        color: '#fff',
+                        outline: 'none',
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                        fontSize: '0.9rem',
+                        transition: 'all 0.2s ease-in-out',
+                        '&:focus': {
+                          boxShadow: '0 0 0 2px rgba(65,227,255,0.5)',
+                          bgcolor: '#102a43',
+                        },
+                        '&:hover': {
+                          bgcolor: '#102a43',
+                        },
+                        '& option': {
+                          bgcolor: '#0a1929',
+                          color: '#fff',
+                          padding: '8px',
+                        }
+                      }}
+                    >
+                      <option value="" disabled style={{color: '#41e3ff'}}>Pilih Tipe Pengujian</option>
+                      <option value="Beton">Beton</option>
+                      <option value="Besi">Besi</option>
+                    </Box>
+                    {/* Show description for selected tipePengujian */}
+                    {newDocTipePengujian && tipePengujianDescriptions[newDocTipePengujian] && (
+                      <Typography variant="body2" sx={{ color: '#b5eaff', mt: 1, mb: 1, fontStyle: 'italic' }}>
+                        {tipePengujianDescriptions[newDocTipePengujian]}
+                      </Typography>
+                    )}
+                  </Box>
+                  
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="subtitle2" sx={{ color: '#b5eaff', mb: 1, fontWeight: 600 }}>
+                      {newDocTipePengujian === 'Besi' ? "Panjang Ulur (mm)" : "BP (Kg)"}
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      inputProps={{ 
+                        step: 'any', 
+                        style: { color: '#fff' }, 
+                        autoComplete: 'off' 
+                      }}
+                      value={newDocBP}
+                      onChange={e => setNewDocBP(e.target.value)}
+                      required
+                      autoComplete="off"
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          color: '#fff',
+                          background: '#0a1929',
+                          borderRadius: '4px',
+                          border: '1px solid #41e3ff',
+                          fontFamily: 'inherit',
+                          fontSize: '0.9rem',
+                          transition: 'all 0.2s ease-in-out',
+                          '&:hover': {
+                            background: '#102a43',
+                          },
+                          '&.Mui-focused': {
+                            background: '#102a43',
+                            boxShadow: '0 0 0 2px rgba(65,227,255,0.5)',
+                          },
+                        },
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#41e3ff',
+                        },
+                        '& input': {
+                          color: '#fff',
+                          background: '#162336',
+                          borderRadius: '8px',
+                          fontFamily: 'Open Sans',
+                          fontWeight: 600,
+                          '-webkit-text-fill-color': '#fff',
+                          boxShadow: '0 0 0 1000px #162336 inset',
+                        },
+                      }}
+                    />
+                  </Box>
+
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="subtitle2" sx={{ color: '#b5eaff', mb: 1, fontWeight: 600 }}>Mutu Bahan</Typography>
+                    <Box 
+                      component="select"
+                      value={newDocKodeBahan}
+                      onChange={(e) => setNewDocKodeBahan(e.target.value)}
+                      sx={{
+                        width: '100%',
+                        p: 1.5,
+                        borderRadius: 1,
+                        border: '1px solid #41e3ff',
+                        bgcolor: '#0a1929',
+                        color: '#fff',
+                        outline: 'none',
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                        fontSize: '0.9rem',
+                        transition: 'all 0.2s ease-in-out',
+                        '&:focus': {
+                          boxShadow: '0 0 0 2px rgba(65,227,255,0.5)',
+                          bgcolor: '#102a43',
+                        },
+                        '&:hover': {
+                          bgcolor: '#102a43',
+                        },
+                        '& option': {
+                          bgcolor: '#0a1929',
+                          color: '#fff',
+                          padding: '8px',
+                        }
+                      }}
+                    >
+                      <option value="" disabled style={{color: '#41e3ff'}}>Pilih Mutu Bahan</option>
+                      {/* Tampilkan data dari API jika ada */}
+                      {mutuBahanOptions.length > 0 && mutuBahanOptions
+                        .filter(option => option.testType === newDocTipePengujian)
+                        .map(option => (
+                          <option key={option._id} value={option.value}>
+                            {option.value}
+                          </option>
+                        ))
+                      }
+                      {/* Tampilkan opsi default jika tidak ada data dari API */}
+                      {(!mutuBahanOptions.length || !mutuBahanOptions.filter(option => option.testType === newDocTipePengujian).length) && (
+                        <>
+                          {newDocTipePengujian === 'Besi' && (
+                            <>
+                              <option value="T 280">T 280</option>
+                              <option value="T 420">T 420</option>
+                            </>
+                          )}
+                          {newDocTipePengujian === 'Beton' && (
+                            <>
+                              <option value="K 225">K 225</option>
+                              <option value="K 250">K 250</option>
+                              <option value="K 300">K 300</option>
+                              <option value="K 350">K 350</option>
+                              <option value="K 400">K 400</option>
+                              <option value="K 450">K 450</option>
+                              <option value="K 500">K 500</option>
+                              <option value="K 600">K 600</option>
+                            </>
+                          )}
+                        </>
+                      )}
+                    </Box>
+                  </Box>
+                  
+                  {/* Campo Tipe Bahan (dropdown nativo) */}
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="subtitle2" sx={{ color: '#b5eaff', mb: 1, fontWeight: 600 }}>Tipe Bahan</Typography>
+                    <Box 
+                      component="select"
+                      value={newDocTipeBahan}
+                      onChange={(e) => setNewDocTipeBahan(e.target.value)}
+                      sx={{
+                        width: '100%',
+                        p: 1.5,
+                        borderRadius: 1,
+                        border: '1px solid #41e3ff',
+                        bgcolor: '#0a1929',
+                        color: '#fff',
+                        outline: 'none',
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                        fontSize: '0.9rem',
+                        transition: 'all 0.2s ease-in-out',
+                        '&:focus': {
+                          boxShadow: '0 0 0 2px rgba(65,227,255,0.5)',
+                          bgcolor: '#102a43',
+                        },
+                        '&:hover': {
+                          bgcolor: '#102a43',
+                        },
+                        '& option': {
+                          bgcolor: '#0a1929',
+                          color: '#fff',
+                          padding: '8px',
+                        }
+                      }}
+                    >
+                      <option value="" disabled style={{color: '#41e3ff'}}>Pilih Tipe Bahan</option>
+                      {/* Tampilkan data dari API jika ada */}
+                      {tipeBahanOptions.length > 0 && tipeBahanOptions
+                        .filter(option => option.testType === newDocTipePengujian)
+                        .map(option => (
+                          <option key={option._id} value={option.value}>
+                            {option.value}
+                          </option>
+                        ))
+                      }
+                      {/* Tampilkan opsi default jika tidak ada data dari API */}
+                      {(!tipeBahanOptions.length || !tipeBahanOptions.filter(option => option.testType === newDocTipePengujian).length) && (
+                        <>
+                          {newDocTipePengujian === 'Besi' && (
+                            <>
+                              <option value="BJTS (Ulir)">BJTS (Ulir)</option>
+                              <option value="BJTP (Polos)">BJTP (Polos)</option>
+                            </>
+                          )}
+                          {newDocTipePengujian === 'Beton' && (
+                            <>
+                              <option value="KUBUS">KUBUS</option>
+                              <option value="SILINDER">SILINDER</option>
+                              <option value="BALOK">BALOK</option>
+                              <option value="PAVING">PAVING</option>
+                              <option value="SCOUP">SCOUP</option>
+                            </>
+                          )}
+                        </>
+                      )}
+                    </Box>
+                  </Box>
                 </Box>
                 
                 {/* Pilih user tujuan dokumen dengan fitur search */}
                 <Autocomplete
-  options={userList}
-  getOptionLabel={(option) => `${option.username} - ${option.fullname}`}
-  value={userList.find(user => user._id === targetUser) || null}
-  onChange={(_, value) => setTargetUser(value ? value._id : '')}
-  renderInput={(params) => (
-    <TextField
-      {...params}
-      label="User Tujuan"
-      variant="outlined"
-      required
-      InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
-      InputProps={{
-        ...params.InputProps,
-        style: {
-          color: '#fff',
-          background: 'rgba(65,227,255,0.15)',
-          borderRadius: 8,
-          fontWeight: 600,
-        },
-      }}
-    />
-  )}
-  isOptionEqualToValue={(option, value) => option._id === value._id}
-  sx={{ flexGrow: 1, minWidth: '200px', mt: 1 }}
-  PaperComponent={({ children, ...props }) => (
-    <Paper {...props} sx={{ background: '#232b3e', color: '#fff', borderRadius: 2 }}>{children}</Paper>
-  )}
-/>
+                  options={userList}
+                  getOptionLabel={(option) => `${option.username} - ${option.fullname}`}
+                  value={userList.find(user => user._id === targetUser) || null}
+                  onChange={(_, value) => setTargetUser(value ? value._id : '')}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="User Tujuan"
+                      variant="outlined"
+                      required
+                      InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+                      InputProps={{
+                        ...params.InputProps,
+                        style: {
+                          color: '#fff',
+                          background: 'rgba(65,227,255,0.15)',
+                          borderRadius: 8,
+                          fontWeight: 600,
+                        },
+                      }}
+                    />
+                  )}
+                  isOptionEqualToValue={(option, value) => option._id === value._id}
+                  sx={{ flexGrow: 1, minWidth: '200px', mt: 1 }}
+                  PaperComponent={({ children, ...props }) => (
+                    <Paper {...props} sx={{ background: '#232b3e', color: '#fff', borderRadius: 2 }}>{children}</Paper>
+                  )}
+                />
               </>
             )}
             {addError && <Alert severity="error" sx={{ mt: 2 }}>{addError}</Alert>}
@@ -913,27 +1413,101 @@ const Dashboard = () => {
               try {
                 const token = localStorage.getItem('token');
                 
-                // Validasi wajib BP, Mutu Bahan, Tipe Bahan untuk admin dan staff
-                if ((userRole === 'admin' || userRole === 'staff') && (!newDocBP || !newDocKodeBahan || !newDocTipeBahan)) {
-                  setAddError('BP, Mutu Bahan, dan Tipe Bahan wajib diisi!');
+                // Validasi wajib BP, Mutu Bahan, Tipe Bahan, dan Tipe Pengujian untuk admin dan staff
+                if ((userRole === 'admin' || userRole === 'staff') && (!newDocBP || !newDocKodeBahan || !newDocTipeBahan || !newDocTipePengujian)) {
+                  setAddError('BP, Mutu Bahan, Tipe Bahan, dan Tipe Pengujian wajib diisi!');
+                  return;
+                }
+                
+                // Tambahkan log untuk debugging
+                // Logging untuk debugging
+console.log('userList:', userList);
+console.log('targetUser:', targetUser);
+
+// Validasi targetUser harus ObjectId (24 karakter hex)
+const isValidObjectId = (id) => typeof id === 'string' && /^[a-fA-F0-9]{24}$/.test(id);
+if (!isValidObjectId(targetUser)) {
+  setAddError('User tujuan tidak valid. Silakan pilih ulang user.');
+  setAddLoading(false);
+  return;
+}
+
+// Mapping otomatis value frontend ke enum backend
+// Pastikan nilai yang dikirim ke server sesuai dengan enum yang diharapkan backend
+// Berdasarkan error, backend mengharapkan nilai enum yang case-sensitive
+
+// Buat mapping untuk memastikan nilai yang benar
+const tipeBahanEnumValues = {
+  'Silinder': 'Silinder',
+  'SILINDER': 'Silinder',
+  'silinder': 'Silinder',
+  'Kubus': 'Kubus',
+  'KUBUS': 'Kubus',
+  'kubus': 'Kubus',
+  'Balok': 'Balok',
+  'BALOK': 'Balok',
+  'balok': 'Balok',
+  'Paving': 'Paving',
+  'PAVING': 'Paving',
+  'paving': 'Paving',
+  'Scoup': 'Scoup',
+  'SCOUP': 'Scoup',
+  'scoup': 'Scoup',
+  'BJTS (Ulir)': 'Silinder',
+  'BJTP (Polos)': 'Kubus'
+};
+
+// Gunakan mapping untuk mendapatkan nilai yang benar
+let fixedTipeBahan = tipeBahanEnumValues[newDocTipeBahan] || newDocTipeBahan;
+
+// Log untuk debugging
+console.log('Tipe Pengujian:', newDocTipePengujian);
+console.log('Tipe Bahan asli:', newDocTipeBahan);
+console.log('Tipe Bahan yang akan dikirim:', fixedTipeBahan);
+
+// Pastikan semua data dalam format yang benar
+// Ensure tipePengujian is set based on mutuBahan if not explicitly selected
+                let derivedTipePengujian = newDocTipePengujian;
+                if (!derivedTipePengujian && newDocKodeBahan) {
+                  if (newDocKodeBahan.startsWith('T')) {
+                    derivedTipePengujian = 'Besi';
+                  } else if (newDocKodeBahan.startsWith('K')) {
+                    derivedTipePengujian = 'Beton';
+                  }
                 }
                 
                 const documentData = {
                   namaProyek: newNamaProyek,
-                  bp: newDocBP,
+                  bp: newDocBP ? parseFloat(newDocBP) : 0,
                   mutuBahan: newDocKodeBahan,
-                  tipeBahan: newDocTipeBahan,
-                  targetUser
+                  tipeBahan: fixedTipeBahan,
+                  tipePengujian: derivedTipePengujian,
+                  targetUser: targetUser || null
                 };
-                await axios.post('http://localhost:5000/api/documents/manual', documentData, {
-                  headers: { Authorization: `Bearer ${token}` }
-                });
+
+console.log('Data yang akan dikirim:', documentData);
+console.log('tipeBahan yang dikirim:', newDocTipeBahan);
+
+try {
+  const response = await axios.post('http://localhost:5000/api/documents/manual', documentData, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  console.log('Response dari server:', response.data);
+} catch (error) {
+  // Tampilkan pesan error backend ke UI
+  const backendMsg = error.response?.data?.message || error.message || 'Server error';
+  setAddError(backendMsg);
+  console.error('Error detail:', error.response?.data);
+  setAddLoading(false);
+  return;
+}
                 setAddDialog(false);
                 // Resetear todos los campos
                 setNewNamaProyek('');
                 setNewDocBP('');
                 setNewDocKodeBahan('');
                 setNewDocTipeBahan('');
+                setNewDocTipePengujian('');
                 setTargetUser('');
                 fetchDocumentsDebounced();
               } catch (err) {

@@ -33,12 +33,14 @@ const documentRoutes = require('./routes/documents');
 const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/users');
 const activityLogRoutes = require('./routes/activityLog');
+const inputRoutes = require('./routes/inputs');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/activity-log', activityLogRoutes);
+app.use('/api/inputs', inputRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

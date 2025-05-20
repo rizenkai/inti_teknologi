@@ -35,3 +35,16 @@ exports.authorize = (...roles) => {
     next();
   };
 };
+
+// Middleware untuk memeriksa apakah user adalah admin atau staff
+exports.isAdminOrStaff = (req, res, next) => {
+  if (req.user.role !== 'admin' && req.user.role !== 'staff') {
+    return res.status(403).json({
+      message: 'Access denied. Only admin and staff can access this resource'
+    });
+  }
+  next();
+};
+
+// Middleware untuk memeriksa apakah token valid
+exports.verifyToken = exports.protect;

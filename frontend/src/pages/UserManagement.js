@@ -238,7 +238,7 @@ const UserManagement = () => {
           {/* Search user input for admin, staff, owner */}
           {(userRole === 'admin' || userRole === 'staff' || userRole === 'owner') && (
             <TextField
-              label="Search user by username or fullname"
+              placeholder="Cari User"
               variant="outlined"
               size="small"
               value={searchUser}
@@ -250,7 +250,12 @@ const UserManagement = () => {
                   borderRadius: 12,
                   border: '1.5px solid #41e3ff',
                   boxShadow: '0 1px 4px 0 rgba(65,227,255,0.12)'
-                }
+                },
+                startAdornment: (
+                  <Box component="span" sx={{ color: '#b5eaff', mr: 1, fontSize: 14, display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: 4 }}>🔍</span>
+                  </Box>
+                )
               }}
               InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
               sx={{
@@ -292,10 +297,12 @@ const UserManagement = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {users.filter(user =>
-                    user.username.toLowerCase().includes(searchUser.toLowerCase()) ||
-                    user.fullname.toLowerCase().includes(searchUser.toLowerCase())
-                  ).map(user => (
+                  {users.filter(user => {
+                    const search = searchUser.toLowerCase();
+                    return user.username.toLowerCase().includes(search) ||
+                           user.fullname.toLowerCase().includes(search) ||
+                           user._id.toLowerCase().includes(search);
+                  }).map(user => (
                     <TableRow key={user._id}>
                       {(userRole === 'admin' || userRole === 'staff') && (
                         <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{user._id.substring(0, 8)}</TableCell>
