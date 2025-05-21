@@ -268,20 +268,55 @@ const Dashboard = () => {
   };
 
   const handleEdit = (document) => {
-    setSelectedDocument(document);
-    setNewStatus(document.status);
+    // Log dokumen untuk debugging
+    console.log('Dokumen yang akan diedit:', document);
+    
+    // Set nilai status dengan default 'pending'
+    const status = document.status || 'pending';
+    console.log('Status diatur ke:', status);
+    
+    // Log nilai mutuBahan dan tipeBahan sebelum pengolahan
+    console.log('Nilai asli mutuBahan:', document.mutuBahan);
+    console.log('Nilai asli tipeBahan:', document.tipeBahan);
+    
     // Inicializar los campos adicionales con los valores actuales del documento
-    setNewBP(document.bp !== null && document.bp !== undefined ? document.bp.toString() : '');
-    setNewMutuBahan(document.mutuBahan || '');
-    setNewTipeBahan(document.tipeBahan || '');
-    setTargetUser(document.targetUser?._id || '');
+    const bp = document.bp !== null && document.bp !== undefined ? document.bp.toString() : '';
+    const mutuBahan = document.mutuBahan || '';
+    const tipeBahan = document.tipeBahan || '';
+    const targetUser = document.targetUser?._id || '';
     
     // Determine tipePengujian based on mutuBahan if not explicitly set
     const derivedTipePengujian = document.tipePengujian || 
       (document.mutuBahan && document.mutuBahan.startsWith('T') ? 'Besi' : 
        document.mutuBahan && document.mutuBahan.startsWith('K') ? 'Beton' : '');
-    setNewDocTipePengujian(derivedTipePengujian);
     
+    // Log semua nilai yang akan diatur setelah pengolahan
+    console.log('Nilai yang diatur setelah pengolahan:', {
+      status,
+      bp,
+      mutuBahan,
+      tipeBahan,
+      tipePengujian: derivedTipePengujian,
+      targetUser
+    });
+    
+    // Atur state dengan timeout pendek untuk memastikan UI diperbarui dengan benar
+    setTimeout(() => {
+      setSelectedDocument(document);
+      setNewStatus(status);
+      setNewBP(bp);
+      setNewDocTipePengujian(derivedTipePengujian);
+      
+      // Atur mutuBahan dan tipeBahan setelah tipePengujian
+      setNewMutuBahan(mutuBahan);
+      setNewTipeBahan(tipeBahan);
+      setTargetUser(targetUser);
+      
+      // Log setelah state diatur
+      console.log('State telah diatur dengan nilai mutuBahan:', mutuBahan, 'dan tipeBahan:', tipeBahan);
+    }, 0);
+    
+    // Buka dialog
     setEditDialog(true);
   };
 
@@ -893,7 +928,12 @@ const Dashboard = () => {
 
 
       {/* Dialogs ... */}
-      <Dialog open={editDialog} onClose={() => setEditDialog(false)} maxWidth="md" fullWidth
+      <Dialog 
+        key={`edit-dialog-${selectedDocument?._id}-${newMutuBahan}-${newTipeBahan}-${newStatus}`} 
+        open={editDialog} 
+        onClose={() => setEditDialog(false)} 
+        maxWidth="md" 
+        fullWidth
   PaperProps={{
     sx: {
       background: isDarkMode ? 'rgba(20,32,54,0.92)' : 'rgba(255,255,255,0.95)',
@@ -944,22 +984,54 @@ const Dashboard = () => {
                   },
                 }}
               >
-                {statusOptions.map((status) => (
-                  <MenuItem key={status} value={status} sx={{ 
-                    color: isDarkMode ? '#fff' : '#333', 
-                    backgroundColor: 'transparent', 
-                    '&.Mui-selected': { 
-                      backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
-                      color: isDarkMode ? '#41e3ff' : '#1976d2' 
-                    }, 
-                    '&:hover': { 
-                      backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
-                      color: isDarkMode ? '#41e3ff' : '#1976d2' 
-                    } 
-                  }}>
-                    {status.replace('_', ' ').toUpperCase()}
-                  </MenuItem>
-                ))}
+                <MenuItem value="pending" sx={{ 
+                  color: isDarkMode ? '#fff' : '#333', 
+                  backgroundColor: 'transparent', 
+                  '&.Mui-selected': { 
+                    backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
+                    color: isDarkMode ? '#41e3ff' : '#1976d2' 
+                  }, 
+                  '&:hover': { 
+                    backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
+                    color: isDarkMode ? '#41e3ff' : '#1976d2' 
+                  } 
+                }}>PENDING</MenuItem>
+                <MenuItem value="in_progress" sx={{ 
+                  color: isDarkMode ? '#fff' : '#333', 
+                  backgroundColor: 'transparent', 
+                  '&.Mui-selected': { 
+                    backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
+                    color: isDarkMode ? '#41e3ff' : '#1976d2' 
+                  }, 
+                  '&:hover': { 
+                    backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
+                    color: isDarkMode ? '#41e3ff' : '#1976d2' 
+                  } 
+                }}>IN PROGRESS</MenuItem>
+                <MenuItem value="review" sx={{ 
+                  color: isDarkMode ? '#fff' : '#333', 
+                  backgroundColor: 'transparent', 
+                  '&.Mui-selected': { 
+                    backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
+                    color: isDarkMode ? '#41e3ff' : '#1976d2' 
+                  }, 
+                  '&:hover': { 
+                    backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
+                    color: isDarkMode ? '#41e3ff' : '#1976d2' 
+                  } 
+                }}>REVIEW</MenuItem>
+                <MenuItem value="completed" sx={{ 
+                  color: isDarkMode ? '#fff' : '#333', 
+                  backgroundColor: 'transparent', 
+                  '&.Mui-selected': { 
+                    backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
+                    color: isDarkMode ? '#41e3ff' : '#1976d2' 
+                  }, 
+                  '&:hover': { 
+                    backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
+                    color: isDarkMode ? '#41e3ff' : '#1976d2' 
+                  } 
+                }}>COMPLETED</MenuItem>
               </Select>
             </FormControl>
             
@@ -1094,9 +1166,19 @@ const Dashboard = () => {
                   <FormControl sx={{ flexGrow: 1, minWidth: '200px', mb: 2, bgcolor: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)', borderRadius: 2 }} required>
                     <InputLabel sx={{ color: isDarkMode ? '#b5eaff' : '#1976d2', fontWeight: 600 }}>Mutu Bahan</InputLabel>
                     <Select
-                      value={newMutuBahan}
+                      value={newMutuBahan || ''}
                       label="Mutu Bahan"
-                      onChange={e => setNewMutuBahan(e.target.value)}
+                      onChange={e => {
+                        console.log('Mutu Bahan diubah ke:', e.target.value);
+                        setNewMutuBahan(e.target.value);
+                        
+                        // Detectar tipo de pengujian basado en Mutu Bahan
+                        if (e.target.value.startsWith('T')) {
+                          setNewDocTipePengujian('Besi');
+                        } else if (e.target.value.startsWith('K')) {
+                          setNewDocTipePengujian('Beton');
+                        }
+                      }}
                       required
                       sx={{
                         color: isDarkMode ? '#fff' : '#333',
@@ -1153,9 +1235,21 @@ const Dashboard = () => {
                   <FormControl sx={{ flexGrow: 1, minWidth: '200px', mt: 1, mb: 2, bgcolor: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)', borderRadius: 2 }}>
                     <InputLabel sx={{ color: isDarkMode ? '#b5eaff' : '#1976d2', fontWeight: 600 }}>Tipe Bahan</InputLabel>
                       <Select
-                        value={newTipeBahan}
+                        value={newTipeBahan || ''}
                         label="Tipe Bahan"
-                        onChange={e => setNewTipeBahan(e.target.value)}
+                        onChange={e => {
+                          console.log('Tipe Bahan diubah ke:', e.target.value);
+                          setNewTipeBahan(e.target.value);
+                          
+                          // Detectar y ajustar tipo de pengujian basado en Tipe Bahan
+                          if (e.target.value === 'BJTS (Ulir)' || e.target.value === 'BJTP (Polos)') {
+                            setNewDocTipePengujian('Besi');
+                          } else if (e.target.value === 'Silinder' || e.target.value === 'Kubus' || 
+                                   e.target.value === 'Balok' || e.target.value === 'Paving' || 
+                                   e.target.value === 'Scoup') {
+                            setNewDocTipePengujian('Beton');
+                          }
+                        }}
                         sx={{
                           color: isDarkMode ? '#fff' : '#333',
                           background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
@@ -1772,7 +1866,10 @@ try {
       </Dialog>
       
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialog} onClose={() => setDeleteDialog(false)}>
+      <Dialog 
+        open={deleteDialog} 
+        onClose={() => setDeleteDialog(false)}
+      >
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <Typography>

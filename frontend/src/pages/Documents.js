@@ -59,9 +59,7 @@ const Documents = () => {
     description: '',
     category: 'general',
     status: 'pending',
-    targetUser: '',
-    mutuBahan: '',
-    tipeBahan: ''
+    targetUser: ''
   });
   const [userList, setUserList] = useState([]);
 
@@ -559,44 +557,13 @@ const Documents = () => {
         }
       }}>
         <DialogTitle>
-          {selectedDocument ? `Upload File for "${selectedDocument.title}"` : 'Upload New Document'}
+          {selectedDocument ? `Upload File untuk "${selectedDocument.namaProyek || selectedDocument.title || 'Dokumen'}"` : 'Upload Dokumen Baru'}
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             {/* Only show document metadata fields for new documents */}
 
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth>
-                <InputLabel>Mutu Bahan</InputLabel>
-                <Select
-                  name="mutuBahan"
-                  value={documentData.mutuBahan}
-                  label="Mutu Bahan"
-                  onChange={handleInputChange}
-                >
-                  <MenuItem value=""><em>None</em></MenuItem>
-                  <MenuItem value="T 420">T 420</MenuItem>
-                  <MenuItem value="T 500">T 500</MenuItem>
-                  <MenuItem value="T 600">T 600</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth>
-                <InputLabel>Tipe Bahan</InputLabel>
-                <Select
-                  name="tipeBahan"
-                  value={documentData.tipeBahan}
-                  label="Tipe Bahan"
-                  onChange={handleInputChange}
-                >
-                  <MenuItem value=""><em>None</em></MenuItem>
-                  <MenuItem value="BJTS (Ulir)">BJTS (Ulir)</MenuItem>
-                  <MenuItem value="BTS (Ulir)">BTS (Ulir)</MenuItem>
-                  <MenuItem value="BTS (Polos)">BTS (Polos)</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
+            {/* Kolom Mutu Bahan dan Tipe Bahan telah dihapus sesuai permintaan */}
             {!selectedDocument && (
               <>
                 <Grid item xs={12}>
