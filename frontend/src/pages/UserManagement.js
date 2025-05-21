@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useTheme } from '../context/ThemeContext';
+import { getTheme } from '../theme/lightDarkTheme';
 import {
   Box,
   Container,
@@ -29,6 +31,10 @@ import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { format } from 'date-fns';
 
 const UserManagement = () => {
+  // Theme context
+  const { isDarkMode } = useTheme();
+  const theme = getTheme(isDarkMode);
+  
   // State for users data
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -210,8 +216,12 @@ const UserManagement = () => {
   };
   
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h4" gutterBottom sx={{ color: '#fff', fontWeight: 800, letterSpacing: 1 }}>User Management</Typography>
+    <Box sx={{ minHeight: '100vh', width: '100%', fontFamily: 'Open Sans, Arial, Helvetica, sans-serif', color: theme.text.primary, backgroundImage: "url('/Frame211332.png')", backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundColor: theme.background.default, overflowX: 'hidden' }}>
+      {/* Overlay gradient agar teks tetap jelas */}
+      <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, background: theme.gradients.overlay, pointerEvents: 'none' }} />
+      
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4, position: 'relative', zIndex: 1 }}>
+      <Typography variant="h4" gutterBottom sx={{ color: theme.text.primary, fontWeight: 800, letterSpacing: 1 }}>User Management</Typography>
       {!canAccess ? (
         <Alert severity="error" sx={{ mt: 2 }}>
           User role {userRole} is not authorized to access this route
@@ -223,12 +233,12 @@ const UserManagement = () => {
               variant="contained"
               sx={{
                 mb: 2,
-                background: 'linear-gradient(90deg, #41e3ff 0%, #1ec6e6 100%)',
-                color: '#0a1929',
+                background: theme.gradients.button,
+                color: theme.primary.contrastText,
                 fontWeight: 700,
                 borderRadius: 2,
-                boxShadow: '0 2px 8px 0 rgba(65,227,255,0.12)',
-                '&:hover': { background: 'linear-gradient(90deg, #1ec6e6 0%, #41e3ff 100%)' }
+                boxShadow: theme.shadows.button,
+                '&:hover': { background: theme.gradients.buttonHover }
               }}
               onClick={() => setAddDialog(true)}
             >
@@ -245,26 +255,26 @@ const UserManagement = () => {
               onChange={e => setSearchUser(e.target.value)}
               InputProps={{
                 style: {
-                  color: '#fff',
-                  background: 'rgba(65,227,255,0.10)',
+                  color: theme.text.primary,
+                  background: theme.background.hover,
                   borderRadius: 12,
-                  border: '1.5px solid #41e3ff',
-                  boxShadow: '0 1px 4px 0 rgba(65,227,255,0.12)'
+                  border: `1.5px solid ${theme.border.main}`,
+                  boxShadow: theme.shadows.input
                 },
                 startAdornment: (
-                  <Box component="span" sx={{ color: '#b5eaff', mr: 1, fontSize: 14, display: 'flex', alignItems: 'center' }}>
+                  <Box component="span" sx={{ color: theme.text.secondary, mr: 1, fontSize: 14, display: 'flex', alignItems: 'center' }}>
                     <span style={{ marginRight: 4 }}>🔍</span>
                   </Box>
                 )
               }}
-              InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+              InputLabelProps={{ style: { color: theme.text.secondary, fontWeight: 600 } }}
               sx={{
                 mb: 2,
                 ml: { xs: 0, sm: 2 },
                 width: '320px',
-                input: { color: '#fff' },
-                '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' },
-                '& input::placeholder': { color: '#bdbdbd', opacity: 1 },
+                input: { color: theme.text.primary },
+                '& .MuiOutlinedInput-notchedOutline': { borderColor: theme.border.main },
+                '& input::placeholder': { color: theme.text.hint, opacity: 1 },
                 borderRadius: 2,
               }}
             />
@@ -279,21 +289,21 @@ const UserManagement = () => {
             </Alert>
           ) : (
             <TableContainer component={Paper} sx={{
-              background: 'rgba(20,32,54,0.82)',
+              background: theme.background.card,
               borderRadius: 3,
-              boxShadow: '0 2px 16px rgba(65,227,255,0.18)',
-              border: '1.5px solid #41e3ff',
+              boxShadow: theme.shadows.card,
+              border: `1.5px solid ${theme.border.dark}`,
               backdropFilter: 'blur(8px)',
             }}>
               <Table>
                 <TableHead>
-                  <TableRow sx={{ background: 'rgba(65,227,255,0.10)' }}>
-                    {(userRole === 'admin' || userRole === 'staff') && <TableCell sx={{ color: '#fff', fontWeight: 700, letterSpacing: 0.5 }}>User ID</TableCell>}
-                    <TableCell sx={{ color: '#fff', fontWeight: 700, letterSpacing: 0.5 }}>Username</TableCell>
-                    <TableCell sx={{ color: '#fff', fontWeight: 700, letterSpacing: 0.5 }}>Full Name</TableCell>
-                    <TableCell sx={{ color: '#fff', fontWeight: 700, letterSpacing: 0.5 }}>Role</TableCell>
-                    <TableCell sx={{ color: '#fff', fontWeight: 700, letterSpacing: 0.5 }}>Date Created</TableCell>
-                    {canAdd && <TableCell sx={{ color: '#fff', fontWeight: 700, letterSpacing: 0.5 }}>Actions</TableCell>}
+                  <TableRow sx={{ background: theme.background.hover }}>
+                    {(userRole === 'admin' || userRole === 'staff') && <TableCell sx={{ color: theme.text.primary, fontWeight: 700, letterSpacing: 0.5 }}>User ID</TableCell>}
+                    <TableCell sx={{ color: theme.text.primary, fontWeight: 700, letterSpacing: 0.5 }}>Username</TableCell>
+                    <TableCell sx={{ color: theme.text.primary, fontWeight: 700, letterSpacing: 0.5 }}>Full Name</TableCell>
+                    <TableCell sx={{ color: theme.text.primary, fontWeight: 700, letterSpacing: 0.5 }}>Role</TableCell>
+                    <TableCell sx={{ color: theme.text.primary, fontWeight: 700, letterSpacing: 0.5 }}>Date Created</TableCell>
+                    {canAdd && <TableCell sx={{ color: theme.text.primary, fontWeight: 700, letterSpacing: 0.5 }}>Actions</TableCell>}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -305,16 +315,16 @@ const UserManagement = () => {
                   }).map(user => (
                     <TableRow key={user._id}>
                       {(userRole === 'admin' || userRole === 'staff') && (
-                        <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{user._id.substring(0, 8)}</TableCell>
+                        <TableCell sx={{ color: theme.text.primary, fontWeight: 500 }}>{user._id.substring(0, 8)}</TableCell>
                       )}
-                      <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{user.username}</TableCell>
-                      <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{user.fullname}</TableCell>
-                      <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{user.role}</TableCell>
-                      <TableCell sx={{ color: '#fff', fontWeight: 500 }}>{formatDate(user.createdAt)}</TableCell>
+                      <TableCell sx={{ color: theme.text.primary, fontWeight: 500 }}>{user.username}</TableCell>
+                      <TableCell sx={{ color: theme.text.primary, fontWeight: 500 }}>{user.fullname}</TableCell>
+                      <TableCell sx={{ color: theme.text.primary, fontWeight: 500 }}>{user.role}</TableCell>
+                      <TableCell sx={{ color: theme.text.primary, fontWeight: 500 }}>{formatDate(user.createdAt)}</TableCell>
                       {canAdd && (
-                        <TableCell sx={{ color: '#fff', fontWeight: 500 }}>
-                          <IconButton onClick={() => handleEditOpen(user)} sx={{ color: '#fff' }}><EditIcon sx={{ color: '#fff' }} /></IconButton>
-                          <IconButton onClick={() => handleDeleteOpen(user._id)} sx={{ color: '#fff' }}><DeleteIcon sx={{ color: '#fff' }} /></IconButton>
+                        <TableCell sx={{ color: theme.text.primary, fontWeight: 500 }}>
+                          <IconButton onClick={() => handleEditOpen(user)} sx={{ color: theme.text.primary }}><EditIcon sx={{ color: theme.text.primary }} /></IconButton>
+                          <IconButton onClick={() => handleDeleteOpen(user._id)} sx={{ color: theme.text.primary }}><DeleteIcon sx={{ color: theme.text.primary }} /></IconButton>
                         </TableCell>
                       )}
                     </TableRow>
@@ -331,17 +341,17 @@ const UserManagement = () => {
         <Dialog open={addDialog} onClose={() => setAddDialog(false)} maxWidth="md" fullWidth
   PaperProps={{
     sx: {
-      background: 'rgba(20,32,54,0.92)',
-      color: '#fff',
+      background: theme.background.card,
+      color: theme.text.primary,
       borderRadius: 3,
-      boxShadow: '0 8px 32px 0 rgba(65,227,255,0.10)',
-      border: '1.5px solid #41e3ff',
+      boxShadow: theme.shadows.card,
+      border: `1.5px solid ${theme.border.main}`,
       backdropFilter: 'blur(8px)',
       p: { xs: 2, md: 4 },
     }
   }}
 >
-          <DialogTitle sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 22, pb: 2, fontFamily: 'Open Sans, Arial, Helvetica, sans-serif' }}>
+          <DialogTitle sx={{ color: theme.primary.main, fontWeight: 700, fontSize: 22, pb: 2, fontFamily: 'Open Sans, Arial, Helvetica, sans-serif' }}>
             Add New User
           </DialogTitle>
           <DialogContent>
@@ -502,17 +512,17 @@ const UserManagement = () => {
         <Dialog open={editDialog} onClose={() => setEditDialog(false)} maxWidth="md" fullWidth
   PaperProps={{
     sx: {
-      background: 'rgba(20,32,54,0.92)',
-      color: '#fff',
+      background: theme.background.card,
+      color: theme.text.primary,
       borderRadius: 3,
-      boxShadow: '0 8px 32px 0 rgba(65,227,255,0.10)',
-      border: '1.5px solid #41e3ff',
+      boxShadow: theme.shadows.card,
+      border: `1.5px solid ${theme.border.main}`,
       backdropFilter: 'blur(8px)',
       p: { xs: 2, md: 4 },
     }
   }}
 >
-          <DialogTitle sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 22, pb: 2, fontFamily: 'Open Sans, Arial, Helvetica, sans-serif' }}>
+          <DialogTitle sx={{ color: theme.primary.main, fontWeight: 700, fontSize: 22, pb: 2, fontFamily: 'Open Sans, Arial, Helvetica, sans-serif' }}>
             Edit User
           </DialogTitle>
           <DialogContent>
@@ -690,6 +700,7 @@ const UserManagement = () => {
         </Dialog>
       )}
     </Container>
+    </Box>
   );
 };
 

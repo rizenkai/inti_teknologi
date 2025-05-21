@@ -1,7 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider as MuiThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 
 // Components
 import Layout from './components/Layout';
@@ -41,25 +42,62 @@ const AdminRoute = ({ children }) => {
   return <Navigate to="/dashboard" />;
 };
 
-// Theme
-const theme = createTheme({
-  palette: {
-    mode: 'light',
-    primary: {
-      main: '#000000',
+// Theme Component yang menggunakan context
+const ThemeWrapper = ({ children }) => {
+  const { isDarkMode } = useTheme();
+  
+  // Membuat tema berdasarkan mode
+  const theme = createTheme({
+    palette: {
+      mode: isDarkMode ? 'dark' : 'light',
+      primary: {
+        main: isDarkMode ? '#41e3ff' : '#2196f3',
+      },
+      secondary: {
+        main: isDarkMode ? '#e74c3c' : '#f44336',
+      },
+      background: {
+        default: isDarkMode ? '#0a1929' : '#f5f5f5',
+        paper: isDarkMode ? '#101828' : '#ffffff',
+      },
+      text: {
+        primary: isDarkMode ? '#ffffff' : '#333333',
+        secondary: isDarkMode ? '#b5eaff' : '#757575',
+      },
     },
-    background: {
-      default: '#f5f5f5',
+    components: {
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            backgroundColor: isDarkMode ? '#101828' : '#ffffff',
+            color: isDarkMode ? '#ffffff' : '#333333',
+          },
+        },
+      },
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            textTransform: 'none',
+          },
+        },
+      },
     },
-  },
-});
+  });
+
+  return (
+    <MuiThemeProvider theme={theme}>
+      <CssBaseline />
+      {children}
+    </MuiThemeProvider>
+  );
+};
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        <Routes>
+    <ThemeProvider>
+      <ThemeWrapper>
+        <Router>
+          <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route
@@ -102,8 +140,9 @@ function App() {
               </AdminRoute>
             }
           />
-        </Routes>
-      </Router>
+          </Routes>
+        </Router>
+      </ThemeWrapper>
     </ThemeProvider>
   );
 }

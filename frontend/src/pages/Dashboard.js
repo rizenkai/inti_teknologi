@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { GlobalStyles } from '@mui/material';
+import { GlobalStyles, useTheme as useMuiTheme } from '@mui/material';
 import { debounce } from 'lodash';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 import {
   Box,
   Container,
@@ -34,6 +35,8 @@ import DownloadIcon from '@mui/icons-material/Download';
 import { format } from 'date-fns';
 import { Pie } from 'react-chartjs-2';
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
+import DescriptionIcon from '@mui/icons-material/Description';
+import { getDropdownStyles } from '../utils/dropdownStyles';
 Chart.register(ArcElement, Tooltip, Legend);
 
 // Status color mapping
@@ -95,6 +98,9 @@ const Dashboard = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const { isDarkMode } = useTheme();
+  const muiTheme = useMuiTheme();
 
   useEffect(() => {
     // Fetch user list only for admin/staff
@@ -436,7 +442,17 @@ const Dashboard = () => {
   });
   const allStatus = ['pending', 'in_progress', 'review', 'completed'];
   const pieLabels = allStatus.map(s => statusLabels[s]);
-  const pieColors = allStatus.map(s => statusColors[s]);
+  const pieColors = allStatus.map(s => isDarkMode ? {
+    'pending': '#fbbf24',
+    'in_progress': '#60a5fa',
+    'review': '#f87171',
+    'completed': '#4ade80',
+  }[s] : {
+    'pending': '#f59e0b',
+    'in_progress': '#3b82f6',
+    'review': '#ef4444',
+    'completed': '#10b981',
+  }[s]);
   const pieValues = allStatus.map(s => statusCounts[s] || 0);
   const pieData = {
     labels: pieLabels,
@@ -468,13 +484,12 @@ const Dashboard = () => {
   // const storageUsed = 85; // Sudah tidak dipakai
 
   return (
-  <Box sx={{ minHeight: '100vh', width: '100%', fontFamily: 'Open Sans, Arial, Helvetica, sans-serif', color: '#fff', backgroundImage: "url('/Frame211332.png')", backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundColor: '#090d1f', overflowX: 'hidden' }}>
+  <Box sx={{ minHeight: '100vh', width: '100%', fontFamily: 'Open Sans, Arial, Helvetica, sans-serif', color: isDarkMode ? '#fff' : '#333', backgroundImage: isDarkMode ? "url('/Frame211332.png')" : "url('/Frame211332-light.png')", backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundColor: isDarkMode ? '#090d1f' : '#f8f8f8', overflowX: 'hidden' }}>
     {/* Tidak ada header/topbar putih di sini. Jika masih muncul, cek file layout utama seperti App.js atau MainLayout.js */}
 
     {/* Konten utama */}
-    <Box sx={{ minHeight: '100vh', position: 'relative' }}>
-      {/* Overlay gradient agar teks tetap jelas */}
-      <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, background: 'radial-gradient(ellipse at 60% 40%, rgba(65,227,255,0.18) 0%, rgba(59,130,246,0.16) 40%, rgba(9,13,31,0.8) 100%)', pointerEvents: 'none' }} />
+    <Box sx={{ minHeight: '100vh', position: 'relative', bgcolor: isDarkMode ? 'transparent' : '#f8f8f8' }}>
+      {/* Overlay gradient agar teks tetap jelas - dihapus agar menyatu dengan layout */}
 
       {/* Konten dashboard */}
       <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', px: { xs: 1, sm: 2, md: 3 }, pt: 5, position: 'relative', zIndex: 1 }}>
@@ -484,11 +499,11 @@ const Dashboard = () => {
       {/* Search & Add New Document - PINDAH KE ATAS */}
       <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, mb: 3, gap: 2 }}>
         <TextField
-  InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+  InputLabelProps={{ style: { color: isDarkMode ? '#b5eaff' : '#757575', fontWeight: 600 } }}
   InputProps={{ 
-    style: { color: '#fff', background: 'rgba(65,227,255,0.15)', borderRadius: 2 },
+    style: { color: isDarkMode ? '#fff' : '#333', background: isDarkMode ? 'rgba(65,227,255,0.15)' : 'rgba(255,255,255,0.9)', borderRadius: 2 },
     startAdornment: (
-      <Box component="span" sx={{ color: '#b5eaff', mr: 1, fontSize: 14, display: 'flex', alignItems: 'center' }}>
+      <Box component="span" sx={{ color: isDarkMode ? '#b5eaff' : '#757575', mr: 1, fontSize: 14, display: 'flex', alignItems: 'center' }}>
         <span style={{ marginRight: 4 }}>🔍</span>
       </Box>
     )
@@ -519,12 +534,25 @@ const Dashboard = () => {
               console.log('Filtered documents:', filtered.length);
             }
           }}
-          sx={{ bgcolor: 'rgba(20,32,54,0.88)', borderRadius: 2, border: '1.5px solid #41e3ff', input: { color: '#fff' }, width: '100%', flex: 1, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' }, '& input::placeholder': { color: '#bdbdbd', opacity: 1 }, mb: { xs: 1, sm: 0 } }}
+          sx={{ bgcolor: isDarkMode ? 'rgba(20,32,54,0.88)' : 'rgba(255,255,255,0.9)', borderRadius: 2, border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#ddd'}`, input: { color: isDarkMode ? '#fff' : '#333' }, width: '100%', flex: 1, '& .MuiOutlinedInput-notchedOutline': { borderColor: isDarkMode ? '#41e3ff' : '#ddd' }, '& input::placeholder': { color: isDarkMode ? '#bdbdbd' : '#757575', opacity: 1 }, mb: { xs: 1, sm: 0 } }}
         />
         {(userRole === 'admin' || userRole === 'staff') && (
           <Button
             variant="contained"
-            sx={{ bgcolor: '#41e3ff', color: '#111a2b', fontWeight: 700, borderRadius: 2, boxShadow: 'none', '&:hover': { bgcolor: '#1ec6e6' }, width: { xs: '100%', sm: 'auto' }, minWidth: 140, mt: { xs: 0, sm: 0 } }}
+            sx={{ 
+              bgcolor: isDarkMode ? muiTheme.palette.primary.main : '#1976d2', 
+              bgcolor: muiTheme.palette.primary.main, 
+              color: isDarkMode ? '#111a2b' : '#ffffff', 
+              fontWeight: 700, 
+              borderRadius: 2, 
+              boxShadow: 'none', 
+              '&:hover': { 
+                bgcolor: isDarkMode ? '#1ec6e6' : '#1976d2' 
+              }, 
+              width: { xs: '100%', sm: 'auto' }, 
+              minWidth: 140, 
+              mt: { xs: 0, sm: 0 } 
+            }}
             onClick={() => setAddDialog(true)}
           >
             Add New Document
@@ -533,14 +561,28 @@ const Dashboard = () => {
       </Box>
 
       {/* Card Statistik & Pie Chart Gabung */}
-      <Paper elevation={0} sx={{ width: '100%', mb: 4, p: { xs: 2, sm: 3, md: 4 }, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'center', gap: { xs: 2, md: 4 }, borderRadius: 3, boxShadow: '0 2px 16px rgba(0,0,0,0.10)', backdropFilter: 'blur(10px)', background: 'rgba(20,32,54,0.68)', border: '1.5px solid rgba(59,130,246,0.18)', color: '#fff' }}>
+      <Paper elevation={0} sx={{ 
+        width: '100%', 
+        mb: 4, 
+        p: { xs: 2, sm: 3, md: 4 }, 
+        display: 'flex', 
+        flexDirection: { xs: 'column', md: 'row' }, 
+        alignItems: 'center', 
+        gap: { xs: 2, md: 4 }, 
+        borderRadius: 3, 
+        boxShadow: '0 2px 16px rgba(0,0,0,0.10)', 
+        backdropFilter: 'blur(10px)', 
+        background: isDarkMode ? 'rgba(20,32,54,0.68)' : 'rgba(255,255,255,0.9)', 
+        border: `1.5px solid ${isDarkMode ? 'rgba(59,130,246,0.18)' : 'rgba(25,118,210,0.18)'}`, 
+        color: muiTheme.palette.text.primary 
+      }}>
 
         <Box sx={{ flex: 1, minWidth: 120, display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', md: 'flex-start' }, mb: { xs: 2, md: 0 } }}>
           {/* Judul dihapus agar header tidak dobel */}
-          <Box sx={{ fontSize: { xs: 28, md: 36 }, fontWeight: 700, color: '#41e3ff', lineHeight: 1 }}>{totalDocs.toLocaleString()}</Box>
-          <Typography sx={{ fontSize: { xs: 14, md: 16 }, color: '#b5eaff' }}>Total Documents</Typography>
+          <Box sx={{ fontSize: { xs: 28, md: 36 }, fontWeight: 700, color: muiTheme.palette.primary.main, lineHeight: 1 }}>{totalDocs.toLocaleString()}</Box>
+          <Typography sx={{ fontSize: { xs: 14, md: 16 }, color: muiTheme.palette.text.secondary }}>Total Documents</Typography>
         </Box>
-        <Box sx={{ flex: 2, minWidth: { xs: 160, md: 220 }, maxWidth: { xs: 320, md: 480 }, height: { xs: 120, md: 180 }, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: { xs: 1, md: 2 }, color: '#fff' }}>
+        <Box sx={{ flex: 2, minWidth: { xs: 160, md: 220 }, maxWidth: { xs: 320, md: 480 }, height: { xs: 120, md: 180 }, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: { xs: 1, md: 2 }, color: muiTheme.palette.text.primary }}>
           <Box sx={{ width: { xs: 90, md: 140 }, height: { xs: 90, md: 140 } }}>
             <Pie data={pieData} options={{...pieOptions, plugins: { ...pieOptions.plugins, legend: { display: false } }, maintainAspectRatio: false}} />
           </Box>
@@ -561,30 +603,95 @@ const Dashboard = () => {
       <Box sx={{ width: '100%', mb: 3, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' }, gap: { xs: 1.5, sm: 2, md: 4 } }}>
         {filteredDocuments.map((doc, idx) => (
           <Box key={doc._id} sx={{ minWidth: { xs: 0, sm: 250, md: 320 }, maxWidth: '100%' }}>
-            <Paper elevation={0} sx={{
+            <Paper elevation={3} sx={{
               minHeight: { xs: 160, md: 220 },
               p: { xs: 1.5, sm: 2, md: 2.5 },
-              border: '1.5px solid #41e3ff',
+              border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
               borderRadius: 2,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              boxShadow: isDarkMode ? '0 2px 8px rgba(0,0,0,0.04)' : '0 4px 12px rgba(0,0,0,0.1)',
               transition: 'box-shadow 0.2s',
-              '&:hover': { boxShadow: '0 4px 24px rgba(0,0,0,0.08)' },
-              background: 'rgba(65,227,255,0.15)',
+              '&:hover': { boxShadow: isDarkMode ? '0 4px 24px rgba(0,0,0,0.08)' : '0 6px 16px rgba(0,0,0,0.15)' },
+              background: isDarkMode ? 'rgba(65,227,255,0.15)' : '#ffffff',
               backdropFilter: 'blur(8px)',
-              color: '#fff',
+              color: isDarkMode ? '#fff' : '#333',
             }}>
-              <Typography variant="subtitle2" sx={{ mb: 0.5, fontSize: { xs: 11, md: 13 }, fontWeight: 500, color: '#b5eaff' }}>#{doc.placeholderId || doc._id}</Typography>
-              <Typography variant="h6" sx={{ fontWeight: 700, fontSize: 18, mb: 0.5, color: '#fff' }}>{doc.namaProyek || doc.title}</Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                <Box sx={{ px: 1.2, py: 0.2, bgcolor: statusColors[doc.status] || '#e7f6fd', color: '#222', borderRadius: 1, fontWeight: 600, fontSize: 13, minWidth: 86, textAlign: 'center' }}>
+              <Typography variant="subtitle2" sx={{ mb: 0.5, fontSize: { xs: 11, md: 13 }, fontWeight: 500, color: isDarkMode ? '#b5eaff' : '#1976d2' }}>#{doc.placeholderId || doc._id}</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 700, fontSize: 18, mb: 0.5, color: isDarkMode ? '#fff' : '#333' }}>{doc.namaProyek || doc.title}</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, justifyContent: 'space-between' }}>
+                <Box sx={{ 
+                  px: 1.2, 
+                  py: 0.2, 
+                  bgcolor: statusColors[doc.status] || '#e7f6fd', 
+                  color: '#222', 
+                  borderRadius: 1, 
+                  fontWeight: 700, 
+                  fontSize: 13, 
+                  minWidth: 86, 
+                  textAlign: 'center',
+                  boxShadow: isDarkMode ? 'none' : '0 1px 3px rgba(0,0,0,0.1)'
+                }}>
                   {statusLabels[doc.status] || doc.status}
                 </Box>
+                {/* Tombol edit/hapus dipindahkan ke sini */}
+                {userRole === 'admin' || userRole === 'staff' ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Button 
+                      onClick={() => handleEdit(doc)}
+                      size="small"
+                      sx={{ 
+                        display: 'flex',
+                        alignItems: 'center',
+                        p: '2px 6px', 
+                        borderRadius: 1,
+                        minWidth: 'auto',
+                        bgcolor: isDarkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(25, 118, 210, 0.08)',
+                        border: isDarkMode ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid rgba(25, 118, 210, 0.3)',
+                        '&:hover': { 
+                          bgcolor: isDarkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(25, 118, 210, 0.15)',
+                          border: isDarkMode ? '1px solid rgba(59, 130, 246, 0.5)' : '1px solid rgba(25, 118, 210, 0.5)'
+                        }
+                      }}
+                    >
+                      <span role="img" aria-label="edit" style={{ fontSize: 12, color: isDarkMode ? '#3b82f6' : '#1976d2', marginRight: 2, fontWeight: 'bold' }}>✎</span>
+                      <Typography sx={{ fontSize: 10, color: isDarkMode ? '#3b82f6' : '#1976d2', fontWeight: 700 }}>Edit</Typography>
+                    </Button>
+                    <Button 
+                      onClick={() => handleDelete(doc)}
+                      size="small"
+                      sx={{ 
+                        display: 'flex',
+                        alignItems: 'center',
+                        p: '2px 6px', 
+                        borderRadius: 1,
+                        minWidth: 'auto',
+                        bgcolor: isDarkMode ? 'rgba(231, 76, 60, 0.1)' : 'rgba(220, 53, 69, 0.08)',
+                        border: isDarkMode ? '1px solid rgba(231, 76, 60, 0.3)' : '1px solid rgba(220, 53, 69, 0.3)',
+                        '&:hover': { 
+                          bgcolor: isDarkMode ? 'rgba(231, 76, 60, 0.2)' : 'rgba(220, 53, 69, 0.15)',
+                          border: isDarkMode ? '1px solid rgba(231, 76, 60, 0.5)' : '1px solid rgba(220, 53, 69, 0.5)'
+                        }
+                      }}
+                    >
+                      <span role="img" aria-label="delete" style={{ fontSize: 12, color: isDarkMode ? '#e74c3c' : '#dc3545', marginRight: 2, fontWeight: 'bold' }}>🗑️</span>
+                      <Typography sx={{ fontSize: 10, color: isDarkMode ? '#e74c3c' : '#dc3545', fontWeight: 700 }}>Hapus</Typography>
+                    </Button>
+                  </Box>
+                ) : null}
               </Box>
               
               {/* Tampilkan Tipe Pengujian */}
-              <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between', color: '#b5eaff' }}>
-                <span>Tipe Pengujian:</span> 
-                <b style={{ color: '#fff' }}>
+              <Box sx={{ 
+                fontSize: 14, 
+                mb: 0.5, 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                color: isDarkMode ? '#b5eaff' : '#1976d2',
+                p: 0.5,
+                borderRadius: 1,
+                bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)'
+              }}>
+                <span style={{ fontWeight: 500 }}>Tipe Pengujian:</span> 
+                <b style={{ color: isDarkMode ? '#fff' : '#333' }}>
                   {doc.tipePengujian || 
                     (doc.mutuBahan && doc.mutuBahan.startsWith('T') ? 'Besi' : 
                      doc.mutuBahan && doc.mutuBahan.startsWith('K') ? 'Beton' : '-')}
@@ -595,29 +702,95 @@ const Dashboard = () => {
   const isBesi = doc.tipePengujian === 'Besi' || (doc.mutuBahan && doc.mutuBahan.startsWith('T'));
   
   return isBesi ? (
-    <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between', color: '#b5eaff' }}>
-      <span>Panjang Ulur (mm):</span> <b style={{ color: '#fff' }}>{doc.bp || '-'}</b>
+    <Box sx={{ 
+      fontSize: 14, 
+      mb: 0.5, 
+      display: 'flex', 
+      justifyContent: 'space-between', 
+      color: isDarkMode ? '#b5eaff' : '#1976d2',
+      p: 0.5,
+      borderRadius: 1,
+      bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)'
+    }}>
+      <span style={{ fontWeight: 500 }}>Panjang Ulur (mm):</span> 
+      <b style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25, 118, 210, 0.1)', padding: '0 6px', borderRadius: 4 }}>
+        {doc.bp || '-'}
+      </b>
     </Box>
   ) : (
-    <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between', color: '#b5eaff' }}>
-      <span>BP (Kg):</span> <b style={{ color: '#fff' }}>{doc.bp || '-'}</b>
+    <Box sx={{ 
+      fontSize: 14, 
+      mb: 0.5, 
+      display: 'flex', 
+      justifyContent: 'space-between', 
+      color: isDarkMode ? '#b5eaff' : '#1976d2',
+      p: 0.5,
+      borderRadius: 1,
+      bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)'
+    }}>
+      <span style={{ fontWeight: 500 }}>BP (Kg):</span> 
+      <b style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25, 118, 210, 0.1)', padding: '0 6px', borderRadius: 4 }}>
+        {doc.bp || '-'}
+      </b>
     </Box>
   );
 })()}
-              <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between', color: '#b5eaff' }}>
-                <span>Mutu Bahan:</span> <b style={{ color: '#fff' }}>{doc.mutuBahan || '-'}</b>
+              {/* Tampilkan Mutu Bahan - diletakkan di atas Tipe Bahan */}
+              <Box sx={{ 
+                fontSize: 14, 
+                mb: 1, 
+                mt: 0.8,
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                color: isDarkMode ? '#b5eaff' : '#1976d2',
+                p: 0.6,
+                borderRadius: 1,
+                bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)'
+              }}>
+                <span style={{ fontWeight: 500 }}>Mutu Bahan:</span> 
+                <b style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25, 118, 210, 0.1)', padding: '0 6px', borderRadius: 4 }}>
+                  {doc.mutuBahan || '-'}
+                </b>
               </Box>
+              
+              {/* Tampilkan Tipe Bahan dengan styling yang diselaraskan */}
               {(() => {
   // Determine tipePengujian based on mutuBahan if not set
   const isBesi = doc.tipePengujian === 'Besi' || (doc.mutuBahan && doc.mutuBahan.startsWith('T'));
   
   return isBesi ? (
-    <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between' }}>
-      <span>Tipe Bahan:</span> <b>{doc.tipeBahan === 'Silinder' ? 'BJTS (Ulir)' : doc.tipeBahan === 'Kubus' ? 'BJTP (Polos)' : (doc.tipeBahan || '-')}</b>
+    <Box sx={{ 
+      fontSize: 14, 
+      mb: 1, 
+      mt: 0.8,
+      display: 'flex', 
+      justifyContent: 'space-between', 
+      color: isDarkMode ? '#b5eaff' : '#1976d2',
+      p: 0.6,
+      borderRadius: 1,
+      bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)'
+    }}>
+      <span style={{ fontWeight: 500 }}>Tipe Bahan:</span> 
+      <b style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25, 118, 210, 0.1)', padding: '0 6px', borderRadius: 4 }}>
+        {doc.tipeBahan === 'Silinder' ? 'BJTS (Ulir)' : doc.tipeBahan === 'Kubus' ? 'BJTP (Polos)' : (doc.tipeBahan || '-')}
+      </b>
     </Box>
   ) : (
-    <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between' }}>
-      <span>Tipe Bahan:</span> <b>{doc.tipeBahan ? doc.tipeBahan.charAt(0).toUpperCase() + doc.tipeBahan.slice(1).toLowerCase() : '-'}</b>
+    <Box sx={{ 
+      fontSize: 14, 
+      mb: 1, 
+      mt: 0.8,
+      display: 'flex', 
+      justifyContent: 'space-between', 
+      color: isDarkMode ? '#b5eaff' : '#1976d2',
+      p: 0.6,
+      borderRadius: 1,
+      bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)'
+    }}>
+      <span style={{ fontWeight: 500 }}>Tipe Bahan:</span> 
+      <b style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25, 118, 210, 0.1)', padding: '0 6px', borderRadius: 4 }}>
+        {doc.tipeBahan ? doc.tipeBahan.charAt(0).toUpperCase() + doc.tipeBahan.slice(1).toLowerCase() : '-'}
+      </b>
     </Box>
   );
 })()}
@@ -630,58 +803,86 @@ const Dashboard = () => {
   
   // Only show description for Beton, not for Besi
   return derivedTipePengujian === 'Beton' && tipePengujianDescriptions[derivedTipePengujian] && (
-  <Box sx={{ fontSize: 13, color: '#b5eaff', fontStyle: 'italic', mb: 0.5 }}>
+  <Box sx={{ fontSize: 13, color: isDarkMode ? '#b5eaff' : '#1976d2', fontStyle: 'italic', mb: 0.5 }}>
     {tipePengujianDescriptions[derivedTipePengujian]}
   </Box>
   );
 })()}
-              <Box sx={{ fontSize: 14, mb: 0.5, display: 'flex', justifyContent: 'space-between' }}>
-                <span>Submission:</span> <b>{formatDate(doc.submissionDate)}</b>
+              <Box sx={{ 
+                fontSize: 14, 
+                mb: 1, 
+                mt: 0.8,
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                color: isDarkMode ? '#b5eaff' : '#1976d2',
+                p: 0.6,
+                borderRadius: 1,
+                bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)'
+              }}>
+                <span style={{ fontWeight: 500 }}>Submission:</span> 
+                <b style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25, 118, 210, 0.1)', padding: '0 6px', borderRadius: 4 }}>
+                  {formatDate(doc.submissionDate)}
+                </b>
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2, mb: 0.5 }}>
-                <Avatar sx={{ width: 28, height: 28, fontSize: 16 }}>{doc.targetUser?.fullname?.charAt(0) || '?'}</Avatar>
-                <Typography sx={{ fontSize: 15 }}>{doc.targetUser?.fullname || '-'}</Typography>
-                {/* Icon edit/delete jika sebelumnya memang ada (tidak menambah fungsi baru) */}
-                <Box sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
-                  {userRole === 'admin' || userRole === 'staff' ? (
-                    <>
-                      <Button 
-                        onClick={() => handleEdit(doc)}
-                        sx={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          ml: 0.5, 
-                          p: 0.5, 
-                          borderRadius: 1,
-                          '&:hover': { bgcolor: 'rgba(59, 130, 246, 0.1)' }
-                        }}
-                      >
-                        <span role="img" aria-label="edit" style={{ fontSize: 18, color: '#3b82f6', marginRight: 4 }}>✎</span>
-                        <Typography sx={{ fontSize: 14, color: '#3b82f6', fontWeight: 600 }}>Edit</Typography>
-                      </Button>
-                      <Button 
-                        onClick={() => handleDelete(doc)}
-                        sx={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          ml: 1, 
-                          p: 0.5, 
-                          borderRadius: 1,
-                          '&:hover': { bgcolor: 'rgba(231, 76, 60, 0.1)' }
-                        }}
-                      >
-                        <span role="img" aria-label="delete" style={{ fontSize: 18, color: '#e74c3c', marginRight: 4 }}>🗑️</span>
-                        <Typography sx={{ fontSize: 14, color: '#e74c3c', fontWeight: 600 }}>Hapus</Typography>
-                      </Button>
-                    </>
-                  ) : null}
-                </Box>
+              {/* Informasi user sudah ditampilkan di bagian Customer, jadi tidak perlu ditampilkan di sini */}
+
+              {/* Tampilkan nama customer dengan highlight yang lebih menonjol */}
+              <Box sx={{ 
+                fontSize: 14, 
+                mb: 1.5, 
+                mt: 1, 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                color: isDarkMode ? '#b5eaff' : '#1976d2',
+                p: 0.8,
+                borderRadius: 1,
+                bgcolor: isDarkMode ? 'rgba(65,227,255,0.15)' : 'rgba(25, 118, 210, 0.08)',
+                border: `1px solid ${isDarkMode ? 'rgba(65,227,255,0.3)' : 'rgba(25, 118, 210, 0.2)'}`,
+                boxShadow: isDarkMode ? '0 2px 4px rgba(0,0,0,0.1)' : '0 2px 4px rgba(0,0,0,0.05)'
+              }}>
+                <span style={{ fontWeight: 600 }}>Customer:</span> 
+                <b style={{ 
+                  color: isDarkMode ? '#fff' : '#333', 
+                  backgroundColor: isDarkMode ? 'rgba(65,227,255,0.2)' : 'rgba(25, 118, 210, 0.15)', 
+                  padding: '2px 8px', 
+                  borderRadius: 4,
+                  fontWeight: 700,
+                  letterSpacing: '0.01em'
+                }}>
+                  {doc.customer || doc.targetUser?.fullname || '-'}
+                </b>
               </Box>
-              {/* Tampilkan keterangan "Document uploaded on" jika dokumen memiliki file atau status completed */}
-              {(doc.fileUrl || doc.hasFile || doc.file || doc.filename || doc.status === 'completed') && (
-                <Typography sx={{ color: '#8c8c8c', fontSize: 13, mt: 0 }}>
+
+              {/* Tampilkan keterangan status dokumen */}
+              {doc.status === 'completed' ? (
+                <Typography sx={{ 
+                  color: isDarkMode ? '#8c8c8c' : '#666', 
+                  fontSize: 13, 
+                  mt: 0,
+                  fontWeight: 500,
+                  p: 0.5,
+                  borderRadius: 1,
+                  bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.03)',
+                  display: 'inline-flex',
+                  alignItems: 'center'
+                }}>
                   <span style={{ verticalAlign: 'middle', marginRight: 4 }}>📄</span>
-                  Completed on {formatDate(doc.lastModified)}
+                  Completed on <span style={{ fontWeight: 'bold', color: isDarkMode ? '#b5eaff' : '#1976d2', marginLeft: 4 }}>{formatDate(doc.lastModified)}</span>
+                </Typography>
+              ) : (
+                <Typography sx={{ 
+                  color: isDarkMode ? '#8c8c8c' : '#666', 
+                  fontSize: 13, 
+                  mt: 0,
+                  fontWeight: 500,
+                  p: 0.5,
+                  borderRadius: 1,
+                  bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.03)',
+                  display: 'inline-flex',
+                  alignItems: 'center'
+                }}>
+                  <span style={{ verticalAlign: 'middle', marginRight: 4 }}>⏳</span>
+                  <span>Waiting to Complete</span>
                 </Typography>
               )}
             </Paper>
@@ -695,56 +896,67 @@ const Dashboard = () => {
       <Dialog open={editDialog} onClose={() => setEditDialog(false)} maxWidth="md" fullWidth
   PaperProps={{
     sx: {
-      background: 'rgba(20,32,54,0.92)',
-      color: '#fff',
+      background: isDarkMode ? 'rgba(20,32,54,0.92)' : 'rgba(255,255,255,0.95)',
+      color: isDarkMode ? '#fff' : '#333',
       borderRadius: 3,
-      boxShadow: '0 8px 32px 0 rgba(65,227,255,0.10)',
-      border: '1.5px solid #41e3ff',
+      boxShadow: isDarkMode ? '0 8px 32px 0 rgba(65,227,255,0.10)' : '0 8px 32px 0 rgba(0,0,0,0.10)',
+      border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
       backdropFilter: 'blur(8px)',
       p: { xs: 2, md: 4 },
     }
   }}
 >
-        <DialogTitle sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 22, pb: 2, fontFamily: 'Open Sans, Arial, Helvetica, sans-serif' }}>
+        <DialogTitle sx={{ color: isDarkMode ? '#41e3ff' : '#1976d2', fontWeight: 700, fontSize: 22, pb: 2, fontFamily: 'Open Sans, Arial, Helvetica, sans-serif' }}>
           Edit Document
         </DialogTitle>
         <DialogContent>
-          <Box sx={{ mt: 2 }}>
-            <FormControl fullWidth sx={{ mb: 2, bgcolor: '#162336', borderRadius: 2 }}>
-              <InputLabel sx={{ color: '#b5eaff', fontWeight: 600 }}>Status</InputLabel>
+          <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <FormControl fullWidth sx={{ bgcolor: isDarkMode ? 'rgba(22, 35, 54, 0.8)' : 'rgba(255, 255, 255, 0.95)', borderRadius: 2 }}>
+              <InputLabel sx={{ color: isDarkMode ? '#b5eaff' : '#1976d2', fontWeight: 600 }}>Status</InputLabel>
               <Select
                 value={newStatus}
                 label="Status"
                 onChange={(e) => setNewStatus(e.target.value)}
                 sx={{
-                  color: '#fff',
-                  background: '#162336',
+                  color: isDarkMode ? '#fff' : '#333',
+                  background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
                   borderRadius: 2,
                   fontWeight: 600,
                   fontFamily: 'Open Sans',
                   '& .MuiSelect-select': {
-                    color: '#fff',
-                    background: '#162336',
+                    color: isDarkMode ? '#fff' : '#333',
+                    background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
                     borderRadius: 2,
                     fontWeight: 600,
                     fontFamily: 'Open Sans',
                   },
                   '& fieldset': {
-                    borderColor: '#41e3ff',
+                    borderColor: isDarkMode ? '#41e3ff' : '#1976d2',
                   },
                 }}
                 MenuProps={{
                   PaperProps: {
                     sx: {
-                      background: '#162336',
-                      color: '#fff',
+                      background: isDarkMode ? '#162336' : '#ffffff',
+                      color: isDarkMode ? '#fff' : '#333',
                       borderRadius: 2,
                     },
                   },
                 }}
               >
                 {statusOptions.map((status) => (
-                  <MenuItem key={status} value={status} sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>
+                  <MenuItem key={status} value={status} sx={{ 
+                    color: isDarkMode ? '#fff' : '#333', 
+                    backgroundColor: 'transparent', 
+                    '&.Mui-selected': { 
+                      backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
+                      color: isDarkMode ? '#41e3ff' : '#1976d2' 
+                    }, 
+                    '&:hover': { 
+                      backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
+                      color: isDarkMode ? '#41e3ff' : '#1976d2' 
+                    } 
+                  }}>
                     {status.replace('_', ' ').toUpperCase()}
                   </MenuItem>
                 ))}
@@ -760,8 +972,8 @@ const Dashboard = () => {
                 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   {/* Dropdown Tipe Pengujian */}
-                  <FormControl sx={{ flexGrow: 1, minWidth: '200px', mb: 2, bgcolor: '#162336', borderRadius: 2 }}>
-                    <InputLabel sx={{ color: '#b5eaff', fontWeight: 600 }}>Tipe Pengujian</InputLabel>
+                  <FormControl sx={{ flexGrow: 1, minWidth: '200px', mb: 2, bgcolor: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)', borderRadius: 2 }}>
+                    <InputLabel sx={{ color: isDarkMode ? '#b5eaff' : '#1976d2', fontWeight: 600 }}>Tipe Pengujian</InputLabel>
                     <Select
                       value={newDocTipePengujian}
                       label="Tipe Pengujian"
@@ -785,123 +997,129 @@ const Dashboard = () => {
                         }
                       }}
                       sx={{
-                        color: '#fff',
-                        background: '#162336',
+                        color: isDarkMode ? '#fff' : '#333',
+                        background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
                         borderRadius: 2,
                         fontWeight: 600,
                         fontFamily: 'Open Sans',
                         '& .MuiSelect-select': {
-                          color: '#fff',
-                          background: '#162336',
+                          color: isDarkMode ? '#fff' : '#333',
+                          background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
                           borderRadius: 2,
                           fontWeight: 600,
                           fontFamily: 'Open Sans',
                         },
                         '& fieldset': {
-                          borderColor: '#41e3ff',
+                          borderColor: isDarkMode ? '#41e3ff' : '#1976d2',
                         },
                       }}
                       MenuProps={{
                         PaperProps: {
                           sx: {
-                            background: '#162336',
-                            color: '#fff',
+                            background: isDarkMode ? '#162336' : '#ffffff',
+                            color: isDarkMode ? '#fff' : '#333',
                             borderRadius: 2,
                           },
                         },
                       }}
                     >
-                      <MenuItem value="" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>None</MenuItem>
-                      <MenuItem value="Beton" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>Beton</MenuItem>
-                      <MenuItem value="Besi" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>Besi</MenuItem>
+                      <MenuItem value="" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>None</MenuItem>
+                      <MenuItem value="Beton" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>Beton</MenuItem>
+                      <MenuItem value="Besi" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>Besi</MenuItem>
                     </Select>
                   </FormControl>
                   {/* Campo BP (Kg) */}
-                  <>
-<TextField
-  InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
-  InputProps={{
-    style: {
-      color: '#fff',
-      background: '#162336',
-      borderRadius: 8,
-      border: '1.5px solid #41e3ff',
-      fontFamily: 'Open Sans',
-      fontWeight: 600,
-      paddingLeft: 8,
-    },
-  }}
-  margin="dense"
-  label={newDocTipePengujian === 'Besi' ? "Panjang Ulur (mm)" : "BP (Kg)"}
-  type="number"
-  inputProps={{ step: 'any', style: { color: '#fff', background: '#162336' }, autoComplete: 'off' }}
-  value={newBP}
-  onChange={e => setNewBP(e.target.value)}
-  autoComplete="off"
-  sx={{
-    flexGrow: 1,
-    minWidth: '200px',
-    mb: 2,
-    borderRadius: 2,
-    bgcolor: '#162336',
-    '& .MuiOutlinedInput-root': {
-      color: '#fff',
-      background: '#162336',
-      borderRadius: '8px',
-      border: '1.5px solid #41e3ff',
-      fontFamily: 'Open Sans',
-      fontWeight: 600,
-      paddingLeft: 1,
-    },
-    '& .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#41e3ff',
-    },
-    '& input': {
-      color: '#fff',
-      background: '#162336',
-      borderRadius: '8px',
-      fontFamily: 'Open Sans',
-      fontWeight: 600,
-      '-webkit-text-fill-color': '#fff',
-      boxShadow: '0 0 0 1000px #162336 inset',
-    },
-    '& input::placeholder': {
-      color: '#b5eaff',
-      opacity: 1,
-    },
-  }}
-/></>
+                  <TextField
+                    InputLabelProps={{ style: { color: isDarkMode ? '#b5eaff' : '#1976d2', fontWeight: 600 } }}
+                    InputProps={{
+                      style: {
+                        color: isDarkMode ? '#fff' : '#333',
+                        background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
+                        borderRadius: 8,
+                        border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
+                        fontFamily: 'Open Sans',
+                        fontWeight: 600,
+                        paddingLeft: 8,
+                      },
+                    }}
+                    margin="dense"
+                    label={newDocTipePengujian === 'Besi' ? "Panjang Ulur (mm)" : "BP (Kg)"}
+                    type="number"
+                    inputProps={{ 
+                      step: 'any', 
+                      style: { 
+                        color: isDarkMode ? '#fff' : '#333', 
+                        background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)' 
+                      }, 
+                      autoComplete: 'off' 
+                    }}
+                    value={newBP}
+                    onChange={e => setNewBP(e.target.value)}
+                    autoComplete="off"
+                    sx={{
+                      flexGrow: 1,
+                      minWidth: '200px',
+                      mb: 2,
+                      borderRadius: 2,
+                      bgcolor: '#162336',
+                      '& .MuiOutlinedInput-root': {
+                        color: '#fff',
+                        background: '#162336',
+                        borderRadius: '8px',
+                        border: '1.5px solid #41e3ff',
+                        fontFamily: 'Open Sans',
+                        fontWeight: 600,
+                        paddingLeft: 1,
+                      },
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: isDarkMode ? '#41e3ff' : '#1976d2',
+                      },
+                      '& input': {
+                        color: isDarkMode ? '#fff' : '#333',
+                        background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
+                        borderRadius: '8px',
+                        fontFamily: 'Open Sans',
+                        fontWeight: 600,
+                        '-webkit-text-fill-color': isDarkMode ? '#fff' : '#333',
+                        boxShadow: isDarkMode ? '0 0 0 1000px #162336 inset' : '0 0 0 1000px rgba(255,255,255,0.9) inset',
+                      },
+                      '& input::placeholder': {
+                        color: isDarkMode ? '#b5eaff' : '#757575',
+                        opacity: 1,
+                      },
+                    }}
+                  />
                   
                   {/* Campo Mutu Bahan */}
-                  <FormControl sx={{ flexGrow: 1, minWidth: '200px', mb: 2, bgcolor: '#162336', borderRadius: 2 }} required>
-                    <InputLabel sx={{ color: '#b5eaff', fontWeight: 600 }}>Mutu Bahan</InputLabel>
+                  <FormControl sx={{ flexGrow: 1, minWidth: '200px', mb: 2, bgcolor: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)', borderRadius: 2 }} required>
+                    <InputLabel sx={{ color: isDarkMode ? '#b5eaff' : '#1976d2', fontWeight: 600 }}>Mutu Bahan</InputLabel>
                     <Select
                       value={newMutuBahan}
                       label="Mutu Bahan"
                       onChange={e => setNewMutuBahan(e.target.value)}
                       required
                       sx={{
-                        color: '#fff',
-                        background: '#162336',
+                        color: isDarkMode ? '#fff' : '#333',
+                        background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
                         borderRadius: 2,
                         fontWeight: 600,
                         fontFamily: 'Open Sans',
                         '& .MuiSelect-select': {
-                          color: '#fff',
-                          background: '#162336',
+                          color: isDarkMode ? '#fff' : '#333',
+                          background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
                           borderRadius: 2,
                           fontWeight: 600,
                           fontFamily: 'Open Sans',
                         },
                         '& fieldset': {
-                          borderColor: '#41e3ff',
+                          borderColor: isDarkMode ? '#41e3ff' : '#1976d2',
                         },
                       }}
                       MenuProps={{
                         PaperProps: {
                           sx: {
-                            background: '#162336',
-                            color: '#fff',
+                            background: isDarkMode ? '#162336' : '#ffffff',
+                            color: isDarkMode ? '#fff' : '#333',
                             borderRadius: 2,
                           },
                         },
@@ -909,192 +1127,237 @@ const Dashboard = () => {
                     >
                       {newDocTipePengujian === 'Besi' ? (
                         <>
-                          <MenuItem value="T 280" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>T 280</MenuItem>
-                          <MenuItem value="T 420" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>T 420</MenuItem>
+                          <MenuItem value="T 280" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>T 280</MenuItem>
+                          <MenuItem value="T 420" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>T 420</MenuItem>
                         </>
                       ) : (
                         <>
-                          <MenuItem value="K 125" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 125</MenuItem>
-                          <MenuItem value="K 150" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 150</MenuItem>
-                          <MenuItem value="K 175" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 175</MenuItem>
-                          <MenuItem value="K 200" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 200</MenuItem>
-                          <MenuItem value="K 225" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 225</MenuItem>
-                          <MenuItem value="K 250" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 250</MenuItem>
-                          <MenuItem value="K 300" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 300</MenuItem>
-                          <MenuItem value="K 350" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 350</MenuItem>
-                          <MenuItem value="K 400" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 400</MenuItem>
-                          <MenuItem value="K 450" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 450</MenuItem>
-                          <MenuItem value="K 500" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 500</MenuItem>
-                          <MenuItem value="K 600" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>K 600</MenuItem>
+                          <MenuItem value="K 125" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 125</MenuItem>
+                          <MenuItem value="K 150" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 150</MenuItem>
+                          <MenuItem value="K 175" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 175</MenuItem>
+                          <MenuItem value="K 200" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 200</MenuItem>
+                          <MenuItem value="K 225" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 225</MenuItem>
+                          <MenuItem value="K 250" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 250</MenuItem>
+                          <MenuItem value="K 300" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 300</MenuItem>
+                          <MenuItem value="K 350" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 350</MenuItem>
+                          <MenuItem value="K 400" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 400</MenuItem>
+                          <MenuItem value="K 450" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 450</MenuItem>
+                          <MenuItem value="K 500" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 500</MenuItem>
+                          <MenuItem value="K 600" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 600</MenuItem>
                         </>
                       )}
                     </Select>
                   </FormControl>
                   
                   {/* Campo Tipe Bahan (dropdown) */}
-                  <FormControl sx={{ flexGrow: 1, minWidth: '200px', mt: 1, mb: 2, bgcolor: '#162336', borderRadius: 2 }}>
-                    <InputLabel sx={{ color: '#b5eaff', fontWeight: 600 }}>Tipe Bahan</InputLabel>
-                    <Select
-                      value={newTipeBahan}
-                      label="Tipe Bahan"
-                      onChange={e => setNewTipeBahan(e.target.value)}
-                      sx={{
-                        color: '#fff',
-                        background: '#162336',
-                        borderRadius: 2,
-                        fontWeight: 600,
-                        fontFamily: 'Open Sans',
-                        '& .MuiSelect-select': {
-                          color: '#fff',
-                          background: '#162336',
+                  <FormControl sx={{ flexGrow: 1, minWidth: '200px', mt: 1, mb: 2, bgcolor: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)', borderRadius: 2 }}>
+                    <InputLabel sx={{ color: isDarkMode ? '#b5eaff' : '#1976d2', fontWeight: 600 }}>Tipe Bahan</InputLabel>
+                      <Select
+                        value={newTipeBahan}
+                        label="Tipe Bahan"
+                        onChange={e => setNewTipeBahan(e.target.value)}
+                        sx={{
+                          color: isDarkMode ? '#fff' : '#333',
+                          background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
                           borderRadius: 2,
                           fontWeight: 600,
                           fontFamily: 'Open Sans',
-                        },
-                        '& fieldset': {
-                          borderColor: '#41e3ff',
-                        },
-                      }}
-                      MenuProps={{
-                        PaperProps: {
-                          sx: {
-                            background: '#162336',
-                            color: '#fff',
+                          '& .MuiSelect-select': {
+                            color: isDarkMode ? '#fff' : '#333',
+                            background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
                             borderRadius: 2,
+                            fontWeight: 600,
+                            fontFamily: 'Open Sans',
                           },
-                        },
-                      }}
-                    >
+                          '& fieldset': {
+                            borderColor: isDarkMode ? '#41e3ff' : '#1976d2',
+                          },
+                        }}
+                        MenuProps={{
+                          PaperProps: {
+                            sx: {
+                              background: isDarkMode ? '#162336' : '#ffffff',
+                              color: isDarkMode ? '#fff' : '#333',
+                              borderRadius: 2,
+                            },
+                          },
+                        }}
+                      >
                       {newDocTipePengujian === 'Besi' ? (
                         <>
-                          <MenuItem value="BJTS (Ulir)" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>BJTS (Ulir)</MenuItem>
-                          <MenuItem value="BJTP (Polos)" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>BJTP (Polos)</MenuItem>
+                          <MenuItem value="BJTS (Ulir)" sx={{ 
+                            color: isDarkMode ? '#fff' : '#333', 
+                            backgroundColor: 'transparent', 
+                            '&.Mui-selected': { 
+                              backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
+                              color: isDarkMode ? '#41e3ff' : '#1976d2' 
+                            }, 
+                            '&:hover': { 
+                              backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
+                              color: isDarkMode ? '#41e3ff' : '#1976d2' 
+                            } 
+                          }}>BJTS (Ulir)</MenuItem>
+                          <MenuItem value="BJTP (Polos)" sx={{ 
+                            color: isDarkMode ? '#fff' : '#333', 
+                            backgroundColor: 'transparent', 
+                            '&.Mui-selected': { 
+                              backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
+                              color: isDarkMode ? '#41e3ff' : '#1976d2' 
+                            }, 
+                            '&:hover': { 
+                              backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
+                              color: isDarkMode ? '#41e3ff' : '#1976d2' 
+                            } 
+                          }}>BJTP (Polos)</MenuItem>
                         </>
                       ) : (
                         <>
-                          <MenuItem value="" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}><em>None</em></MenuItem>
-                          <MenuItem value="Silinder" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>Silinder</MenuItem>
-                          <MenuItem value="Kubus" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>Kubus</MenuItem>
-                          <MenuItem value="Balok" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>Balok</MenuItem>
-                          <MenuItem value="Paving" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>Paving</MenuItem>
-                          <MenuItem value="Scoup" sx={{ color: '#fff', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: '#22304d', color: '#41e3ff' }, '&:hover': { backgroundColor: '#22304d', color: '#41e3ff' } }}>Scoup</MenuItem>
+                          <MenuItem value="" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}><em>None</em></MenuItem>
+                          <MenuItem value="Silinder" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>Silinder</MenuItem>
+                          <MenuItem value="Kubus" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>Kubus</MenuItem>
+                          <MenuItem value="Balok" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>Balok</MenuItem>
+                          <MenuItem value="Paving" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>Paving</MenuItem>
+                          <MenuItem value="Scoup" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>Scoup</MenuItem>
                         </>
                       )}
                     </Select>
                   </FormControl>
                 </Box>
                 
-                <Autocomplete
-                  options={userList}
-                  getOptionLabel={(option) => `${option.username} - ${option.fullname}`}
-                  value={userList.find(user => user._id === targetUser) || null}
-                  onChange={(_, value) => setTargetUser(value ? value._id : '')}
-                  renderInput={(params) => (
-                    <TextField
-  {...params}
-  label="User Tujuan"
-  variant="outlined"
-  required
-  InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
-  InputProps={{
-    style: {
-      color: '#fff',
-      background: '#162336',
-      borderRadius: 8,
-      border: '1.5px solid #41e3ff',
-      fontFamily: 'Open Sans',
-      fontWeight: 600,
-      paddingLeft: 8,
-    },
-  }}
-  sx={{
-    flexGrow: 1,
-    minWidth: '200px',
-    mb: 2,
-    borderRadius: 2,
-    bgcolor: '#162336',
-    '& .MuiOutlinedInput-root': {
-      color: '#fff',
-      background: '#162336',
-      borderRadius: '8px',
-      border: '1.5px solid #41e3ff',
-      fontFamily: 'Open Sans',
-      fontWeight: 600,
-      paddingLeft: 1,
-    },
-    '& .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#41e3ff',
-    },
-    '& input': {
-      color: '#fff',
-      background: '#162336',
-      borderRadius: '8px',
-      fontFamily: 'Open Sans',
-      fontWeight: 600,
-      '-webkit-text-fill-color': '#fff',
-      boxShadow: '0 0 0 1000px #162336 inset',
-    },
-    '& input::placeholder': {
-      color: '#b5eaff',
-      opacity: 1,
-    },
-  }}
-/>
-                  )}
-                  isOptionEqualToValue={(option, value) => option._id === value._id}
-                  sx={{ flexGrow: 1, minWidth: '200px', mt: 1 }}
-                />
+                <Box sx={{ mt: 2, width: '100%' }}>
+                  <Autocomplete
+                    options={userList}
+                    getOptionLabel={(option) => option.fullname || ''}
+                    value={userList.find(user => user._id === targetUser) || null}
+                    onChange={(_, newValue) => setTargetUser(newValue?._id || '')}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Tujuan Pengguna"
+                        variant="outlined"
+                        fullWidth
+                        InputLabelProps={{
+                          style: {
+                            color: isDarkMode ? '#b5eaff' : '#1565c0',
+                            fontWeight: 600,
+                            fontSize: '0.95rem'
+                          }
+                        }}
+                      />
+                    )}
+                    isOptionEqualToValue={(option, value) => option._id === value._id}
+                    sx={{ 
+                      width: '100%',
+                      '& .MuiOutlinedInput-root': {
+                        color: isDarkMode ? '#fff' : '#333',
+                        background: isDarkMode ? 'rgba(22, 35, 54, 0.8)' : 'rgba(255, 255, 255, 0.95)',
+                        borderRadius: '8px',
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: isDarkMode ? 'rgba(65,227,255,0.5)' : 'rgba(25, 118, 210, 0.5)',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: isDarkMode ? '#41e3ff' : '#1976d2',
+                          boxShadow: isDarkMode ? '0 0 0 2px rgba(65,227,255,0.2)' : '0 0 0 2px rgba(25, 118, 210, 0.2)',
+                        }
+                      },
+                      '& .MuiAutocomplete-input': {
+                        color: isDarkMode ? '#fff' : '#1a1a1a',
+                        '&::placeholder': {
+                          color: isDarkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)',
+                          opacity: 1,
+                        }
+                      },
+                      '& .MuiInputLabel-root': {
+                        color: isDarkMode ? '#b5eaff' : '#1565c0',
+                        '&.Mui-focused': {
+                          color: isDarkMode ? '#41e3ff' : '#1976d2'
+                        }
+                      },
+                      '& .MuiAutocomplete-listbox': {
+                        backgroundColor: isDarkMode ? '#142032' : '#ffffff',
+                        color: isDarkMode ? '#ffffff' : '#1a1a1a',
+                        '& .MuiAutocomplete-option': {
+                          '&:hover': {
+                            backgroundColor: isDarkMode ? 'rgba(65, 227, 255, 0.1)' : 'rgba(25, 118, 210, 0.1)'
+                          },
+                          '&[data-focus="true"]': {
+                            backgroundColor: isDarkMode ? 'rgba(65, 227, 255, 0.2)' : 'rgba(25, 118, 210, 0.2)'
+                          },
+                          '&[aria-selected="true"]': {
+                            backgroundColor: isDarkMode ? 'rgba(65, 227, 255, 0.15)' : 'rgba(25, 118, 210, 0.15)'
+                          }
+                        }
+                      }
+                    }}
+                  />
+                </Box>
               </>
             )}
           </Box>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button 
-            onClick={() => setEditDialog(false)}
-            variant="outlined"
-            sx={{ 
-              color: '#41e3ff', 
-              borderColor: '#41e3ff',
-              '&:hover': { borderColor: '#41e3ff', background: 'rgba(65,227,255,0.08)' }
-            }}
-          >
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleDocumentUpdate} 
-            variant="contained"
-            sx={{
-              ml: 2,
-              background: 'linear-gradient(90deg, #41e3ff 0%, #1ec6e6 100%)',
-              color: '#0a1929',
-              fontWeight: 700,
-              borderRadius: 2,
-              boxShadow: '0 2px 8px 0 rgba(65,227,255,0.12)',
-              '&:hover': { background: '#65e7ff' },
-              '&.Mui-disabled': { background: 'rgba(65,227,255,0.3)', color: '#193549' }
-            }}
-          >
-            Update
-          </Button>
-        </DialogActions>
-      </Dialog>
+            </DialogContent>
+            <DialogActions sx={{ px: 3, pb: 3 }}>
+              <Button 
+                onClick={() => setEditDialog(false)}
+                variant="outlined"
+                sx={{ 
+                  color: isDarkMode ? '#41e3ff' : '#1976d2', 
+                  borderColor: isDarkMode ? '#41e3ff' : '#1976d2',
+                  '&:hover': { borderColor: isDarkMode ? '#41e3ff' : '#1976d2', background: isDarkMode ? 'rgba(65,227,255,0.08)' : 'rgba(25,118,210,0.08)' }
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleDocumentUpdate} 
+                variant="contained"
+                sx={{
+                  ml: 2,
+                  background: isDarkMode ? 'linear-gradient(90deg, #41e3ff 0%, #1ec6e6 100%)' : 'linear-gradient(90deg, #1976d2 0%, #1565c0 100%)',
+                  color: isDarkMode ? '#0a1929' : '#ffffff',
+                  fontWeight: 700,
+                  borderRadius: 2,
+                  boxShadow: isDarkMode ? '0 2px 8px 0 rgba(65,227,255,0.12)' : '0 2px 8px 0 rgba(25,118,210,0.2)',
+                  '&:hover': { background: isDarkMode ? '#65e7ff' : '#2196f3' },
+                  '&.Mui-disabled': { background: isDarkMode ? 'rgba(65,227,255,0.3)' : 'rgba(25,118,210,0.3)', color: isDarkMode ? '#193549' : '#e0e0e0' }
+                }}
+              >
+                Update
+              </Button>
+            </DialogActions>
+          </Dialog>
 
 
       <Dialog open={addDialog} onClose={() => setAddDialog(false)} maxWidth="md" fullWidth
   PaperProps={{
     sx: {
-      background: 'rgba(20,32,54,0.92)',
-      color: '#fff',
+      background: isDarkMode ? 'rgba(20,32,54,0.92)' : 'rgba(255,255,255,0.95)',
+      color: isDarkMode ? '#fff' : '#333',
       borderRadius: 3,
-      boxShadow: '0 8px 32px 0 rgba(65,227,255,0.10)',
-      border: '1.5px solid #41e3ff',
+      boxShadow: isDarkMode ? '0 8px 32px 0 rgba(65,227,255,0.10)' : '0 8px 32px 0 rgba(0,0,0,0.10)',
+      border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
       backdropFilter: 'blur(8px)',
       p: { xs: 2, md: 4 },
     }
   }}
 >
 
-        <DialogTitle sx={{ color: '#41e3ff', fontWeight: 700, fontSize: 22, pb: 2, fontFamily: 'Open Sans, Arial, Helvetica, sans-serif' }}>
+        <DialogTitle sx={{ 
+  color: isDarkMode ? '#41e3ff' : '#1565c0', 
+  fontWeight: 700, 
+  fontSize: 24, 
+  pb: 2, 
+  pt: 1,
+  fontFamily: 'Open Sans, Arial, Helvetica, sans-serif',
+  borderBottom: `1px solid ${isDarkMode ? 'rgba(65,227,255,0.2)' : 'rgba(25,118,210,0.2)'}`,
+  mb: 2,
+  display: 'flex',
+  alignItems: 'center',
+  '& .MuiSvgIcon-root': {
+    mr: 1.5,
+    fontSize: '1.5rem'
+  }
+}}>
+  <DescriptionIcon />
   Tambah Dokumen Baru
 </DialogTitle>
         <DialogContent>
@@ -1108,8 +1371,8 @@ const Dashboard = () => {
   value={newNamaProyek}
   onChange={e => setNewNamaProyek(e.target.value)}
   required
-  InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
-  InputProps={{ style: { color: '#fff', background: 'rgba(65,227,255,0.15)', borderRadius: 2 } }}
+  InputLabelProps={{ style: { color: isDarkMode ? '#b5eaff' : '#1976d2', fontWeight: 600 } }}
+  InputProps={{ style: { color: isDarkMode ? '#fff' : '#333', background: isDarkMode ? 'rgba(65,227,255,0.15)' : 'rgba(25, 118, 210, 0.05)', borderRadius: 2 } }}
 />
 
             
@@ -1122,8 +1385,15 @@ const Dashboard = () => {
                 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   {/* Campo Tipe Pengujian (dropdown nativo) */}
-                  <Box sx={{ mb: 2 }}>
-                    <Typography variant="subtitle2" sx={{ color: '#b5eaff', mb: 1, fontWeight: 600 }}>Tipe Pengujian</Typography>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ 
+                      color: isDarkMode ? '#b5eaff' : '#1565c0', 
+                      mb: 1.5, 
+                      fontWeight: 600,
+                      fontSize: '0.95rem'
+                    }}>
+                      Tipe Pengujian
+                    </Typography>
                     <Box
                       component="select"
                       value={newDocTipePengujian}
@@ -1132,50 +1402,30 @@ const Dashboard = () => {
                         setNewDocTipePengujian(value);
                         
                         // Reset related fields when tipePengujian changes
-                        // Tidak mengisi nilai default, biarkan kosong
                         setNewDocKodeBahan('');
                         setNewDocTipeBahan('');
                       }}
-                      sx={{
-                        width: '100%',
-                        p: 1.5,
-                        borderRadius: 1,
-                        border: '1px solid #41e3ff',
-                        bgcolor: '#0a1929',
-                        color: '#fff',
-                        outline: 'none',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                        fontSize: '0.9rem',
-                        transition: 'all 0.2s ease-in-out',
-                        '&:focus': {
-                          boxShadow: '0 0 0 2px rgba(65,227,255,0.5)',
-                          bgcolor: '#102a43',
-                        },
-                        '&:hover': {
-                          bgcolor: '#102a43',
-                        },
-                        '& option': {
-                          bgcolor: '#0a1929',
-                          color: '#fff',
-                          padding: '8px',
-                        }
-                      }}
+                      sx={getDropdownStyles(isDarkMode)}
                     >
-                      <option value="" disabled style={{color: '#41e3ff'}}>Pilih Tipe Pengujian</option>
+                      <option value="" disabled style={{color: isDarkMode ? '#41e3ff' : '#1976d2'}}>Pilih Tipe Pengujian</option>
                       <option value="Beton">Beton</option>
                       <option value="Besi">Besi</option>
                     </Box>
                     {/* Show description for selected tipePengujian */}
                     {newDocTipePengujian && tipePengujianDescriptions[newDocTipePengujian] && (
-                      <Typography variant="body2" sx={{ color: '#b5eaff', mt: 1, mb: 1, fontStyle: 'italic' }}>
+                      <Typography variant="body2" sx={{ color: isDarkMode ? '#b5eaff' : '#1976d2', mt: 1, mb: 1, fontStyle: 'italic' }}>
                         {tipePengujianDescriptions[newDocTipePengujian]}
                       </Typography>
                     )}
                   </Box>
                   
-                  <Box sx={{ mb: 2 }}>
-                    <Typography variant="subtitle2" sx={{ color: '#b5eaff', mb: 1, fontWeight: 600 }}>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ 
+                      color: isDarkMode ? '#b5eaff' : '#1565c0', 
+                      mb: 1.5, 
+                      fontWeight: 600,
+                      fontSize: '0.95rem'
+                    }}>
                       {newDocTipePengujian === 'Besi' ? "Panjang Ulur (mm)" : "BP (Kg)"}
                     </Typography>
                     <TextField
@@ -1183,7 +1433,7 @@ const Dashboard = () => {
                       type="number"
                       inputProps={{ 
                         step: 'any', 
-                        style: { color: '#fff' }, 
+                        style: { color: isDarkMode ? '#fff' : '#333' }, 
                         autoComplete: 'off' 
                       }}
                       value={newDocBP}
@@ -1192,70 +1442,46 @@ const Dashboard = () => {
                       autoComplete="off"
                       sx={{
                         '& .MuiOutlinedInput-root': {
-                          color: '#fff',
-                          background: '#0a1929',
+                          color: isDarkMode ? '#fff' : '#333',
+                          background: isDarkMode ? '#0a1929' : 'rgba(255,255,255,0.9)',
                           borderRadius: '4px',
-                          border: '1px solid #41e3ff',
+                          border: `1px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
                           fontFamily: 'inherit',
                           fontSize: '0.9rem',
                           transition: 'all 0.2s ease-in-out',
                           '&:hover': {
-                            background: '#102a43',
+                            background: isDarkMode ? '#102a43' : 'rgba(25,118,210,0.05)',
                           },
                           '&.Mui-focused': {
-                            background: '#102a43',
-                            boxShadow: '0 0 0 2px rgba(65,227,255,0.5)',
+                            background: isDarkMode ? '#102a43' : 'rgba(25,118,210,0.08)',
+                            boxShadow: isDarkMode ? '0 0 0 2px rgba(65,227,255,0.5)' : '0 0 0 2px rgba(25,118,210,0.3)',
                           },
                         },
                         '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#41e3ff',
+                          borderColor: isDarkMode ? '#41e3ff' : '#1976d2',
                         },
                         '& input': {
-                          color: '#fff',
-                          background: '#162336',
+                          color: isDarkMode ? '#fff' : '#333',
+                          background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
                           borderRadius: '8px',
                           fontFamily: 'Open Sans',
                           fontWeight: 600,
-                          '-webkit-text-fill-color': '#fff',
-                          boxShadow: '0 0 0 1000px #162336 inset',
+                          '-webkit-text-fill-color': isDarkMode ? '#fff' : '#333',
+                          boxShadow: isDarkMode ? '0 0 0 1000px #162336 inset' : '0 0 0 1000px rgba(255,255,255,0.9) inset',
                         },
                       }}
                     />
                   </Box>
 
                   <Box sx={{ mb: 2 }}>
-                    <Typography variant="subtitle2" sx={{ color: '#b5eaff', mb: 1, fontWeight: 600 }}>Mutu Bahan</Typography>
+                    <Typography variant="subtitle2" sx={{ color: isDarkMode ? '#b5eaff' : '#1976d2', mb: 1, fontWeight: 600 }}>Mutu Bahan</Typography>
                     <Box 
                       component="select"
                       value={newDocKodeBahan}
                       onChange={(e) => setNewDocKodeBahan(e.target.value)}
-                      sx={{
-                        width: '100%',
-                        p: 1.5,
-                        borderRadius: 1,
-                        border: '1px solid #41e3ff',
-                        bgcolor: '#0a1929',
-                        color: '#fff',
-                        outline: 'none',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                        fontSize: '0.9rem',
-                        transition: 'all 0.2s ease-in-out',
-                        '&:focus': {
-                          boxShadow: '0 0 0 2px rgba(65,227,255,0.5)',
-                          bgcolor: '#102a43',
-                        },
-                        '&:hover': {
-                          bgcolor: '#102a43',
-                        },
-                        '& option': {
-                          bgcolor: '#0a1929',
-                          color: '#fff',
-                          padding: '8px',
-                        }
-                      }}
+                      sx={getDropdownStyles(isDarkMode)}
                     >
-                      <option value="" disabled style={{color: '#41e3ff'}}>Pilih Mutu Bahan</option>
+                      <option value="" disabled style={{color: isDarkMode ? '#41e3ff' : '#1976d2'}}>Pilih Mutu Bahan</option>
                       {/* Tampilkan data dari API jika ada */}
                       {mutuBahanOptions.length > 0 && mutuBahanOptions
                         .filter(option => option.testType === newDocTipePengujian)
@@ -1293,43 +1519,26 @@ const Dashboard = () => {
                   
                   {/* Campo Tipe Bahan (dropdown nativo) */}
                   <Box sx={{ mb: 2 }}>
-                    <Typography variant="subtitle2" sx={{ color: '#b5eaff', mb: 1, fontWeight: 600 }}>Tipe Bahan</Typography>
+                    <Typography variant="subtitle2" sx={{ color: isDarkMode ? '#b5eaff' : '#1976d2', mb: 1, fontWeight: 600 }}>Tipe Bahan</Typography>
                     <Box 
                       component="select"
                       value={newDocTipeBahan}
                       onChange={(e) => setNewDocTipeBahan(e.target.value)}
-                      sx={{
-                        width: '100%',
-                        p: 1.5,
-                        borderRadius: 1,
-                        border: '1px solid #41e3ff',
-                        bgcolor: '#0a1929',
-                        color: '#fff',
-                        outline: 'none',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                        fontSize: '0.9rem',
-                        transition: 'all 0.2s ease-in-out',
-                        '&:focus': {
-                          boxShadow: '0 0 0 2px rgba(65,227,255,0.5)',
-                          bgcolor: '#102a43',
-                        },
-                        '&:hover': {
-                          bgcolor: '#102a43',
-                        },
-                        '& option': {
-                          bgcolor: '#0a1929',
-                          color: '#fff',
-                          padding: '8px',
-                        }
-                      }}
+                      sx={getDropdownStyles(isDarkMode)}
                     >
-                      <option value="" disabled style={{color: '#41e3ff'}}>Pilih Tipe Bahan</option>
+                      <option value="" disabled style={{color: isDarkMode ? '#41e3ff' : '#1976d2'}}>Pilih Tipe Bahan</option>
                       {/* Tampilkan data dari API jika ada */}
                       {tipeBahanOptions.length > 0 && tipeBahanOptions
                         .filter(option => option.testType === newDocTipePengujian)
                         .map(option => (
-                          <option key={option._id} value={option.value}>
+                          <option 
+                            key={option._id} 
+                            value={option.value}
+                            style={{
+                              color: isDarkMode ? '#fff' : '#333',
+                              backgroundColor: 'transparent',
+                            }}
+                          >
                             {option.value}
                           </option>
                         ))
@@ -1339,17 +1548,17 @@ const Dashboard = () => {
                         <>
                           {newDocTipePengujian === 'Besi' && (
                             <>
-                              <option value="BJTS (Ulir)">BJTS (Ulir)</option>
-                              <option value="BJTP (Polos)">BJTP (Polos)</option>
+                              <option value="BJTS (Ulir)" style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent' }}>BJTS (Ulir)</option>
+                              <option value="BJTP (Polos)" style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent' }}>BJTP (Polos)</option>
                             </>
                           )}
                           {newDocTipePengujian === 'Beton' && (
                             <>
-                              <option value="KUBUS">KUBUS</option>
-                              <option value="SILINDER">SILINDER</option>
-                              <option value="BALOK">BALOK</option>
-                              <option value="PAVING">PAVING</option>
-                              <option value="SCOUP">SCOUP</option>
+                              <option value="KUBUS" style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent' }}>KUBUS</option>
+                              <option value="SILINDER" style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent' }}>SILINDER</option>
+                              <option value="BALOK" style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent' }}>BALOK</option>
+                              <option value="PAVING" style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent' }}>PAVING</option>
+                              <option value="SCOUP" style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent' }}>SCOUP</option>
                             </>
                           )}
                         </>
@@ -1370,14 +1579,25 @@ const Dashboard = () => {
                       label="User Tujuan"
                       variant="outlined"
                       required
-                      InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+                      InputLabelProps={{ style: { color: isDarkMode ? '#b5eaff' : '#1976d2', fontWeight: 600 } }}
                       InputProps={{
                         ...params.InputProps,
                         style: {
-                          color: '#fff',
-                          background: 'rgba(65,227,255,0.15)',
-                          borderRadius: 8,
+                          color: isDarkMode ? '#fff' : '#333',
+                          background: isDarkMode ? 'rgba(22, 35, 54, 0.8)' : 'rgba(255, 255, 255, 0.95)',
+                          borderRadius: 2,
                           fontWeight: 600,
+                          fontFamily: 'Open Sans',
+                          fontSize: '0.9rem',
+                          border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
+                          transition: 'all 0.2s ease-in-out',
+                          '&:hover': {
+                            background: isDarkMode ? 'rgba(65,227,255,0.15)' : 'rgba(25,118,210,0.05)',
+                          },
+                          '&.Mui-focused': {
+                            background: isDarkMode ? 'rgba(65,227,255,0.15)' : 'rgba(25,118,210,0.08)',
+                            boxShadow: isDarkMode ? '0 0 0 2px rgba(65,227,255,0.5)' : '0 0 0 2px rgba(25,118,210,0.3)',
+                          },
                         },
                       }}
                     />
@@ -1385,8 +1605,26 @@ const Dashboard = () => {
                   isOptionEqualToValue={(option, value) => option._id === value._id}
                   sx={{ flexGrow: 1, minWidth: '200px', mt: 1 }}
                   PaperComponent={({ children, ...props }) => (
-                    <Paper {...props} sx={{ background: '#232b3e', color: '#fff', borderRadius: 2 }}>{children}</Paper>
+                    <Paper {...props} sx={{ background: isDarkMode ? '#162336' : '#ffffff', color: isDarkMode ? '#fff' : '#333', borderRadius: 2, border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}` }}>{children}</Paper>
                   )}
+                  ListboxProps={{
+                    sx: {
+                      backgroundColor: isDarkMode ? '#162336' : '#ffffff',
+                      color: isDarkMode ? '#fff' : '#333',
+                      borderRadius: 2,
+                      '& .MuiAutocomplete-option': {
+                        '&:hover': {
+                          backgroundColor: isDarkMode ? 'rgba(65, 227, 255, 0.1)' : 'rgba(25, 118, 210, 0.1)'
+                        },
+                        '&[data-focus="true"]': {
+                          backgroundColor: isDarkMode ? 'rgba(65, 227, 255, 0.2)' : 'rgba(25, 118, 210, 0.2)'
+                        },
+                        '&[aria-selected="true"]': {
+                          backgroundColor: isDarkMode ? 'rgba(65, 227, 255, 0.15)' : 'rgba(25, 118, 210, 0.15)'
+                        }
+                      }
+                    }
+                  }}
                 />
               </>
             )}
