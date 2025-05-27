@@ -396,9 +396,10 @@ const Documents = () => {
           mb: 4, 
           p: 3, 
           bgcolor: isDarkMode ? theme.background.card : 'white', 
-          borderRadius: 1, 
+          borderRadius: 2, 
           boxShadow: isDarkMode ? theme.shadows.card : '0 1px 3px rgba(0,0,0,0.1)',
-          border: isDarkMode ? `1px solid ${theme.border.main}` : 'none'
+          border: `1px solid ${isDarkMode ? theme.border.main : '#e0e0e0'}`,
+          outline: `2px solid ${isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25,118,210,0.08)'}`
         }}>
           <Grid container spacing={3}>
             {/* Keywords */}
@@ -428,16 +429,19 @@ const Documents = () => {
                 }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: 1,
+                    borderRadius: 2,
                     bgcolor: isDarkMode ? theme.background.paper : '#fff',
                     '& fieldset': {
                       borderColor: isDarkMode ? theme.border.main : 'rgba(0, 0, 0, 0.23)',
+                      borderWidth: '1px',
                     },
                     '&:hover fieldset': {
                       borderColor: isDarkMode ? theme.border.hover : 'rgba(0, 0, 0, 0.87)',
                     },
                     '&.Mui-focused fieldset': {
                       borderColor: isDarkMode ? theme.primary.main : '#1976d2',
+                      borderWidth: '1px',
+                      boxShadow: `0 0 0 2px ${isDarkMode ? 'rgba(65,227,255,0.15)' : 'rgba(25,118,210,0.1)'}`,
                     },
                   },
                   '& .MuiInputBase-input': {
@@ -459,7 +463,7 @@ const Documents = () => {
                   value={filters.fileType}
                   onChange={(e) => setFilters({...filters, fileType: e.target.value})}
                   sx={{ 
-                    borderRadius: 1,
+                    borderRadius: 2,
                     bgcolor: isDarkMode ? '#1e2430' : 'white',
                     color: isDarkMode ? theme.text.primary : 'inherit',
                     opacity: 1,
@@ -515,7 +519,7 @@ const Documents = () => {
                   value={filters.status}
                   onChange={(e) => setFilters({...filters, status: e.target.value})}
                   sx={{ 
-                    borderRadius: 1,
+                    borderRadius: 2,
                     bgcolor: isDarkMode ? '#1e2430' : 'white',
                     color: isDarkMode ? theme.text.primary : 'inherit',
                     opacity: 1,
@@ -566,7 +570,7 @@ const Documents = () => {
                   value={filters.dateRange}
                   onChange={(e) => setFilters({...filters, dateRange: e.target.value})}
                   sx={{ 
-                    borderRadius: 1,
+                    borderRadius: 2,
                     bgcolor: isDarkMode ? '#1e2430' : 'white',
                     color: isDarkMode ? theme.text.primary : 'inherit',
                     opacity: 1,
@@ -617,9 +621,10 @@ const Documents = () => {
               onClick={handleReset}
               startIcon={<RefreshIcon />}
               sx={{
+                ml: 1, 
+                borderRadius: 2,
                 borderColor: isDarkMode ? theme.primary.main : '#0091ea',
                 color: isDarkMode ? theme.primary.main : '#0091ea',
-                borderRadius: 1,
                 '&:hover': { 
                   bgcolor: isDarkMode ? 'rgba(33, 150, 243, 0.08)' : 'rgba(0, 145, 234, 0.08)',
                   borderColor: isDarkMode ? theme.primary.light : '#03a9f4'
@@ -661,7 +666,8 @@ const Documents = () => {
                   borderRadius: 2,
                   boxShadow: isDarkMode ? theme.shadows.card : '0 2px 8px rgba(0,0,0,0.08)',
                   overflow: 'hidden',
-                  border: isDarkMode ? `1px solid ${theme.border.main}` : 'none',
+                  border: `1px solid ${isDarkMode ? theme.border.main : '#e0e0e0'}`,
+                  outline: `2px solid ${isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25,118,210,0.08)'}`,
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',

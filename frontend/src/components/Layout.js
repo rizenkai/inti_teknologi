@@ -160,7 +160,10 @@ const Layout = ({ children }) => {
           justifyContent: 'space-between', 
           borderBottom: `1px solid ${isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}` 
         }}>
-          <Typography variant="h6" sx={{ color: muiTheme.palette.primary.main, fontWeight: 700, fontSize: 22 }}>IntiDocs</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <img src="/logo.png" alt="Inti Teknologi Logo" style={{ height: '32px', marginRight: '10px' }} />
+            <Typography variant="h6" sx={{ color: muiTheme.palette.primary.main, fontWeight: 700, fontSize: 20 }}>IntiDocs</Typography>
+          </Box>
           <IconButton
             onClick={() => setSidebarOpen(false)}
             sx={{ color: muiTheme.palette.primary.main }}

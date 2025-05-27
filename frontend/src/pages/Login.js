@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FaEye, FaRegEyeSlash } from 'react-icons/fa';
+import { FaEye, FaRegEyeSlash, FaArrowLeft } from 'react-icons/fa';
 import {
   Box,
   Typography,
@@ -10,16 +10,34 @@ import {
   Alert,
   InputAdornment,
   IconButton,
+  Container,
+  Paper,
 } from '@mui/material';
+import { useTheme as useAppTheme } from '../context/ThemeContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { isDarkMode } = useAppTheme();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
   });
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  
+  // Warna tema konsisten dengan landing page
+  const themeColors = {
+    primary: isDarkMode ? '#41e3ff' : '#1976d2',
+    background: isDarkMode ? '#090d1f' : '#ffffff',
+    cardBg: isDarkMode ? 'rgba(16,24,40,0.5)' : '#ffffff',
+    text: isDarkMode ? '#ffffff' : '#333333',
+    secondaryText: isDarkMode ? '#b5eaff' : '#666666',
+    border: isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(0,0,0,0.1)',
+    buttonBg: isDarkMode ? '#41e3ff' : '#1976d2',
+    buttonText: isDarkMode ? '#090d1f' : '#ffffff',
+    headerBg: isDarkMode ? 'rgba(9,13,31,0.8)' : 'rgba(255,255,255,0.9)',
+    inputBg: isDarkMode ? 'rgba(16,24,40,0.7)' : '#f5f5f5',
+  };
 
   // Redirect jika sudah login
   useEffect(() => {
@@ -76,185 +94,191 @@ const Login = () => {
   return (
     <Box sx={{
       minHeight: '100vh',
-      width: '100vw',
+      width: '100%',
       overflowX: 'hidden',
       fontFamily: 'Open Sans, Arial, Helvetica, sans-serif',
-      color: '#fff',
+      color: themeColors.text,
       display: 'flex',
       flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundImage: "url('/Frame211332.png')",
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat',
-      backgroundSize: 'cover',
-      backgroundColor: '#090d1f',
       position: 'relative',
+      backgroundColor: themeColors.background,
+      '&::-webkit-scrollbar': {
+        width: 6,
+        background: 'transparent',
+      },
+      '&::-webkit-scrollbar-thumb': {
+        background: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+        borderRadius: 3,
+      },
+      scrollbarWidth: 'thin',
+      scrollbarColor: `${isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} transparent`,
     }}>
-      {/* Overlay gradient agar teks tetap jelas */}
-      <Box sx={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        zIndex: 0,
-        background: 'radial-gradient(ellipse at 60% 40%, rgba(65,227,255,0.18) 0%, rgba(59,130,246,0.16) 40%, rgba(9,13,31,0.8) 100%)',
-        pointerEvents: 'none',
-      }} />
-      <Box
-        sx={{
-          width: '100%',
-          maxWidth: 400,
-          background: 'rgba(20, 32, 54, 0.72)',
-          boxShadow: 'none',
-          borderRadius: '14px',
-          p: { xs: 3, md: 5 },
-          mx: 2,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          position: 'relative',
-          zIndex: 1,
-          backdropFilter: 'blur(18px)',
-          WebkitBackdropFilter: 'blur(18px)',
-          border: '1.5px solid rgba(59,130,246,0.23)',
-        }}
-      >
-        <Button
-          onClick={() => navigate('/')}
+      {/* Tidak ada navbar di halaman login */}
+
+      {/* Login Content */}
+      <Container maxWidth="sm" sx={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        minHeight: '100vh',
+      }}>
+        <Paper 
+          elevation={isDarkMode ? 0 : 3}
           sx={{
-            minWidth: 0,
-            p: 0,
-            mb: 2,
-            alignSelf: 'flex-start',
-            color: '#b5eaff',
-            background: 'none',
-            textTransform: 'none',
-            fontSize: 24,
-            fontWeight: 700,
-            '&:hover': { background: 'none', color: '#41e3ff' },
+            width: '100%',
+            maxWidth: 500,
+            backgroundColor: themeColors.cardBg,
+            borderRadius: 3,
+            p: { xs: 3, md: 5 },
+            border: isDarkMode ? `1px solid ${themeColors.border}` : 'none',
+            backdropFilter: isDarkMode ? 'blur(10px)' : 'none',
           }}
-          aria-label="Kembali ke Landing"
         >
-          <span style={{fontSize: 26, marginRight: 8, display: 'inline-block', verticalAlign: 'middle'}}>&larr;</span>
-        </Button>
-        <Typography component="h1" variant="h4" sx={{ fontWeight: 600, color: '#fff', mb: 1, fontFamily: 'Open Sans', alignSelf: 'flex-start', ml: 0 }}>
-          Masuk ke IntiDocs
-        </Typography>
-        <Typography sx={{ color: '#b5eaff', mb: 3, fontWeight: 200, fontSize: '0.95rem', fontFamily: 'Open Sans', alignSelf: 'flex-start', ml: 0 }}>
-          Silakan login untuk mengakses dashboard dan dokumen.
-        </Typography>
-        {error && (
-          <Alert severity="error" sx={{ width: '100%', mb: 2, fontFamily: 'Open Sans' }}>
-            {error}
-          </Alert>
-        )}
-        <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="username"
-            label=""
-            name="username"
-            autoComplete="username"
-            autoFocus
-            value={formData.username}
-            onChange={handleChange}
-            InputProps={{
-              sx: {
-                bgcolor: '#232b3e',
-                color: '#fff',
-                borderRadius: '8px',
-                fontFamily: 'Open Sans',
-                fontWeight: 600,
-                border: '1.5px solid #3b82f6',
-                '& input': {
-                  color: '#fff',
-                },
-                '& input:-webkit-autofill': {
-                  WebkitBoxShadow: '0 0 0 1000px #232b3e inset',
-                  WebkitTextFillColor: '#fff',
-                  color: '#fff',
-                  transition: 'background-color 5000s ease-in-out 0s',
-                },
-              },
-              placeholder: 'Username',
-            }}
-            InputLabelProps={{ shrink: false }}
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label=""
-            type={showPassword ? 'text' : 'password'}
-            id="password"
-            autoComplete="current-password"
-            value={formData.password}
-            onChange={handleChange}
-            InputProps={{
-              sx: {
-                bgcolor: '#232b3e',
-                color: '#fff',
-                borderRadius: '8px',
-                fontFamily: 'Open Sans',
-                fontWeight: 600,
-                border: '1.5px solid #3b82f6',
-                '& input': {
-                  color: '#fff',
-                },
-                '& input:-webkit-autofill': {
-                  WebkitBoxShadow: '0 0 0 1000px #232b3e inset',
-                  WebkitTextFillColor: '#fff',
-                  color: '#fff',
-                  transition: 'background-color 5000s ease-in-out 0s',
-                },
-              },
-              placeholder: 'Password',
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
-                    onClick={() => setShowPassword((show) => !show)}
-                    edge="end"
-                    sx={{ color: '#b5eaff' }}
-                  >
-                    {showPassword ? <FaRegEyeSlash size={20} /> : <FaEye size={20} />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-            InputLabelProps={{ shrink: false }}
-          />
           <Button
-            type="submit"
-            fullWidth
-            variant="contained"
+            onClick={() => navigate('/')}
+            startIcon={<FaArrowLeft />}
             sx={{
-              mt: 3,
-              mb: 2,
-              background: 'linear-gradient(90deg, #41e3ff 0%, #3b82f6 100%)',
-              color: '#090d1f',
-              fontWeight: 600,
-              fontFamily: 'Open Sans',
-              fontSize: '1.1rem',
-              borderRadius: '8px',
-              boxShadow: '0 2px 8px rgba(65,227,255,0.13)',
+              mb: 3,
+              color: themeColors.primary,
               textTransform: 'none',
-              letterSpacing: 0.5,
-              '&:hover': {
-                background: 'linear-gradient(90deg, #41e3ff 0%, #3b82f6 100%)',
-                color: '#fff',
+              fontWeight: 600,
+              p: 0,
+              '&:hover': { 
+                background: 'none', 
+                color: isDarkMode ? '#1ec6e6' : '#1565c0',
               },
             }}
           >
-            Masuk
+            Kembali ke Beranda
           </Button>
-        </Box>
-      </Box>
+          
+          <Typography variant="h4" sx={{ 
+            fontWeight: 700, 
+            color: themeColors.text, 
+            mb: 1,
+          }}>
+            Masuk ke IntiDocs
+          </Typography>
+          
+          <Typography sx={{ 
+            color: themeColors.secondaryText, 
+            mb: 4,
+            lineHeight: 1.7,
+          }}>
+            Silakan login untuk mengakses dashboard dan dokumen.
+          </Typography>
+          
+          {error && (
+            <Alert severity="error" sx={{ width: '100%', mb: 3 }}>
+              {error}
+            </Alert>
+          )}
+          
+          <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="username"
+              label="Username"
+              name="username"
+              autoComplete="username"
+              autoFocus
+              value={formData.username}
+              onChange={handleChange}
+              sx={{
+                mb: 2,
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: themeColors.border,
+                  },
+                  '&:hover fieldset': {
+                    borderColor: themeColors.primary,
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: themeColors.primary,
+                  },
+                  backgroundColor: themeColors.inputBg,
+                },
+                '& .MuiInputLabel-root': {
+                  color: themeColors.secondaryText,
+                },
+                '& .MuiOutlinedInput-input': {
+                  color: themeColors.text,
+                },
+              }}
+            />
+            
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              id="password"
+              autoComplete="current-password"
+              value={formData.password}
+              onChange={handleChange}
+              sx={{
+                mb: 3,
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: themeColors.border,
+                  },
+                  '&:hover fieldset': {
+                    borderColor: themeColors.primary,
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: themeColors.primary,
+                  },
+                  backgroundColor: themeColors.inputBg,
+                },
+                '& .MuiInputLabel-root': {
+                  color: themeColors.secondaryText,
+                },
+                '& .MuiOutlinedInput-input': {
+                  color: themeColors.text,
+                },
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+                      onClick={() => setShowPassword((show) => !show)}
+                      edge="end"
+                      sx={{ color: themeColors.secondaryText }}
+                    >
+                      {showPassword ? <FaRegEyeSlash /> : <FaEye />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{
+                mt: 2,
+                py: 1.5,
+                bgcolor: themeColors.buttonBg,
+                color: themeColors.buttonText,
+                fontWeight: 600,
+                borderRadius: 2,
+                '&:hover': {
+                  bgcolor: isDarkMode ? '#1ec6e6' : '#1565c0',
+                },
+              }}
+            >
+              Masuk
+            </Button>
+          </Box>
+        </Paper>
+      </Container>
     </Box>
   );
 };
