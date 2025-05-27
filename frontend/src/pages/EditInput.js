@@ -28,9 +28,10 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Grid
+  Grid,
+  Tooltip
 } from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { Add as AddIcon, Delete as DeleteIcon, HelpOutline as HelpOutlineIcon } from '@mui/icons-material';
 
 const EditInput = () => {
   // Theme context
@@ -288,7 +289,22 @@ const EditInput = () => {
         )}
         
         <Paper elevation={0} sx={{ width: '100%', maxWidth: 900, mx: 'auto', p: { xs: 2, sm: 3, md: 4 }, borderRadius: 3, boxShadow: '0 2px 16px rgba(0,0,0,0.10)', backdropFilter: 'blur(10px)', background: isDarkMode ? 'rgba(20,32,54,0.68)' : 'rgba(255,255,255,0.9)', border: `1.5px solid ${isDarkMode ? 'rgba(59,130,246,0.18)' : 'rgba(25,118,210,0.18)'}`, color: isDarkMode ? '#fff' : '#333', position: 'relative', zIndex: 1 }}>
-          <Typography variant="h5" component="h1" sx={{ mb: 3, fontWeight: 700, color: muiTheme.palette.primary.main }}>Edit Input Options</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+            <Typography variant="h5" component="h1" sx={{ fontWeight: 700, color: muiTheme.palette.primary.main }}>Edit Input Options</Typography>
+            <Tooltip title={
+              <Box sx={{ p: 1 }}>
+                <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>Petunjuk Penggunaan:</Typography>
+                <Typography variant="body2">1. Pilih tipe pengujian (Besi/Beton)</Typography>
+                <Typography variant="body2">2. Pilih kategori (Mutu Bahan/Tipe Bahan)</Typography>
+                <Typography variant="body2">3. Masukkan nilai baru dan klik Add</Typography>
+                <Typography variant="body2">4. Untuk menghapus nilai, klik ikon hapus</Typography>
+              </Box>
+            } arrow placement="right">
+              <IconButton size="small" sx={{ ml: 1, color: isDarkMode ? '#41e3ff' : muiTheme.palette.primary.main }}>
+                <HelpOutlineIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
           
           <Typography variant="h6" sx={{ mb: 2, color: muiTheme.palette.primary.main, fontWeight: 600 }}>
             1. Pilih Tipe Pengujian

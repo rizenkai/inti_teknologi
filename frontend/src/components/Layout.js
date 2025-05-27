@@ -29,13 +29,31 @@ import { useTheme } from '../context/ThemeContext';
 
 const Layout = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768); // Hanya buka sidebar secara default di desktop (md dan ke atas)
   const [anchorElProfile, setAnchorElProfile] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { isDarkMode, toggleTheme } = useTheme();
   const muiTheme = useMuiTheme();
   
+  // Listener untuk perubahan ukuran layar
+  useEffect(() => {
+    const handleResize = () => {
+      // Jika layar berubah ke ukuran mobile, tutup sidebar secara otomatis
+      if (window.innerWidth < 768 && sidebarOpen) {
+        setSidebarOpen(false);
+      }
+    };
+
+    // Tambahkan event listener
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup function
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [sidebarOpen]);
+
   // Fetch user data on component mount
   useEffect(() => {
     const fetchUserData = async () => {
@@ -78,19 +96,19 @@ const Layout = ({ children }) => {
     fetchUserData();
   }, [navigate]);
 
-  // Filtrar elementos del menú según el rol del usuario
+  // Mendapatkan menu berdasarkan peran pengguna
   const getMenuItems = () => {
     const baseItems = [
-      { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-      { text: 'Documents', icon: <DocumentIcon />, path: '/documents' },
+      { text: 'Beranda', icon: <DashboardIcon />, path: '/dashboard' },
+      { text: 'Dokumen', icon: <DocumentIcon />, path: '/documents' },
     ];
     
-    // Añadir opción de Users para admin, staff y owner
+    // Menambahkan opsi Pengguna untuk admin, staff dan owner
     if (user && user.role && (user.role === 'admin' || user.role === 'staff' || user.role === 'owner')) {
-      baseItems.push({ text: 'Users', icon: <PeopleIcon />, path: '/users' });
+      baseItems.push({ text: 'Pengguna', icon: <PeopleIcon />, path: '/users' });
     }
 
-    // Añadir opción de Edit Input hanya untuk admin
+    // Menambahkan opsi Edit Input hanya untuk admin
     if (user && user.role && user.role === 'admin') {
       baseItems.push({ text: 'Edit Input', icon: <EditIcon />, path: '/edit-input' });
     }
@@ -121,16 +139,18 @@ const Layout = ({ children }) => {
         left: 0,
         top: 0,
         height: '100vh',
-        width: '220px',
+        width: { xs: '85%', sm: '260px', md: '220px' },
+        maxWidth: { xs: '300px', sm: '300px' },
         bgcolor: isDarkMode ? muiTheme.palette.background.paper : '#f8f8f8',
         color: muiTheme.palette.text.primary,
         zIndex: 1200,
-        transform: { xs: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)', md: 'translateX(0)' },
+        transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
         transition: 'transform 0.3s cubic-bezier(.4,2,.6,1)',
         boxShadow: '0 0 20px rgba(0,0,0,0.08)',
         display: 'flex',
         flexDirection: 'column',
         borderRight: `1px solid ${isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
+        overflowY: 'auto',
       }}>
         {/* Logo */}
         <Box sx={{ 
@@ -143,7 +163,7 @@ const Layout = ({ children }) => {
           <Typography variant="h6" sx={{ color: muiTheme.palette.primary.main, fontWeight: 700, fontSize: 22 }}>IntiDocs</Typography>
           <IconButton
             onClick={() => setSidebarOpen(false)}
-            sx={{ color: muiTheme.palette.primary.main, display: { xs: 'inline-flex', md: 'none' } }}
+            sx={{ color: muiTheme.palette.primary.main }}
             size="small"
           >
             <CloseIcon />
@@ -154,11 +174,20 @@ const Layout = ({ children }) => {
           {menuItems.map((item, index) => (
             <Button
               key={item.path}
-              startIcon={item.icon}
+              startIcon={
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  minWidth: { xs: '24px', sm: '24px' }
+                }}>
+                  {item.icon}
+                </Box>
+              }
               onClick={() => navigate(item.path)}
               sx={{
-                py: 1.2,
-                px: 2,
+                py: { xs: 1.5, sm: 1.2 },
+                px: { xs: 1.5, sm: 2 },
                 mb: 1,
                 width: '100%',
                 justifyContent: 'flex-start',
@@ -171,11 +200,27 @@ const Layout = ({ children }) => {
                   bgcolor: isDarkMode ? 'rgba(65,227,255,0.12)' : 'rgba(33,150,243,0.12)',
                 },
                 fontWeight: location.pathname === item.path ? 600 : 400,
+                textAlign: 'left',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
               }}
               fullWidth
             >
-              <Box sx={{ display: { xs: 'inline', md: 'none' }, ml: 1 }}>{item.text}</Box>
-              <Box sx={{ display: { xs: 'none', md: 'inline' }, ml: 1 }}>{item.text}</Box>
+              <Typography 
+                component="span" 
+                sx={{ 
+                  ml: 1, 
+                  fontSize: { xs: '0.875rem', sm: '0.9rem' },
+                  fontWeight: location.pathname === item.path ? 600 : 400,
+                  display: 'block',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}
+              >
+                {item.text}
+              </Typography>
             </Button>
           ))}
         </Box>
@@ -200,7 +245,10 @@ const Layout = ({ children }) => {
       <Box sx={{
         flex: 1,
         minHeight: '100vh',
-        pl: { xs: 0, md: sidebarOpen ? '220px' : 0 },
+        pl: { 
+          xs: 0, 
+          md: sidebarOpen ? { md: '220px', lg: '260px' } : 0 
+        },
         width: '100%',
         overflowX: 'hidden',
         transition: 'padding-left 0.3s cubic-bezier(.4,2,.6,1)',
@@ -209,15 +257,19 @@ const Layout = ({ children }) => {
         {/* Header */}
         <Box sx={{
           position: 'fixed',
-          left: { xs: 0, md: sidebarOpen ? 220 : 0 },
+          left: { xs: 0, md: sidebarOpen ? 'auto' : 0 },
           top: 0,
-          height: '64px',
-          width: { xs: '100%', md: sidebarOpen ? 'calc(100% - 220px)' : '100%' },
+          height: { xs: '56px', sm: '64px' },
+          width: { 
+            xs: '100%', 
+            md: sidebarOpen ? { md: 'calc(100% - 220px)', lg: 'calc(100% - 260px)' } : '100%' 
+          },
+          right: 0,
           bgcolor: isDarkMode ? muiTheme.palette.background.paper : '#f8f8f8',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          px: { xs: 2, md: 4 },
+          px: { xs: 1.5, sm: 2, md: 4 },
           zIndex: 1100,
           boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
           transition: 'left 0.3s cubic-bezier(.4,2,.6,1), width 0.3s cubic-bezier(.4,2,.6,1)',
@@ -234,9 +286,9 @@ const Layout = ({ children }) => {
           <Typography variant="h6" sx={{ color: muiTheme.palette.text.primary, fontWeight: 700, fontSize: { xs: 16, md: 22 } }}>Document Management System</Typography>
           {user && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              {/* Light/Dark Mode Toggle */}
+              {/* Light/Dark Mode Toggle - hanya tampil di desktop */}
               <Tooltip title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
+                <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', mr: 2 }}>
                   <DarkModeIcon sx={{ color: isDarkMode ? muiTheme.palette.primary.main : muiTheme.palette.text.secondary, fontSize: 20 }} />
                   <Switch
                     checked={!isDarkMode}
@@ -296,13 +348,36 @@ const Layout = ({ children }) => {
               Akun dibuat: {user && user.createdAt ? new Date(user.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
             </Typography>
             <Divider sx={{ my: 1, borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }} />
+            
+            {/* Light/Dark Mode Toggle di profile untuk mobile */}
+            <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', justifyContent: 'space-between', mb: 2, mt: 1 }}>
+              <Typography sx={{ fontSize: 14, color: muiTheme.palette.text.primary }}>Mode Tampilan</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <DarkModeIcon sx={{ color: isDarkMode ? muiTheme.palette.primary.main : muiTheme.palette.text.secondary, fontSize: 18 }} />
+                <Switch
+                  checked={!isDarkMode}
+                  onChange={toggleTheme}
+                  size="small"
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: muiTheme.palette.primary.main,
+                    },
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      backgroundColor: muiTheme.palette.primary.main,
+                    },
+                  }}
+                />
+                <LightModeIcon sx={{ color: !isDarkMode ? muiTheme.palette.primary.main : muiTheme.palette.text.secondary, fontSize: 18 }} />
+              </Box>
+            </Box>
+            
             <Button
               variant="contained"
               color="error"
               onClick={() => { setAnchorElProfile(null); handleLogout(); }}
-              sx={{ mt: 1, width: '100%', bgcolor: '#d32f2f', color: '#fff', fontWeight: 700, '&:hover': { bgcolor: '#b71c1c' } }}
+              sx={{ width: '100%', bgcolor: '#d32f2f', color: '#fff', fontWeight: 700, '&:hover': { bgcolor: '#b71c1c' } }}
             >
-              Logout
+              Keluar
             </Button>
           </Popover>
         </Box>

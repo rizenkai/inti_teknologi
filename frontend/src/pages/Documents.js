@@ -28,12 +28,16 @@ import {
   Alert,
   IconButton,
   Grid,
+  Pagination,
+  Stack,
 } from '@mui/material';
 import { 
   CloudDownload as DownloadIcon, 
   Add as AddIcon,
-  Search as SearchIcon
+  Search as SearchIcon,
+  CloudUpload as UploadIcon
 } from '@mui/icons-material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { format } from 'date-fns';
 
 const Documents = () => {
@@ -48,12 +52,27 @@ const Documents = () => {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   
+  // State for filters
+  const [filters, setFilters] = useState({
+    fileType: 'All',
+    status: 'All',
+    dateRange: 'All'
+  });
+  const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
+  
+  // State for pagination
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(9);
+  const rowsPerPageOptions = [6, 9, 12, 24];
+  
   // State for upload dialog
   const [uploadDialog, setUploadDialog] = useState(false);
+  const [openUploadDialog, setOpenUploadDialog] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [selectedDocument, setSelectedDocument] = useState(null); // For updating existing document
   const [selectedFile, setSelectedFile] = useState(null);
+  const [loadingDownload, setLoadingDownload] = useState({});
   const [documentData, setDocumentData] = useState({
     title: '',
     description: '',
@@ -263,45 +282,91 @@ const Documents = () => {
   
 
   
-  // Filter documents based on search term (title, placeholder id, etc)
+  // Fungsi untuk melakukan filter berdasarkan date range
+  const filterByDateRange = (doc, dateRange) => {
+    if (dateRange === 'All') return true;
+    
+    const docDate = doc.uploadDate || doc.lastModified || doc.createdAt;
+    if (!docDate) return false;
+    
+    const today = new Date();
+    const docDateTime = new Date(docDate);
+    
+    // Reset jam ke 00:00:00
+    today.setHours(0, 0, 0, 0);
+    
+    switch (dateRange) {
+      case 'Today':
+        return docDateTime >= today;
+      case 'This Week': {
+        const firstDayOfWeek = new Date(today);
+        firstDayOfWeek.setDate(today.getDate() - today.getDay()); // Minggu = 0, Senin = 1, dst
+        return docDateTime >= firstDayOfWeek;
+      }
+      case 'This Month': {
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        return docDateTime >= firstDayOfMonth;
+      }
+      case 'This Year': {
+        const firstDayOfYear = new Date(today.getFullYear(), 0, 1);
+        return docDateTime >= firstDayOfYear;
+      }
+      default:
+        return true;
+    }
+  };
+  
+  // Fungsi untuk mendapatkan tipe file dari nama file
+  const getFileType = (fileName) => {
+    if (!fileName) return '-';
+    
+    const lowerFileName = fileName.toLowerCase();
+    if (lowerFileName === 'placeholder.txt') return '-';
+    
+    if (lowerFileName.endsWith('.pdf')) return 'PDF';
+    if (lowerFileName.endsWith('.doc')) return 'DOC';
+    if (lowerFileName.endsWith('.docx')) return 'DOCX';
+    if (lowerFileName.endsWith('.xls')) return 'XLS';
+    if (lowerFileName.endsWith('.xlsx')) return 'XLSX';
+    if (lowerFileName.endsWith('.csv')) return 'CSV';
+    if (lowerFileName.endsWith('.ppt')) return 'PPT';
+    if (lowerFileName.endsWith('.pptx')) return 'PPTX';
+    if (lowerFileName.endsWith('.txt')) return 'TXT';
+    
+    // Ekstrak ekstensi file
+    const extension = lowerFileName.split('.').pop();
+    return extension ? extension.toUpperCase() : 'OTHER';
+  };
+  
+  // Fungsi untuk melakukan filter berdasarkan tipe file
+  const filterByFileType = (doc, fileType) => {
+    if (fileType === 'All') return true;
+    if (!doc.fileName) return false;
+    
+    const actualFileType = getFileType(doc.fileName);
+    return actualFileType === fileType;
+  };
+  
+  // Filter documents based on search term and filters
   const filteredDocuments = documents.filter(doc => {
-    if (!searchTerm || searchTerm.trim() === '') return true; // Show all documents if search is empty
-    
+    // Filter berdasarkan search term (nama dan ID placeholder)
     const search = searchTerm.toLowerCase().trim();
+    const matchesSearch = !search || 
+      (doc.namaProyek || '').toString().toLowerCase().includes(search) ||
+      (doc.title || '').toString().toLowerCase().includes(search) ||
+      (doc._id || '').toString().toLowerCase().includes(search) ||
+      (doc.placeholderId || '').toString().toLowerCase().includes(search);
     
-    // Cari berdasarkan namaProyek, title, ID, dan informasi lainnya
-    const namaProyek = (doc.namaProyek || '').toString().toLowerCase();
-    const title = (doc.title || '').toString().toLowerCase();
-    const docId = (doc._id || '').toString().toLowerCase();
-    const placeholderId = (doc.placeholderId || '').toString().toLowerCase();
-    const fileName = (doc.fileName || '').toString().toLowerCase();
-    const fileType = (doc.fileType || '').toString().toLowerCase();
-    const status = (doc.status || '').toString().toLowerCase();
+    // Filter berdasarkan status
+    const matchesStatus = filters.status === 'All' || doc.status === filters.status;
     
-    // Untuk debugging
-    console.log(`Searching for: "${search}" in doc:`, {
-      id: docId,
-      namaProyek,
-      title,
-      placeholderId,
-      fileName,
-      fileType,
-      status
-    });
+    // Filter berdasarkan tipe file
+    const matchesFileType = filterByFileType(doc, filters.fileType);
     
-    return (
-      namaProyek.includes(search) ||
-      title.includes(search) ||
-      docId.includes(search) ||
-      placeholderId.includes(search) ||
-      fileName.includes(search) ||
-      fileType.includes(search) ||
-      status.includes(search) ||
-      (doc.targetUser && (
-        (doc.targetUser.username || '').toLowerCase().includes(search) ||
-        (doc.targetUser.fullname || '').toLowerCase().includes(search)
-      ))
-    );
+    // Filter berdasarkan date range
+    const matchesDateRange = filterByDateRange(doc, filters.dateRange);
+    
+    return matchesSearch && matchesStatus && matchesFileType && matchesDateRange;
   });
   
   // Format date for display
@@ -313,58 +378,262 @@ const Documents = () => {
     }
   };
   
+  // Handle reset button click
+  const handleReset = () => {
+    setSearchTerm('');
+    setFilters({
+      fileType: 'All',
+      status: 'All',
+      dateRange: 'All'
+    });
+  };
+  
   return (
-    <Box sx={{ minHeight: '100vh', width: '100%', fontFamily: 'Open Sans, Arial, Helvetica, sans-serif', color: theme.text.primary, backgroundImage: "url('/Frame211332.png')", backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundColor: theme.background.default, overflowX: 'hidden' }}>
-      {/* Overlay gradient agar teks tetap jelas */}
-      <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, background: theme.gradients.overlay, pointerEvents: 'none' }} />
-      
+    <Box sx={{ minHeight: '100vh', width: '100%', fontFamily: 'Open Sans, Arial, Helvetica, sans-serif', color: theme.text.primary, backgroundColor: theme.background.default, overflowX: 'hidden' }}>
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4, position: 'relative', zIndex: 1 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h4" gutterBottom sx={{ color: theme.text.primary, fontWeight: 800, letterSpacing: 1 }}>Document List</Typography>
+        {/* Filter Section */}
+        <Box sx={{ 
+          mb: 4, 
+          p: 3, 
+          bgcolor: isDarkMode ? theme.background.card : 'white', 
+          borderRadius: 1, 
+          boxShadow: isDarkMode ? theme.shadows.card : '0 1px 3px rgba(0,0,0,0.1)',
+          border: isDarkMode ? `1px solid ${theme.border.main}` : 'none'
+        }}>
+          <Grid container spacing={3}>
+            {/* Keywords */}
+            <Grid item xs={12}>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600, color: isDarkMode ? theme.text.secondary : '#666' }}>Cari Dokumen</Typography>
+              <TextField
+                fullWidth
+                placeholder="Cari Dokumen..."
+                variant="outlined"
+                size="small"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setSearchTerm(searchTerm.trim());
+                  }
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <Box component="span" sx={{ color: isDarkMode ? theme.text.secondary : '#999', mr: 1, display: 'flex', alignItems: 'center' }}>
+                      <SearchIcon fontSize="small" />
+                    </Box>
+                  ),
+                  sx: {
+                    color: isDarkMode ? theme.text.primary : 'inherit',
+                  }
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 1,
+                    bgcolor: isDarkMode ? theme.background.paper : '#fff',
+                    '& fieldset': {
+                      borderColor: isDarkMode ? theme.border.main : 'rgba(0, 0, 0, 0.23)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: isDarkMode ? theme.border.hover : 'rgba(0, 0, 0, 0.87)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: isDarkMode ? theme.primary.main : '#1976d2',
+                    },
+                  },
+                  '& .MuiInputBase-input': {
+                    color: isDarkMode ? theme.text.primary : 'inherit',
+                    '&::placeholder': {
+                      color: isDarkMode ? theme.text.disabled : 'rgba(0, 0, 0, 0.54)',
+                      opacity: 1,
+                    },
+                  },
+                }}
+              />
+            </Grid>
+
+            {/* Filter Row */}
+            <Grid item xs={12} sm={4}>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600, color: isDarkMode ? theme.text.secondary : '#666' }}>Tipe</Typography>
+              <FormControl fullWidth size="small">
+                <Select
+                  value={filters.fileType}
+                  onChange={(e) => setFilters({...filters, fileType: e.target.value})}
+                  sx={{ 
+                    borderRadius: 1,
+                    bgcolor: isDarkMode ? '#1e2430' : 'white',
+                    color: isDarkMode ? theme.text.primary : 'inherit',
+                    opacity: 1,
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDarkMode ? theme.border.main : 'rgba(0, 0, 0, 0.23)',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDarkMode ? theme.border.hover : 'rgba(0, 0, 0, 0.87)',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDarkMode ? theme.primary.main : '#1976d2',
+                    },
+                    '& .MuiSvgIcon-root': {
+                      color: isDarkMode ? theme.text.secondary : 'inherit',
+                    }
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        bgcolor: isDarkMode ? '#1e2430' : 'white',
+                        color: isDarkMode ? theme.text.primary : 'inherit',
+                        '& .MuiMenuItem-root': {
+                          bgcolor: isDarkMode ? '#1e2430' : 'white',
+                        },
+                        '& .MuiMenuItem-root:hover': {
+                          bgcolor: isDarkMode ? '#2c3546' : 'rgba(0, 0, 0, 0.04)',
+                        },
+                        '& .MuiMenuItem-root.Mui-selected': {
+                          bgcolor: isDarkMode ? '#2c3546' : 'rgba(0, 0, 0, 0.08)',
+                        }
+                      }
+                    }
+                  }}
+                >
+                  <MenuItem value="All">Semua</MenuItem>
+                  <MenuItem value="PDF">PDF</MenuItem>
+                  <MenuItem value="DOC">DOC</MenuItem>
+                  <MenuItem value="DOCX">DOCX</MenuItem>
+                  <MenuItem value="XLS">XLS</MenuItem>
+                  <MenuItem value="XLSX">XLSX</MenuItem>
+                  <MenuItem value="CSV">CSV</MenuItem>
+                  <MenuItem value="PPT">PPT</MenuItem>
+                  <MenuItem value="PPTX">PPTX</MenuItem>
+                  <MenuItem value="TXT">TXT</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600, color: isDarkMode ? theme.text.secondary : '#666' }}>Status</Typography>
+              <FormControl fullWidth size="small">
+                <Select
+                  value={filters.status}
+                  onChange={(e) => setFilters({...filters, status: e.target.value})}
+                  sx={{ 
+                    borderRadius: 1,
+                    bgcolor: isDarkMode ? '#1e2430' : 'white',
+                    color: isDarkMode ? theme.text.primary : 'inherit',
+                    opacity: 1,
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDarkMode ? theme.border.main : 'rgba(0, 0, 0, 0.23)',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDarkMode ? theme.border.hover : 'rgba(0, 0, 0, 0.87)',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDarkMode ? theme.primary.main : '#1976d2',
+                    },
+                    '& .MuiSvgIcon-root': {
+                      color: isDarkMode ? theme.text.secondary : 'inherit',
+                    }
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        bgcolor: isDarkMode ? '#1e2430' : 'white',
+                        color: isDarkMode ? theme.text.primary : 'inherit',
+                        '& .MuiMenuItem-root': {
+                          bgcolor: isDarkMode ? '#1e2430' : 'white',
+                        },
+                        '& .MuiMenuItem-root:hover': {
+                          bgcolor: isDarkMode ? '#2c3546' : 'rgba(0, 0, 0, 0.04)',
+                        },
+                        '& .MuiMenuItem-root.Mui-selected': {
+                          bgcolor: isDarkMode ? '#2c3546' : 'rgba(0, 0, 0, 0.08)',
+                        }
+                      }
+                    }
+                  }}
+                >
+                  <MenuItem value="All">Semua</MenuItem>
+                  <MenuItem value="pending">Menunggu</MenuItem>
+                  <MenuItem value="review">Ditinjau</MenuItem>
+                  <MenuItem value="in_progress">Dalam Proses</MenuItem>
+                  <MenuItem value="completed">Selesai</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600, color: isDarkMode ? theme.text.secondary : '#666' }}>Rentang Tanggal</Typography>
+              <FormControl fullWidth size="small">
+                <Select
+                  value={filters.dateRange}
+                  onChange={(e) => setFilters({...filters, dateRange: e.target.value})}
+                  sx={{ 
+                    borderRadius: 1,
+                    bgcolor: isDarkMode ? '#1e2430' : 'white',
+                    color: isDarkMode ? theme.text.primary : 'inherit',
+                    opacity: 1,
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDarkMode ? theme.border.main : 'rgba(0, 0, 0, 0.23)',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDarkMode ? theme.border.hover : 'rgba(0, 0, 0, 0.87)',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDarkMode ? theme.primary.main : '#1976d2',
+                    },
+                    '& .MuiSvgIcon-root': {
+                      color: isDarkMode ? theme.text.secondary : 'inherit',
+                    }
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        bgcolor: isDarkMode ? '#1e2430' : 'white',
+                        color: isDarkMode ? theme.text.primary : 'inherit',
+                        '& .MuiMenuItem-root': {
+                          bgcolor: isDarkMode ? '#1e2430' : 'white',
+                        },
+                        '& .MuiMenuItem-root:hover': {
+                          bgcolor: isDarkMode ? '#2c3546' : 'rgba(0, 0, 0, 0.04)',
+                        },
+                        '& .MuiMenuItem-root.Mui-selected': {
+                          bgcolor: isDarkMode ? '#2c3546' : 'rgba(0, 0, 0, 0.08)',
+                        }
+                      }
+                    }
+                  }}
+                >
+                  <MenuItem value="All">Semua</MenuItem>
+                  <MenuItem value="Today">Hari Ini</MenuItem>
+                  <MenuItem value="This Week">Minggu Ini</MenuItem>
+                  <MenuItem value="This Month">Bulan Ini</MenuItem>
+                  <MenuItem value="This Year">Tahun Ini</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+            <Button
+              variant="outlined"
+              onClick={handleReset}
+              startIcon={<RefreshIcon />}
+              sx={{
+                borderColor: isDarkMode ? theme.primary.main : '#0091ea',
+                color: isDarkMode ? theme.primary.main : '#0091ea',
+                borderRadius: 1,
+                '&:hover': { 
+                  bgcolor: isDarkMode ? 'rgba(33, 150, 243, 0.08)' : 'rgba(0, 145, 234, 0.08)',
+                  borderColor: isDarkMode ? theme.primary.light : '#03a9f4'
+                },
+                textTransform: 'none',
+                px: 3
+              }}
+            >
+              Atur Ulang
+            </Button>
+          </Box>
         </Box>
+
       
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={8}>
-          <TextField
-            fullWidth
-            placeholder="Cari Dokumen"
-            variant="outlined"
-            value={searchTerm}
-            onChange={(e) => {
-              console.log('Search term changed:', e.target.value);
-              setSearchTerm(e.target.value);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                console.log('Search submitted:', searchTerm);
-                // Force re-render to refresh filtered results
-                setSearchTerm(searchTerm.trim());
-              }
-            }}
-            InputProps={{
-              startAdornment: (
-                <Box component="span" sx={{ color: theme.text.secondary, mr: 1, fontSize: 14, display: 'flex', alignItems: 'center' }}>
-                  <span style={{ marginRight: 4 }}>🔍</span>
-                </Box>
-              ),
-              style: {
-                color: theme.text.primary,
-                background: theme.background.hover,
-                borderRadius: 12,
-                border: `1.5px solid ${theme.border.main}`,
-                boxShadow: theme.shadows.input
-              }
-            }}
-            InputLabelProps={{ style: { color: theme.text.secondary, fontWeight: 600 } }}
-            sx={{
-              input: { color: theme.text.primary },
-              '& .MuiOutlinedInput-notchedOutline': { borderColor: theme.border.main },
-              '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: theme.border.hover },
-              '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: theme.primary.main }
-            }}
-          />
-        </Grid>
-      </Grid>
       
       {error && (
         <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
@@ -377,168 +646,289 @@ const Documents = () => {
           <CircularProgress />
         </Box>
       ) : filteredDocuments.length === 0 ? (
-        <Alert severity="info">No documents found</Alert>
+        <Alert severity="info">Tidak ada dokumen ditemukan</Alert>
       ) : (
-        <TableContainer component={Paper} sx={{
-           background: theme.background.card,
-           borderRadius: 3,
-           boxShadow: theme.shadows.card,
-           border: `1.5px solid ${theme.border.main}`,
-           backdropFilter: 'blur(8px)',
-         }}>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ background: theme.background.tableHeader }}>
-                <TableCell sx={{ color: theme.primary.main, fontWeight: 700, fontSize: 16 }}>ID</TableCell>
-                <TableCell sx={{ color: theme.primary.main, fontWeight: 700, fontSize: 16 }}>Nama Proyek</TableCell>
-                <TableCell sx={{ color: theme.primary.main, fontWeight: 700, fontSize: 16 }}>File Type</TableCell>
-                <TableCell sx={{ color: theme.primary.main, fontWeight: 700, fontSize: 16 }}>Status</TableCell>
-                <TableCell sx={{ color: theme.primary.main, fontWeight: 700, fontSize: 16 }}>User Tujuan</TableCell>
-                <TableCell sx={{ color: theme.primary.main, fontWeight: 700, fontSize: 16 }}>Submitted Date</TableCell>
-                <TableCell sx={{ color: theme.primary.main, fontWeight: 700, fontSize: 16 }}>Document Uploaded</TableCell>
-                <TableCell sx={{ color: theme.primary.main, fontWeight: 700, fontSize: 16 }}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredDocuments.map((doc) => (
-                <TableRow key={doc._id} sx={{ '&:hover': { background: theme.background.hover } }}>
-                  {/* Kolom ID: tampilkan placeholderId jika ada, jika tidak tampilkan _id */}
-                  <TableCell align="left" sx={{ color: theme.text.primary, fontWeight: 500 }}>
-                    {doc.placeholderId ? doc.placeholderId : doc._id}
-                  </TableCell>
-                  <TableCell sx={{ color: theme.text.primary, fontWeight: 500 }}>{doc.namaProyek || doc.title}</TableCell>
-                  <TableCell sx={{ color: theme.text.primary, fontWeight: 500 }}>{
-                    doc.fileName && doc.fileName !== 'placeholder.txt'
-                      ? (doc.fileName.split('.').pop() || '-').toLowerCase()
-                      : '-'
-                    }
-                  </TableCell>
-                  <TableCell sx={{ color: theme.text.primary, fontWeight: 700, letterSpacing: 0.5 }}>
-                    <Box
-                      sx={{
-                        backgroundColor: getStatusColor(doc.status, isDarkMode),
-                        color: getStatusTextColor(doc.status, isDarkMode),
-                        px: 2,
-                        py: 0.5,
-                        borderRadius: 2,
-                        fontWeight: 700,
-                        fontSize: 14,
-                        display: 'inline-block',
-                        minWidth: 100,
-                        textAlign: 'center',
-                        letterSpacing: 1
-                      }}
-                    >
-                      {doc.status?.toUpperCase()}
+        <>
+        <Grid container spacing={3}>
+          {filteredDocuments
+            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+            .map((doc, index) => (
+            <Grid item xs={12} sm={6} md={4} key={doc._id}>
+              <Paper 
+                elevation={0} 
+                sx={{
+                  background: isDarkMode ? theme.background.card : 'white',
+                  borderRadius: 2,
+                  boxShadow: isDarkMode ? theme.shadows.card : '0 2px 8px rgba(0,0,0,0.08)',
+                  overflow: 'hidden',
+                  border: isDarkMode ? `1px solid ${theme.border.main}` : 'none',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                  '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: isDarkMode ? '0 8px 16px rgba(0,0,0,0.3)' : '0 8px 16px rgba(0,0,0,0.1)'
+                  }
+                }}
+              >
+                {/* Title Section */}
+                <Box sx={{ 
+                  p: 2, 
+                  borderBottom: isDarkMode ? `1px solid ${theme.border.main}` : '1px solid rgba(0,0,0,0.08)',
+                  bgcolor: isDarkMode ? 'rgba(255,255,255,0.03)' : 'rgba(25,118,210,0.03)'
+                }}>
+                  <Typography sx={{ 
+                    fontWeight: 600, 
+                    fontSize: '1rem', 
+                    color: isDarkMode ? theme.primary.main : '#1976d2',
+                    mb: 0.5,
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    lineHeight: 1.4
+                  }}>
+                    {doc.namaProyek || doc.title || 'Pengujian di Serpong'}
+                  </Typography>
+                  {(doc.placeholderId || doc._id) && (
+                    <Typography sx={{ fontSize: '0.75rem', color: isDarkMode ? theme.text.secondary : '#888' }}>
+                      #{doc.placeholderId || doc._id}
+                    </Typography>
+                  )}
+                </Box>
+
+                {/* Content Section */}
+                <Box sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <Box>
+                    {/* File Type */}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                      <Typography sx={{ fontSize: '0.8rem', color: isDarkMode ? theme.text.secondary : '#666', fontWeight: 500 }}>
+                        Tipe File
+                      </Typography>
+                      <Typography sx={{ fontSize: '0.85rem', color: isDarkMode ? theme.text.primary : '#333', fontWeight: 500 }}>
+                        {(doc.fileName && doc.fileName !== 'placeholder.txt' && (doc.status === 'completed' || doc.status === 'approved')) ? 
+                          getFileType(doc.fileName) : '-'}
+                      </Typography>
                     </Box>
-                  </TableCell>
-                  <TableCell sx={{ color: theme.text.primary, fontWeight: 500 }}>{doc.targetUser ? `${doc.targetUser.username} - ${doc.targetUser.fullname}` : '-'}</TableCell>
-                  <TableCell sx={{ color: theme.text.primary, fontWeight: 500 }}>{doc.submissionDate ? formatDate(doc.submissionDate) : '-'}</TableCell>
-                  <TableCell sx={{ color: theme.text.primary, fontWeight: 500 }}>{doc.fileName && doc.fileName !== 'placeholder.txt' ? formatDate(doc.lastModified) : '-'}</TableCell>
-                  <TableCell sx={{ color: theme.text.primary, fontWeight: 500 }}>
-                    {/* Jika dokumen masih placeholder/manual dan status belum completed, tampilkan "waiting to complete" */}
-                    {doc.fileName === 'placeholder.txt' && doc.status !== 'completed' ? (
-                      <span style={{ color: isDarkMode ? '#aaa' : '#777', fontWeight: 500 }}>waiting to complete</span>
-                    ) : (
-                      // Tampilkan tombol download & aksi lain jika sudah completed/file sudah diupload
-                      <Box sx={{ display: 'flex', gap: 1 }}>
-                        {doc.fileName && doc.fileName !== 'placeholder.txt' && (
-                          <Button
-                            variant="contained"
-                            size="small"
-                            startIcon={<DownloadIcon />}
-                            onClick={() => handleDownloadDocument(doc._id)}
-                            sx={{
-                              bgcolor: theme.primary.main,
-                              color: theme.primary.contrastText,
-                              fontWeight: 600,
-                              fontSize: '0.75rem',
-                              '&:hover': { bgcolor: theme.primary.dark },
-                              borderRadius: 2,
-                              textTransform: 'none',
-                              boxShadow: theme.shadows.button
-                            }}
-                          >
-                            Download
-                          </Button>
-                        )}
-                        
-                        {(userRole === 'admin' || userRole === 'staff') && (
-                          // Cek apakah dokumen sudah memiliki file yang diupload
-                          // Jika fileName ada dan bukan placeholder.txt, berarti sudah ada file
-                          doc.fileName && doc.fileName !== 'placeholder.txt' ? (
-                            <Button
-                              variant="contained"
-                              size="small"
-                              startIcon={<DownloadIcon sx={{ transform: 'rotate(180deg)' }} />}
-                              onClick={() => {
-                                setSelectedDocument(doc);
-                                setDocumentData({
-                                  title: doc.namaProyek || doc.title,
-                                  description: doc.description || '',
-                                  category: doc.category || 'general',
-                          status: doc.status || 'completed',
-                          mutuBahan: doc.mutuBahan || '',
-                          tipeBahan: doc.tipeBahan || '',
-                          targetUser: doc.targetUser || ''
-                        });
-                        setUploadDialog(true);
-                      }}
-                              sx={{
-                                bgcolor: isDarkMode ? '#ff9800' : '#ff9800',
-                                color: isDarkMode ? '#111a2b' : '#111a2b',
-                                fontWeight: 600,
-                                fontSize: '0.75rem',
-                                '&:hover': { bgcolor: isDarkMode ? '#f57c00' : '#f57c00' },
-                                borderRadius: 2,
-                                textTransform: 'none',
-                                boxShadow: isDarkMode ? '0 2px 8px rgba(255,152,0,0.25)' : '0 2px 8px rgba(255,152,0,0.15)'
-                              }}
-                            >
-                              Update
-                            </Button>
-                          ) : (
-                            <Button
-                              variant="contained"
-                              size="small"
-                              startIcon={<AddIcon />}
-                              onClick={() => {
-                                setSelectedDocument(doc);
-                                setDocumentData({
-                                  title: doc.namaProyek || doc.title,
-                                  description: doc.description || '',
-                                  category: doc.category || 'general',
-                          status: doc.status || 'completed',
-                          mutuBahan: doc.mutuBahan || '',
-                          tipeBahan: doc.tipeBahan || '',
-                          targetUser: doc.targetUser || ''
-                        });
-                        setUploadDialog(true);
-                      }}
-                              sx={{
-                                bgcolor: isDarkMode ? '#4caf50' : '#4caf50',
-                                color: isDarkMode ? '#111a2b' : '#111a2b',
-                                fontWeight: 600,
-                                fontSize: '0.75rem',
-                                '&:hover': { bgcolor: isDarkMode ? '#388e3c' : '#388e3c' },
-                                borderRadius: 2,
-                                textTransform: 'none',
-                                boxShadow: isDarkMode ? '0 2px 8px rgba(76,175,80,0.25)' : '0 2px 8px rgba(76,175,80,0.15)'
-                              }}
-                            >
-                              Upload
-                            </Button>
-                          )
+
+                    {/* Status */}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                      <Typography sx={{ fontSize: '0.8rem', color: isDarkMode ? theme.text.secondary : '#666', fontWeight: 500 }}>
+                        Status
+                      </Typography>
+                      <Box sx={{ 
+                        display: 'inline-block', 
+                        px: 1.5, 
+                        py: 0.5, 
+                        borderRadius: 1,
+                        bgcolor: isDarkMode ? (
+                          doc.status === 'completed' ? 'rgba(76, 175, 80, 0.2)' : 
+                          doc.status === 'pending' ? 'rgba(255, 152, 0, 0.2)' : 
+                          doc.status === 'rejected' ? 'rgba(244, 67, 54, 0.2)' : 
+                          'rgba(33, 150, 243, 0.2)'
+                        ) : (
+                          doc.status === 'completed' ? 'rgba(76, 175, 80, 0.1)' : 
+                          doc.status === 'pending' ? 'rgba(255, 152, 0, 0.1)' : 
+                          doc.status === 'rejected' ? 'rgba(244, 67, 54, 0.1)' : 
+                          'rgba(33, 150, 243, 0.1)'
+                        ),
+                        color: isDarkMode ? (
+                          doc.status === 'completed' ? '#81c784' : 
+                          doc.status === 'pending' ? '#ffb74d' : 
+                          doc.status === 'rejected' ? '#e57373' : 
+                          '#64b5f6'
+                        ) : (
+                          doc.status === 'completed' ? '#388e3c' : 
+                          doc.status === 'pending' ? '#f57c00' : 
+                          doc.status === 'rejected' ? '#d32f2f' : 
+                          '#1976d2'
+                        ),
+                        fontWeight: 600,
+                        fontSize: '0.75rem',
+                        textTransform: 'capitalize',
+                        textAlign: 'center',
+                        minWidth: '80px'
+                      }}>
+                        {doc.status === 'pending' ? 'Menunggu' : 
+                          doc.status === 'review' ? 'Ditinjau' : 
+                          doc.status === 'in_progress' ? 'Dalam Proses' : 
+                          doc.status === 'completed' ? 'Selesai' : 
+                          doc.status === 'approved' ? 'Disetujui' : 
+                          doc.status === 'rejected' ? 'Ditolak' : 
+                          doc.status || (index % 3 === 0 ? 'Selesai' : index % 3 === 1 ? 'Menunggu' : 'Dalam Proses')}
+                      </Box>
+                    </Box>
+
+                    {/* Upload Date */}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                      <Typography sx={{ fontSize: '0.8rem', color: isDarkMode ? theme.text.secondary : '#666', fontWeight: 500 }}>
+                        Tanggal Unggah
+                      </Typography>
+                      <Box>
+                        {(doc.fileName && doc.fileName !== 'placeholder.txt' && (doc.status === 'completed' || doc.status === 'approved')) ? (
+                          <Box sx={{ textAlign: 'right' }}>
+                            <Typography sx={{ fontSize: '0.85rem', color: isDarkMode ? theme.text.primary : '#333', fontWeight: 500 }}>
+                              {formatDate(doc.uploadDate || new Date())}
+                            </Typography>
+                            <Typography sx={{ fontSize: '0.7rem', color: isDarkMode ? theme.text.secondary : '#888' }}>
+                              oleh {doc.uploadedBy?.fullname || doc.createdBy?.fullname || (index % 2 === 0 ? 'Admin' : 'Staff')}
+                            </Typography>
+                          </Box>
+                        ) : (
+                          <Typography sx={{ fontSize: '0.85rem', color: isDarkMode ? theme.text.disabled : '#888', fontWeight: 500 }}>
+                            -
+                          </Typography>
                         )}
                       </Box>
+                    </Box>
+                  </Box>
+
+                  {/* Actions */}
+                  <Box sx={{ 
+                    mt: 2, 
+                    pt: 2, 
+                    borderTop: isDarkMode ? `1px solid ${theme.border.main}` : '1px solid rgba(0,0,0,0.08)',
+                    display: 'flex', 
+                    justifyContent: 'center'
+                  }}>
+                    {/* Kondisi untuk tampilan tombol atau pesan */}
+                    {(doc.status !== 'completed' && doc.status !== 'approved') ? (
+                      /* Jika status belum completed, tampilkan "Waiting to Complete" */
+                      <Typography sx={{ fontSize: '0.85rem', color: isDarkMode ? theme.text.disabled : '#888' }}>Menunggu Selesai</Typography>
+                    ) : (
+                      /* Jika status completed, cek apakah file sudah diupload */
+                      (doc.fileName && doc.fileName !== 'placeholder.txt') ? (
+                        /* Jika file sudah diupload, tampilkan tombol download */
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          disabled={loadingDownload[doc._id]}
+                          onClick={() => handleDownloadDocument(doc._id)}
+                          startIcon={loadingDownload[doc._id] ? <CircularProgress size={16} /> : <DownloadIcon />}
+                          sx={{
+                            borderColor: isDarkMode ? theme.primary.main : '#1976d2',
+                            color: isDarkMode ? theme.primary.main : '#1976d2',
+                            '&:hover': { borderColor: isDarkMode ? theme.primary.light : '#42a5f5', bgcolor: isDarkMode ? 'rgba(65,227,255,0.08)' : 'rgba(33,150,243,0.08)' },
+                            textTransform: 'none',
+                            minWidth: '120px',
+                            px: 2
+                          }}
+                        >
+                          Unduh
+                        </Button>
+                      ) : null
                     )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                    
+                    {/* Tombol Update/Upload untuk admin/staff - hanya tampil jika status completed atau approved */}
+                    {(userRole === 'admin' || userRole === 'staff') && (doc.status === 'completed' || doc.status === 'approved') && (
+                      <Box sx={{ ml: 1 }}>
+                        <Button
+                          variant="contained"
+                          size="small"
+                          startIcon={<UploadIcon />}
+                          onClick={() => {
+                            setSelectedDocument(doc);
+                            setDocumentData({
+                              title: doc.namaProyek || doc.title,
+                              description: doc.description || '',
+                              department: doc.department || '',
+                              placeholderId: doc.placeholderId || ''
+                            });
+                            setUploadDialog(true);
+                          }}
+                          sx={{
+                            bgcolor: isDarkMode ? theme.primary.main : '#1976d2',
+                            color: 'white',
+                            '&:hover': { bgcolor: isDarkMode ? theme.primary.dark : '#1565c0' },
+                            textTransform: 'none',
+                            minWidth: '120px',
+                            px: 2
+                          }}
+                        >
+                          {doc.fileName && doc.fileName !== 'placeholder.txt' ? 'Perbarui' : 'Unggah'}
+                        </Button>
+                      </Box>
+                    )}
+                  </Box>
+                </Box>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+        
+        {/* Pagination */}
+        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: { xs: 'column', sm: 'row' } }}>
+          <Box sx={{ mb: { xs: 2, sm: 0 }, display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body2" sx={{ mr: 2, color: isDarkMode ? theme.text.secondary : '#666' }}>
+              Menampilkan {Math.min(page * rowsPerPage + 1, filteredDocuments.length)} hingga {Math.min((page + 1) * rowsPerPage, filteredDocuments.length)} dari {filteredDocuments.length} entri
+            </Typography>
+          </Box>
+          
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
+              <Typography variant="body2" sx={{ mr: 2, color: isDarkMode ? theme.text.secondary : '#666' }}>
+                Show
+              </Typography>
+              <FormControl size="small" sx={{ minWidth: 70 }}>
+                <Select
+                  value={rowsPerPage}
+                  onChange={(e) => {
+                    setRowsPerPage(e.target.value);
+                    setPage(0); // Reset to first page when changing items per page
+                  }}
+                  sx={{
+                    bgcolor: isDarkMode ? theme.background.paper : 'white',
+                    '& .MuiSelect-select': { py: 0.5, px: 1.5 },
+                    borderRadius: 1,
+                    boxShadow: isDarkMode ? theme.shadows.card : '0 1px 3px rgba(0,0,0,0.1)'
+                  }}
+                >
+                  {rowsPerPageOptions.map((option) => (
+                    <MenuItem key={option} value={option}>{option}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <Typography variant="body2" sx={{ ml: 2, color: isDarkMode ? theme.text.secondary : '#666' }}>
+                entries
+              </Typography>
+            </Box>
+            
+            <Pagination 
+              count={Math.ceil(filteredDocuments.length / rowsPerPage)} 
+              page={page + 1} 
+              onChange={(event, newPage) => setPage(newPage - 1)}
+              color="primary"
+              variant="outlined"
+              shape="rounded"
+              size="medium"
+              siblingCount={0}
+              boundaryCount={1}
+              sx={{
+                '& .MuiPaginationItem-root': {
+                  color: isDarkMode ? theme.text.primary : 'inherit',
+                  bgcolor: isDarkMode ? theme.background.paper : 'white',
+                  borderColor: isDarkMode ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)',
+                  '&.Mui-selected': {
+                    bgcolor: isDarkMode ? theme.primary.main : '#1976d2',
+                    color: 'white',
+                    borderColor: isDarkMode ? theme.primary.main : '#1976d2',
+                    '&:hover': {
+                      bgcolor: isDarkMode ? theme.primary.dark : '#1565c0'
+                    }
+                  },
+                  '&:hover': {
+                    bgcolor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'
+                  }
+                }
+              }}
+            />
+          </Box>
+        </Box>
+        </>
       )}
+    
       
       {/* Upload Document Dialog */}
       <Dialog open={uploadDialog} onClose={() => {
@@ -621,17 +1011,17 @@ const Documents = () => {
                 </Grid>
                 <Grid item xs={12} md={6}>
                   <FormControl fullWidth>
-                    <InputLabel>Category</InputLabel>
+                    <InputLabel>Kategori</InputLabel>
                     <Select
                       name="category"
                       value={documentData.category}
-                      label="Category"
+                      label="Kategori"
                       onChange={handleInputChange}
                     >
-                      <MenuItem value="general">General</MenuItem>
-                      <MenuItem value="report">Report</MenuItem>
-                      <MenuItem value="contract">Contract</MenuItem>
-                      <MenuItem value="invoice">Invoice</MenuItem>
+                      <MenuItem value="general">Umum</MenuItem>
+                      <MenuItem value="report">Laporan</MenuItem>
+                      <MenuItem value="contract">Kontrak</MenuItem>
+                      <MenuItem value="invoice">Faktur</MenuItem>
                       <MenuItem value="manual">Manual</MenuItem>
                     </Select>
                   </FormControl>
@@ -645,11 +1035,11 @@ const Documents = () => {
                       label="Status"
                       onChange={handleInputChange}
                     >
-                      <MenuItem value="pending">Pending</MenuItem>
-                      <MenuItem value="in_progress">In Progress</MenuItem>
-                      <MenuItem value="review">Review</MenuItem>
-                      <MenuItem value="completed">Completed</MenuItem>
-                      <MenuItem value="approved">Approved</MenuItem>
+                      <MenuItem value="pending">Menunggu</MenuItem>
+                      <MenuItem value="review">Ditinjau</MenuItem>
+                      <MenuItem value="in_progress">Dalam Proses</MenuItem>
+                      <MenuItem value="completed">Selesai</MenuItem>
+                      <MenuItem value="approved">Disetujui</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -688,7 +1078,7 @@ const Documents = () => {
                 />
               </Button>
               <Typography variant="caption" color="text.secondary">
-                Supported file types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, etc.
+                Tipe file yang didukung: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, dll.
               </Typography>
             </Grid>
           </Grid>
@@ -700,13 +1090,13 @@ const Documents = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setUploadDialog(false)}>Cancel</Button>
+          <Button onClick={() => setUploadDialog(false)}>Batal</Button>
           <Button
             onClick={handleUploadDocument}
             variant="contained"
             disabled={uploadLoading || !selectedFile || (!selectedDocument && !documentData.title)}
           >
-            {uploadLoading ? <CircularProgress size={24} /> : 'Upload'}
+            {uploadLoading ? <CircularProgress size={24} /> : 'Unggah'}
           </Button>
         </DialogActions>
       </Dialog>

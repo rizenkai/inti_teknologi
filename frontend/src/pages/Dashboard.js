@@ -47,10 +47,10 @@ const statusColors = {
   completed: '#A5D6A7',   // Hijau pastel
 };
 const statusLabels = {
-  pending: 'Pending',
-  review: 'Review',
-  in_progress: 'In Progress',
-  completed: 'Completed',
+  pending: 'Menunggu',
+  review: 'Ditinjau',
+  in_progress: 'Dalam Proses',
+  completed: 'Selesai',
 };
 
 const Dashboard = () => {
@@ -90,6 +90,7 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editDialog, setEditDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
+  const [confirmUpdateDialog, setConfirmUpdateDialog] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [newStatus, setNewStatus] = useState('');
   const [newBP, setNewBP] = useState('');
@@ -98,6 +99,9 @@ const Dashboard = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('all'); // State untuk filter status dan pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const cardsPerPage = 9; // Maksimal 9 card per halaman (3x3 di desktop)
 
   const { isDarkMode } = useTheme();
   const muiTheme = useMuiTheme();
@@ -385,6 +389,11 @@ const Dashboard = () => {
   };
 
   const handleDocumentUpdate = async () => {
+    // Menampilkan dialog konfirmasi terlebih dahulu
+    setConfirmUpdateDialog(true);
+  };
+
+  const confirmUpdate = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
@@ -410,6 +419,7 @@ const Dashboard = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
+      setConfirmUpdateDialog(false);
       setEditDialog(false);
       fetchDocumentsDebounced();
     } catch (error) {
@@ -421,7 +431,12 @@ const Dashboard = () => {
   };
 
   // Filter documents based on search term (namaProyek, placeholder id, etc)
-  const filteredDocuments = documents.filter(doc => {
+  const filteredByStatus = documents.filter(doc => {
+    if (statusFilter === 'all') return true;
+    return doc.status === statusFilter;
+  });
+
+  const filteredDocuments = filteredByStatus.filter(doc => {
     if (!searchTerm || searchTerm.trim() === '') return true; // Show all documents if search is empty
     
     const search = searchTerm.toLowerCase().trim();
@@ -458,6 +473,25 @@ const Dashboard = () => {
       ))
     );
   });
+  
+  // Pagination logic
+  const totalPages = Math.ceil(filteredDocuments.length / cardsPerPage);
+  const indexOfLastCard = currentPage * cardsPerPage;
+  const indexOfFirstCard = indexOfLastCard - cardsPerPage;
+  const currentCards = filteredDocuments.slice(indexOfFirstCard, indexOfLastCard);
+  
+  // Reset to page 1 when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, searchTerm]);
+  
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      // Scroll to top of card section
+      window.scrollTo({ top: document.getElementById('card-grid').offsetTop - 100, behavior: 'smooth' });
+    }
+  };
 
   const formatDate = (date) => {
     try {
@@ -475,7 +509,7 @@ const Dashboard = () => {
     const status = doc.status || 'Unknown';
     statusCounts[status] = (statusCounts[status] || 0) + 1;
   });
-  const allStatus = ['pending', 'in_progress', 'review', 'completed'];
+  const allStatus = ['pending', 'review', 'in_progress', 'completed'];
   const pieLabels = allStatus.map(s => statusLabels[s]);
   const pieColors = allStatus.map(s => isDarkMode ? {
     'pending': '#fbbf24',
@@ -576,7 +610,6 @@ const Dashboard = () => {
             variant="contained"
             sx={{ 
               bgcolor: isDarkMode ? muiTheme.palette.primary.main : '#1976d2', 
-              bgcolor: muiTheme.palette.primary.main, 
               color: isDarkMode ? '#111a2b' : '#ffffff', 
               fontWeight: 700, 
               borderRadius: 2, 
@@ -595,48 +628,238 @@ const Dashboard = () => {
         )}
       </Box>
 
-      {/* Card Statistik & Pie Chart Gabung */}
-      <Paper elevation={0} sx={{ 
-        width: '100%', 
-        mb: 4, 
-        p: { xs: 2, sm: 3, md: 4 }, 
-        display: 'flex', 
-        flexDirection: { xs: 'column', md: 'row' }, 
-        alignItems: 'center', 
-        gap: { xs: 2, md: 4 }, 
-        borderRadius: 3, 
-        boxShadow: '0 2px 16px rgba(0,0,0,0.10)', 
-        backdropFilter: 'blur(10px)', 
-        background: isDarkMode ? 'rgba(20,32,54,0.68)' : 'rgba(255,255,255,0.9)', 
-        border: `1.5px solid ${isDarkMode ? 'rgba(59,130,246,0.18)' : 'rgba(25,118,210,0.18)'}`, 
-        color: muiTheme.palette.text.primary 
-      }}>
-
-        <Box sx={{ flex: 1, minWidth: 120, display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', md: 'flex-start' }, mb: { xs: 2, md: 0 } }}>
-          {/* Judul dihapus agar header tidak dobel */}
-          <Box sx={{ fontSize: { xs: 28, md: 36 }, fontWeight: 700, color: muiTheme.palette.primary.main, lineHeight: 1 }}>{totalDocs.toLocaleString()}</Box>
-          <Typography sx={{ fontSize: { xs: 14, md: 16 }, color: muiTheme.palette.text.secondary }}>Total Documents</Typography>
-        </Box>
-        <Box sx={{ flex: 2, minWidth: { xs: 160, md: 220 }, maxWidth: { xs: 320, md: 480 }, height: { xs: 120, md: 180 }, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: { xs: 1, md: 2 }, color: muiTheme.palette.text.primary }}>
-          <Box sx={{ width: { xs: 90, md: 140 }, height: { xs: 90, md: 140 } }}>
-            <Pie data={pieData} options={{...pieOptions, plugins: { ...pieOptions.plugins, legend: { display: false } }, maintainAspectRatio: false}} />
+      {/* Statistik dan Pie Chart */}
+      <Box sx={{ width: '100%', mb: 3, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+        {/* Statistik Dokumen */}
+        <Paper elevation={3} sx={{ 
+          flex: { xs: '1 1 100%', md: '1 1 30%' }, 
+          p: 2, 
+          borderRadius: 2,
+          border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
+          bgcolor: isDarkMode ? 'rgba(65,227,255,0.15)' : '#ffffff',
+          boxShadow: isDarkMode ? '0 2px 8px rgba(0,0,0,0.04)' : '0 4px 12px rgba(0,0,0,0.1)',
+          backdropFilter: 'blur(8px)',
+          color: isDarkMode ? '#fff' : '#333',
+        }}>
+          <Typography variant="h6" sx={{ fontWeight: 700, color: isDarkMode ? '#41e3ff' : '#1976d2', mb: 2 }}>
+            Statistik Dokumen
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25,118,210,0.05)', borderRadius: 1 }}>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>Total Dokumen:</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 700 }}>{totalDocs}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25,118,210,0.05)', borderRadius: 1 }}>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>Pending:</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 700 }}>{statusCounts['pending'] || 0}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25,118,210,0.05)', borderRadius: 1 }}>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>In Progress:</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 700 }}>{statusCounts['in_progress'] || 0}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25,118,210,0.05)', borderRadius: 1 }}>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>Review:</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 700 }}>{statusCounts['review'] || 0}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25,118,210,0.05)', borderRadius: 1 }}>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>Completed:</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 700 }}>{statusCounts['completed'] || 0}</Typography>
+            </Box>
           </Box>
-          <Box sx={{ ml: { xs: 1, md: 2 }, display: 'flex', flexDirection: 'column', gap: 1 }}>
-            {pieData.labels.map((label, i) => (
-              <Box key={label} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                <Box sx={{ width: 14, height: 14, borderRadius: '3px', bgcolor: pieData.datasets[0].backgroundColor[i], border: '1.5px solid #e5e7eb', mr: 1 }} />
-                <Typography sx={{ fontSize: { xs: 13, md: 15 } }}>{label.replace('_', ' ')}</Typography>
+        </Paper>
+
+        {/* Pie Chart */}
+        <Paper elevation={3} sx={{ 
+          flex: { xs: '1 1 100%', md: '1 1 65%' }, 
+          p: 2, 
+          borderRadius: 2,
+          border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
+          bgcolor: isDarkMode ? 'rgba(65,227,255,0.15)' : '#ffffff',
+          boxShadow: isDarkMode ? '0 2px 8px rgba(0,0,0,0.04)' : '0 4px 12px rgba(0,0,0,0.1)',
+          backdropFilter: 'blur(8px)',
+          color: isDarkMode ? '#fff' : '#333',
+        }}>
+          <Typography variant="h6" sx={{ 
+            fontWeight: 700, 
+            color: isDarkMode ? '#41e3ff' : '#1976d2', 
+            mb: 3,
+            textAlign: 'left',
+          }}>
+            Distribusi Status Dokumen
+          </Typography>
+          
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: 'row', 
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            height: 180, 
+            width: '100%',
+            position: 'relative',
+          }}>
+            <Box sx={{ 
+              width: '60%', 
+              height: '100%', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              position: 'relative'
+            }}>
+              <Box sx={{ 
+                width: { xs: '100%', sm: '85%', md: '75%' }, 
+                maxWidth: 180,
+                mx: 'auto'
+              }}>
+                <Pie 
+                  data={pieData} 
+                  options={{
+                    ...pieOptions,
+                    plugins: {
+                      ...pieOptions.plugins,
+                      legend: {
+                        display: false
+                      }
+                    },
+                    maintainAspectRatio: true
+                  }} 
+                />
               </Box>
-            ))}
+            </Box>
+            <Box sx={{ 
+              width: '40%', 
+              height: '100%', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              justifyContent: 'center',
+              pl: { xs: 1, sm: 2, md: 3 }
+            }}>
+              {pieData.labels.map((label, index) => (
+                <Box key={label} sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                  <Box 
+                    sx={{ 
+                      width: 14, 
+                      height: 14, 
+                      borderRadius: '2px', 
+                      bgcolor: pieData.datasets[0].backgroundColor[index],
+                      mr: 1.5
+                    }} 
+                  />
+                  <Typography variant="body2" sx={{ fontSize: 13, fontWeight: 500, color: isDarkMode ? '#fff' : '#333' }}>
+                    {label}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
           </Box>
-        </Box>
-      </Paper>
+        </Paper>
+      </Box>
 
+      {/* Filter Status */}
+      <Box sx={{ 
+        width: '100%', 
+        mb: 3, 
+        display: 'flex', 
+        flexWrap: 'wrap',
+        justifyContent: 'flex-start',
+        gap: 1,
+        p: 0,
+      }}>
+        <Button
+          variant={statusFilter === 'all' ? 'contained' : 'outlined'}
+          onClick={() => setStatusFilter('all')}
+          sx={{
+            borderRadius: 2,
+            px: 2,
+            bgcolor: statusFilter === 'all' ? (isDarkMode ? '#41e3ff' : '#1976d2') : 'transparent',
+            color: statusFilter === 'all' ? (isDarkMode ? '#111a2b' : '#fff') : (isDarkMode ? '#41e3ff' : '#1976d2'),
+            border: `1px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
+            '&:hover': {
+              bgcolor: statusFilter === 'all' ? (isDarkMode ? '#1ec6e6' : '#1565c0') : (isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25,118,210,0.1)')
+            },
+            fontWeight: 600,
+            fontSize: '0.8rem'
+          }}
+        >
+          Semua
+        </Button>
+        <Button
+          variant={statusFilter === 'pending' ? 'contained' : 'outlined'}
+          onClick={() => setStatusFilter('pending')}
+          sx={{
+            borderRadius: 2,
+            px: 2,
+            bgcolor: statusFilter === 'pending' ? (isDarkMode ? '#41e3ff' : '#1976d2') : 'transparent',
+            color: statusFilter === 'pending' ? (isDarkMode ? '#111a2b' : '#fff') : (isDarkMode ? '#41e3ff' : '#1976d2'),
+            border: `1px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
+            '&:hover': {
+              bgcolor: statusFilter === 'pending' ? (isDarkMode ? '#1ec6e6' : '#1565c0') : (isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25,118,210,0.1)')
+            },
+            fontWeight: 600,
+            fontSize: '0.8rem'
+          }}
+        >
+          Menunggu
+        </Button>
+        <Button
+          variant={statusFilter === 'review' ? 'contained' : 'outlined'}
+          onClick={() => setStatusFilter('review')}
+          sx={{
+            borderRadius: 2,
+            px: 2,
+            bgcolor: statusFilter === 'review' ? (isDarkMode ? '#41e3ff' : '#1976d2') : 'transparent',
+            color: statusFilter === 'review' ? (isDarkMode ? '#111a2b' : '#fff') : (isDarkMode ? '#41e3ff' : '#1976d2'),
+            border: `1px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
+            '&:hover': {
+              bgcolor: statusFilter === 'review' ? (isDarkMode ? '#1ec6e6' : '#1565c0') : (isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25,118,210,0.1)')
+            },
+            fontWeight: 600,
+            fontSize: '0.8rem'
+          }}
+        >
+          Ditinjau
+        </Button>
+        <Button
+          variant={statusFilter === 'in_progress' ? 'contained' : 'outlined'}
+          onClick={() => setStatusFilter('in_progress')}
+          sx={{
+            borderRadius: 2,
+            px: 2,
+            bgcolor: statusFilter === 'in_progress' ? (isDarkMode ? '#41e3ff' : '#1976d2') : 'transparent',
+            color: statusFilter === 'in_progress' ? (isDarkMode ? '#111a2b' : '#fff') : (isDarkMode ? '#41e3ff' : '#1976d2'),
+            border: `1px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
+            '&:hover': {
+              bgcolor: statusFilter === 'in_progress' ? (isDarkMode ? '#1ec6e6' : '#1565c0') : (isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25,118,210,0.1)')
+            },
+            fontWeight: 600,
+            fontSize: '0.8rem'
+          }}
+        >
+          Dalam Proses
+        </Button>
+        <Button
+          variant={statusFilter === 'completed' ? 'contained' : 'outlined'}
+          onClick={() => setStatusFilter('completed')}
+          sx={{
+            borderRadius: 2,
+            px: 2,
+            bgcolor: statusFilter === 'completed' ? (isDarkMode ? '#41e3ff' : '#1976d2') : 'transparent',
+            color: statusFilter === 'completed' ? (isDarkMode ? '#111a2b' : '#fff') : (isDarkMode ? '#41e3ff' : '#1976d2'),
+            border: `1px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
+            '&:hover': {
+              bgcolor: statusFilter === 'completed' ? (isDarkMode ? '#1ec6e6' : '#1565c0') : (isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25,118,210,0.1)')
+            },
+            fontWeight: 600,
+            fontSize: '0.8rem'
+          }}
+        >
+          Selesai
+        </Button>
+      </Box>
 
-
-      {/* Grid kartu dokumen dan placeholder, maksimal 3 per baris, styling mirip gambar, RESPONSIF */}
-      <Box sx={{ width: '100%', mb: 3, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' }, gap: { xs: 1.5, sm: 2, md: 4 } }}>
-        {filteredDocuments.map((doc, idx) => (
+      {/* Grid kartu dokumen dan placeholder, maksimal 3 per baris (3x3 di desktop), styling mirip gambar, RESPONSIF */}
+      <Box id="card-grid" sx={{ width: '100%', mb: 3, display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' }, gap: { xs: 1.5, sm: 2, md: 4 } }}>
+        {filteredDocuments.length > 0 ? (
+          currentCards.map((doc, idx) => (
           <Box key={doc._id} sx={{ minWidth: { xs: 0, sm: 250, md: 320 }, maxWidth: '100%' }}>
             <Paper elevation={3} sx={{
               minHeight: { xs: 160, md: 220 },
@@ -670,26 +893,29 @@ const Dashboard = () => {
                 {/* Tombol edit/hapus dipindahkan ke sini */}
                 {userRole === 'admin' || userRole === 'staff' ? (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Button 
-                      onClick={() => handleEdit(doc)}
-                      size="small"
-                      sx={{ 
-                        display: 'flex',
-                        alignItems: 'center',
-                        p: '2px 6px', 
-                        borderRadius: 1,
-                        minWidth: 'auto',
-                        bgcolor: isDarkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(25, 118, 210, 0.08)',
-                        border: isDarkMode ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid rgba(25, 118, 210, 0.3)',
-                        '&:hover': { 
-                          bgcolor: isDarkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(25, 118, 210, 0.15)',
-                          border: isDarkMode ? '1px solid rgba(59, 130, 246, 0.5)' : '1px solid rgba(25, 118, 210, 0.5)'
-                        }
-                      }}
-                    >
-                      <span role="img" aria-label="edit" style={{ fontSize: 12, color: isDarkMode ? '#3b82f6' : '#1976d2', marginRight: 2, fontWeight: 'bold' }}>✎</span>
-                      <Typography sx={{ fontSize: 10, color: isDarkMode ? '#3b82f6' : '#1976d2', fontWeight: 700 }}>Edit</Typography>
-                    </Button>
+                    {/* Tampilkan tombol edit hanya jika status bukan completed */}
+                    {doc.status !== 'completed' && (
+                      <Button 
+                        onClick={() => handleEdit(doc)}
+                        size="small"
+                        sx={{ 
+                          display: 'flex',
+                          alignItems: 'center',
+                          p: '2px 6px', 
+                          borderRadius: 1,
+                          minWidth: 'auto',
+                          bgcolor: isDarkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(25, 118, 210, 0.08)',
+                          border: isDarkMode ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid rgba(25, 118, 210, 0.3)',
+                          '&:hover': { 
+                            bgcolor: isDarkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(25, 118, 210, 0.15)',
+                            border: isDarkMode ? '1px solid rgba(59, 130, 246, 0.5)' : '1px solid rgba(25, 118, 210, 0.5)'
+                          }
+                        }}
+                      >
+                        <span role="img" aria-label="edit" style={{ fontSize: 12, color: isDarkMode ? '#3b82f6' : '#1976d2', marginRight: 2, fontWeight: 'bold' }}>✎</span>
+                        <Typography sx={{ fontSize: 10, color: isDarkMode ? '#3b82f6' : '#1976d2', fontWeight: 700 }}>Edit</Typography>
+                      </Button>
+                    )}
                     <Button 
                       onClick={() => handleDelete(doc)}
                       size="small"
@@ -902,7 +1128,7 @@ const Dashboard = () => {
                   alignItems: 'center'
                 }}>
                   <span style={{ verticalAlign: 'middle', marginRight: 4 }}>📄</span>
-                  Completed on <span style={{ fontWeight: 'bold', color: isDarkMode ? '#b5eaff' : '#1976d2', marginLeft: 4 }}>{formatDate(doc.lastModified)}</span>
+                  Selesai Pada <span style={{ fontWeight: 'bold', color: isDarkMode ? '#b5eaff' : '#1976d2', marginLeft: 4 }}>{formatDate(doc.lastModified)}</span>
                 </Typography>
               ) : (
                 <Typography sx={{ 
@@ -917,15 +1143,112 @@ const Dashboard = () => {
                   alignItems: 'center'
                 }}>
                   <span style={{ verticalAlign: 'middle', marginRight: 4 }}>⏳</span>
-                  <span>Waiting to Complete</span>
+                  <span>Menunggu Selesai</span>
                 </Typography>
               )}
             </Paper>
           </Box>
-        ))}
-
+        )))
+        : (
+          <Box sx={{ gridColumn: '1 / -1', p: 4, textAlign: 'center' }}>
+            <Typography variant="h6" sx={{ color: isDarkMode ? '#b5eaff' : '#1976d2', mb: 2 }}>
+              Tidak ada dokumen yang ditemukan
+            </Typography>
+            <Typography variant="body1" sx={{ color: isDarkMode ? '#fff' : '#333' }}>
+              Coba ubah filter status atau kata kunci pencarian
+            </Typography>
+          </Box>
+        )}
       </Box>
 
+      {/* Pagination Navigation */}
+      {filteredDocuments.length > cardsPerPage && (
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          mt: 2, 
+          mb: 4,
+          gap: 1
+        }}>
+          <Button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            sx={{ 
+              minWidth: 40, 
+              height: 40,
+              borderRadius: 2,
+              bgcolor: isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25,118,210,0.05)',
+              border: `1px solid ${isDarkMode ? 'rgba(65,227,255,0.3)' : 'rgba(25,118,210,0.2)'}`,
+              color: isDarkMode ? '#41e3ff' : '#1976d2',
+              '&:hover': {
+                bgcolor: isDarkMode ? 'rgba(65,227,255,0.2)' : 'rgba(25,118,210,0.1)',
+              },
+              '&.Mui-disabled': {
+                opacity: 0.5,
+                color: isDarkMode ? 'rgba(65,227,255,0.5)' : 'rgba(25,118,210,0.5)',
+              }
+            }}
+          >
+            <span style={{ fontSize: 20 }}>«</span>
+          </Button>
+          
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 0.5 
+          }}>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              <Button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                sx={{ 
+                  minWidth: 40, 
+                  height: 40,
+                  borderRadius: 2,
+                  bgcolor: currentPage === page 
+                    ? (isDarkMode ? '#41e3ff' : '#1976d2') 
+                    : (isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25,118,210,0.05)'),
+                  border: `1px solid ${isDarkMode ? 'rgba(65,227,255,0.3)' : 'rgba(25,118,210,0.2)'}`,
+                  color: currentPage === page 
+                    ? (isDarkMode ? '#111a2b' : '#fff') 
+                    : (isDarkMode ? '#41e3ff' : '#1976d2'),
+                  fontWeight: 600,
+                  '&:hover': {
+                    bgcolor: currentPage === page 
+                      ? (isDarkMode ? '#1ec6e6' : '#1565c0') 
+                      : (isDarkMode ? 'rgba(65,227,255,0.2)' : 'rgba(25,118,210,0.1)'),
+                  }
+                }}
+              >
+                {page}
+              </Button>
+            ))}
+          </Box>
+          
+          <Button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            sx={{ 
+              minWidth: 40, 
+              height: 40,
+              borderRadius: 2,
+              bgcolor: isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25,118,210,0.05)',
+              border: `1px solid ${isDarkMode ? 'rgba(65,227,255,0.3)' : 'rgba(25,118,210,0.2)'}`,
+              color: isDarkMode ? '#41e3ff' : '#1976d2',
+              '&:hover': {
+                bgcolor: isDarkMode ? 'rgba(65,227,255,0.2)' : 'rgba(25,118,210,0.1)',
+              },
+              '&.Mui-disabled': {
+                opacity: 0.5,
+                color: isDarkMode ? 'rgba(65,227,255,0.5)' : 'rgba(25,118,210,0.5)',
+              }
+            }}
+          >
+            <span style={{ fontSize: 20 }}>»</span>
+          </Button>
+        </Box>
+      )}
 
       {/* Dialogs ... */}
       <Dialog 
@@ -947,7 +1270,7 @@ const Dashboard = () => {
   }}
 >
         <DialogTitle sx={{ color: isDarkMode ? '#41e3ff' : '#1976d2', fontWeight: 700, fontSize: 22, pb: 2, fontFamily: 'Open Sans, Arial, Helvetica, sans-serif' }}>
-          Edit Document
+          Edit Dokumen
         </DialogTitle>
         <DialogContent>
           <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -995,19 +1318,7 @@ const Dashboard = () => {
                     backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
                     color: isDarkMode ? '#41e3ff' : '#1976d2' 
                   } 
-                }}>PENDING</MenuItem>
-                <MenuItem value="in_progress" sx={{ 
-                  color: isDarkMode ? '#fff' : '#333', 
-                  backgroundColor: 'transparent', 
-                  '&.Mui-selected': { 
-                    backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
-                    color: isDarkMode ? '#41e3ff' : '#1976d2' 
-                  }, 
-                  '&:hover': { 
-                    backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
-                    color: isDarkMode ? '#41e3ff' : '#1976d2' 
-                  } 
-                }}>IN PROGRESS</MenuItem>
+                }}>MENUNGGU</MenuItem>
                 <MenuItem value="review" sx={{ 
                   color: isDarkMode ? '#fff' : '#333', 
                   backgroundColor: 'transparent', 
@@ -1019,7 +1330,19 @@ const Dashboard = () => {
                     backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
                     color: isDarkMode ? '#41e3ff' : '#1976d2' 
                   } 
-                }}>REVIEW</MenuItem>
+                }}>DITINJAU</MenuItem>
+                <MenuItem value="in_progress" sx={{ 
+                  color: isDarkMode ? '#fff' : '#333', 
+                  backgroundColor: 'transparent', 
+                  '&.Mui-selected': { 
+                    backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
+                    color: isDarkMode ? '#41e3ff' : '#1976d2' 
+                  }, 
+                  '&:hover': { 
+                    backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
+                    color: isDarkMode ? '#41e3ff' : '#1976d2' 
+                  } 
+                }}>DALAM PROSES</MenuItem>
                 <MenuItem value="completed" sx={{ 
                   color: isDarkMode ? '#fff' : '#333', 
                   backgroundColor: 'transparent', 
@@ -1031,7 +1354,7 @@ const Dashboard = () => {
                     backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
                     color: isDarkMode ? '#41e3ff' : '#1976d2' 
                   } 
-                }}>COMPLETED</MenuItem>
+                }}>SELESAI</MenuItem>
               </Select>
             </FormControl>
             
@@ -1399,7 +1722,7 @@ const Dashboard = () => {
                   '&:hover': { borderColor: isDarkMode ? '#41e3ff' : '#1976d2', background: isDarkMode ? 'rgba(65,227,255,0.08)' : 'rgba(25,118,210,0.08)' }
                 }}
               >
-                Cancel
+                Batal
               </Button>
               <Button 
                 onClick={handleDocumentUpdate} 
@@ -1415,7 +1738,7 @@ const Dashboard = () => {
                   '&.Mui-disabled': { background: isDarkMode ? 'rgba(65,227,255,0.3)' : 'rgba(25,118,210,0.3)', color: isDarkMode ? '#193549' : '#e0e0e0' }
                 }}
               >
-                Update
+                Perbarui
               </Button>
             </DialogActions>
           </Dialog>
@@ -1870,21 +2193,81 @@ try {
         open={deleteDialog} 
         onClose={() => setDeleteDialog(false)}
       >
-        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogTitle>Konfirmasi Hapus</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete document "{selectedDocument?.namaProyek}"? This action cannot be undone.
+            Apakah Anda yakin ingin menghapus dokumen "{selectedDocument?.namaProyek}"? Tindakan ini tidak dapat dibatalkan.
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialog(false)}>Cancel</Button>
+          <Button onClick={() => setDeleteDialog(false)}>Batal</Button>
           <Button 
             onClick={confirmDelete} 
             variant="contained" 
             color="error"
             disabled={deleteLoading}
           >
-            {deleteLoading ? <CircularProgress size={22} /> : 'Delete'}
+            {deleteLoading ? <CircularProgress size={22} /> : 'Hapus'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Update Confirmation Dialog */}
+      <Dialog 
+        open={confirmUpdateDialog} 
+        onClose={() => setConfirmUpdateDialog(false)}
+        PaperProps={{
+          sx: {
+            background: isDarkMode ? 'rgba(20,32,54,0.92)' : 'rgba(255,255,255,0.95)',
+            color: isDarkMode ? '#fff' : '#333',
+            borderRadius: 3,
+            boxShadow: isDarkMode ? '0 8px 32px 0 rgba(65,227,255,0.10)' : '0 8px 32px 0 rgba(0,0,0,0.10)',
+            border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
+            backdropFilter: 'blur(8px)',
+          }
+        }}
+      >
+        <DialogTitle sx={{ 
+          color: isDarkMode ? '#41e3ff' : '#1565c0', 
+          fontWeight: 700, 
+          fontSize: 20,
+          borderBottom: `1px solid ${isDarkMode ? 'rgba(65,227,255,0.2)' : 'rgba(25,118,210,0.2)'}`,
+        }}>
+          Konfirmasi Perbarui
+        </DialogTitle>
+        <DialogContent>
+          <Typography sx={{ mt: 2, color: isDarkMode ? '#fff' : '#333' }}>
+            Apakah Anda yakin ingin memperbarui dokumen "{selectedDocument?.namaProyek}"?
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button 
+            onClick={() => setConfirmUpdateDialog(false)}
+            variant="outlined"
+            sx={{ 
+              color: isDarkMode ? '#41e3ff' : '#1976d2', 
+              borderColor: isDarkMode ? '#41e3ff' : '#1976d2',
+              '&:hover': { borderColor: isDarkMode ? '#41e3ff' : '#1976d2', background: isDarkMode ? 'rgba(65,227,255,0.08)' : 'rgba(25,118,210,0.08)' }
+            }}
+          >
+            Batal
+          </Button>
+          <Button 
+            onClick={confirmUpdate} 
+            variant="contained"
+            disabled={loading}
+            sx={{
+              ml: 2,
+              background: isDarkMode ? 'linear-gradient(90deg, #41e3ff 0%, #1ec6e6 100%)' : 'linear-gradient(90deg, #1976d2 0%, #1565c0 100%)',
+              color: isDarkMode ? '#0a1929' : '#ffffff',
+              fontWeight: 700,
+              borderRadius: 2,
+              boxShadow: isDarkMode ? '0 2px 8px 0 rgba(65,227,255,0.12)' : '0 2px 8px 0 rgba(25,118,210,0.2)',
+              '&:hover': { background: isDarkMode ? '#65e7ff' : '#2196f3' },
+              '&.Mui-disabled': { background: isDarkMode ? 'rgba(65,227,255,0.3)' : 'rgba(25,118,210,0.3)', color: isDarkMode ? '#193549' : '#e0e0e0' }
+            }}
+          >
+            {loading ? <CircularProgress size={22} color="inherit" /> : 'Konfirmasi'}
           </Button>
         </DialogActions>
       </Dialog>
