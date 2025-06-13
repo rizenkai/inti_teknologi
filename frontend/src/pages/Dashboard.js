@@ -20,12 +20,15 @@ import {
   MenuItem,
   CircularProgress,
   Alert,
-  Autocomplete
+  Autocomplete,
+  Snackbar,
+  IconButton
 } from '@mui/material';
 import { format } from 'date-fns';
 import { Pie } from 'react-chartjs-2';
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
 import DescriptionIcon from '@mui/icons-material/Description';
+import CloseIcon from '@mui/icons-material/Close';
 import { getDropdownStyles } from '../utils/dropdownStyles';
 Chart.register(ArcElement, Tooltip, Legend);
 
@@ -56,14 +59,54 @@ const Dashboard = () => {
   const [addError, setAddError] = useState('');
   const [addLoading, setAddLoading] = useState(false);
   
-  // Nuevos estados para los campos adicionales
-  const [newDocBP, setNewDocBP] = useState('');
-  const [newDocKodeBahan, setNewDocKodeBahan] = useState('');
-  const [newDocTipeBahan, setNewDocTipeBahan] = useState('');
-  const [newDocTipePengujian, setNewDocTipePengujian] = useState('');
+  // Tambahan deklarasi agar tidak no-undef
   const [userList, setUserList] = useState([]);
   const [targetUser, setTargetUser] = useState('');
   
+  // State untuk set input dinamis
+  const [inputSets, setInputSets] = useState([
+    { tipePengujian: '', bp: '', kodeBahan: '', tipeBahan: '', warna: '#41e3ff' } // input pertama warna biru
+  ]);
+
+  const warnaUtama = '#41e3ff';
+
+  // Untuk user tujuan tetap
+  const [newDocTipePengujian, setNewDocTipePengujian] = useState('');
+  
+  // State snackbar info
+  const [alertOpen, setAlertOpen] = useState(false);
+  const alertMessage = 'Tipe Pengujian untuk semua input harus sama. Buat placeholder dokumen terpisah untuk beda tipe.';
+  const [inlineWarn,setInlineWarn]=useState(false);
+
+  // Fungsi tambah input baru
+  const handleAddInputSet = () => {
+    setInputSets(prev => ([
+      ...prev,
+      { tipePengujian: prev[0]?.tipePengujian || '', bp: '', kodeBahan: '', tipeBahan: '', warna: warnaUtama }
+    ]));
+  };
+
+  // Fungsi update value per set
+  const handleInputSetChange = (idx, field, value) => {
+    setInputSets(prev => {
+      if(field==='tipePengujian'){
+        if(idx===0){
+          // propagate pilihan ke semua input lain
+          return prev.map(item=>({ ...item, tipePengujian:value }));
+        } else if(prev[0]?.tipePengujian && value!==prev[0].tipePengujian){
+          // ignore perubahan yang tidak sesuai aturan
+          setInlineWarn(true);
+          return prev;
+        }
+      }
+      return prev.map((item,i)=> i===idx? {...item,[field]:value}:item);
+    });
+  };
+
+  const handleRemoveInput = (idx)=>{
+    setInputSets(prev=>prev.filter((_,i)=>i!==idx));
+  };
+
   // State untuk opsi dropdown dari database
   const [mutuBahanOptions, setMutuBahanOptions] = useState([]);
   const [tipeBahanOptions, setTipeBahanOptions] = useState([]);
@@ -82,9 +125,6 @@ const Dashboard = () => {
   const [confirmUpdateDialog, setConfirmUpdateDialog] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [newStatus, setNewStatus] = useState('');
-  const [newBP, setNewBP] = useState('');
-  const [newMutuBahan, setNewMutuBahan] = useState('');
-  const [newTipeBahan, setNewTipeBahan] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -257,57 +297,29 @@ const Dashboard = () => {
   };
 
   const handleEdit = (document) => {
-    // Log dokumen untuk debugging
-    console.log('Dokumen yang akan diedit:', document);
-    
-    // Set nilai status dengan default 'pending'
     const status = document.status || 'pending';
-    console.log('Status diatur ke:', status);
-    
-    // Log nilai mutuBahan dan tipeBahan sebelum pengolahan
-    console.log('Nilai asli mutuBahan:', document.mutuBahan);
-    console.log('Nilai asli tipeBahan:', document.tipeBahan);
-    
-    // Inicializar los campos adicionales con los valores actuales del documento
-    const bp = document.bp !== null && document.bp !== undefined ? document.bp.toString() : '';
-    const mutuBahan = document.mutuBahan || '';
-    const tipeBahan = document.tipeBahan || '';
-    const targetUser = document.targetUser?._id || '';
-    
-    // Determine tipePengujian based on mutuBahan if not explicitly set
-    const derivedTipePengujian = document.tipePengujian || 
-      (document.mutuBahan && document.mutuBahan.startsWith('T') ? 'Besi' : 
-       document.mutuBahan && document.mutuBahan.startsWith('K') ? 'Beton' : '');
-    
-    // Log semua nilai yang akan diatur setelah pengolahan
-    console.log('Nilai yang diatur setelah pengolahan:', {
-      status,
-      bp,
-      mutuBahan,
-      tipeBahan,
-      tipePengujian: derivedTipePengujian,
-      targetUser
-    });
-    
-    // Atur state dengan timeout pendek untuk memastikan UI diperbarui dengan benar
-    setTimeout(() => {
-      setSelectedDocument(document);
-      setNewStatus(status);
-      setNewBP(bp);
-      setNewDocTipePengujian(derivedTipePengujian);
-      
-      // Atur mutuBahan dan tipeBahan setelah tipePengujian
-      setNewMutuBahan(mutuBahan);
-      setNewTipeBahan(tipeBahan);
-      setTargetUser(targetUser);
-      
-      // Log setelah state diatur
-      console.log('State telah diatur dengan nilai mutuBahan:', mutuBahan, 'dan tipeBahan:', tipeBahan);
-    }, 0);
-    
-    // Buka dialog
+    const sets = (Array.isArray(document.inputSets) && document.inputSets.length)
+      ? document.inputSets.map(s=>({
+          ...s,
+          kodeBahan: s.kodeBahan || s.mutuBahan || '', // fallback ke mutuBahan jika kodeBahan kosong
+          warna: warnaUtama
+        }))
+      : [{ tipePengujian: '', bp: '', kodeBahan: '', tipeBahan: '', warna: warnaUtama }];
+    setSelectedDocument(document);
+    setNewStatus(status);
+    setInputSets(sets);
+    setNewDocTipePengujian(sets[0].tipePengujian || '');
+    // Find user object from userList if possible
+    if (document.targetUser && userList && Array.isArray(userList)) {
+      const userObj = userList.find(u => u._id === (document.targetUser._id || document.targetUser));
+      setTargetUser(userObj ? userObj._id : '');
+    } else {
+      setTargetUser('');
+    }
     setEditDialog(true);
   };
+
+
 
   const handleDelete = (document) => {
     setSelectedDocument(document);
@@ -352,9 +364,9 @@ const Dashboard = () => {
       // Agregar campos adicionales solo si el usuario es admin o staff
       if (userRole === 'admin' || userRole === 'staff') {
         // Convertir BP a número o null si está vacío
-        updateData.bp = newBP ? parseFloat(newBP) : null;
-        updateData.mutuBahan = newMutuBahan;
-        updateData.tipeBahan = newTipeBahan;
+        updateData.bp = inputSets[0]?.bp ? parseFloat(inputSets[0]?.bp) : null;
+        updateData.mutuBahan = inputSets[0]?.mutuBahan;
+        updateData.tipeBahan = inputSets[0]?.tipeBahan;
         updateData.tipePengujian = newDocTipePengujian;
         updateData.targetUser = targetUser;
       }
@@ -496,6 +508,32 @@ const Dashboard = () => {
   const totalDocs = documents.length;
   // const storageUsed = 85; // Sudah tidak dipakai
 
+  const renderRowNeutral = (label, values) => (
+    <Box sx={{
+      display:'flex',
+      alignItems:'center',
+      mb:0.6,
+      pt:0.3
+    }}>
+      <span style={{color:isDarkMode?'#b5eaff':'#1976d2',fontWeight:600,minWidth:110}}>{label}</span>
+      <Box sx={{flexGrow:1, display:'flex', justifyContent:'flex-end', gap:0.6}}>
+        {values.map((val,idx)=>(
+          <span key={idx} style={{
+            background:isDarkMode?'rgba(255,255,255,0.08)':'#e8f0fe',
+            color:isDarkMode?'#fff':'#333',
+            borderRadius:4,
+            padding:'2px 8px',
+            fontWeight:700,
+            fontSize:13,
+            display:'inline-block',
+            minWidth:40,
+            textAlign:'center'
+          }}>{val||'-'}</span>
+        ))}
+      </Box>
+    </Box>
+  );
+
   return (
   <Box sx={{ minHeight: '100vh', width: '100%', fontFamily: 'Open Sans, Arial, Helvetica, sans-serif', color: isDarkMode ? '#fff' : '#333', backgroundImage: isDarkMode ? "url('/Frame211332.png')" : "url('/Frame211332-light.png')", backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundColor: isDarkMode ? '#090d1f' : '#f8f8f8', overflowX: 'hidden' }}>
     {/* Tidak ada header/topbar putih di sini. Jika masih muncul, cek file layout utama seperti App.js atau MainLayout.js */}
@@ -559,7 +597,7 @@ const Dashboard = () => {
               borderRadius: 2, 
               boxShadow: 'none', 
               '&:hover': { 
-                bgcolor: isDarkMode ? '#1ec6e6' : '#1976d2' 
+                bgcolor: isDarkMode ? '#1ec6e6' : '#1565c0' 
               }, 
               width: { xs: '100%', sm: 'auto' }, 
               minWidth: 140, 
@@ -589,23 +627,23 @@ const Dashboard = () => {
             Statistik Dokumen
           </Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25,118,210,0.05)', borderRadius: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)', borderRadius: 1 }}>
               <Typography variant="body2" sx={{ fontWeight: 600 }}>Total Dokumen:</Typography>
               <Typography variant="body2" sx={{ fontWeight: 700 }}>{totalDocs}</Typography>
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25,118,210,0.05)', borderRadius: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)', borderRadius: 1 }}>
               <Typography variant="body2" sx={{ fontWeight: 600 }}>Menunggu:</Typography>
               <Typography variant="body2" sx={{ fontWeight: 700 }}>{statusCounts['pending'] || 0}</Typography>
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25,118,210,0.05)', borderRadius: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)', borderRadius: 1 }}>
               <Typography variant="body2" sx={{ fontWeight: 600 }}>Ditinjau:</Typography>
               <Typography variant="body2" sx={{ fontWeight: 700 }}>{statusCounts['review'] || 0}</Typography>
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25,118,210,0.05)', borderRadius: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)', borderRadius: 1 }}>
               <Typography variant="body2" sx={{ fontWeight: 600 }}>Dalam Proses:</Typography>
               <Typography variant="body2" sx={{ fontWeight: 700 }}>{statusCounts['in_progress'] || 0}</Typography>
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25,118,210,0.05)', borderRadius: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)', borderRadius: 1 }}>
               <Typography variant="body2" sx={{ fontWeight: 600 }}>Selesai:</Typography>
               <Typography variant="body2" sx={{ fontWeight: 700 }}>{statusCounts['completed'] || 0}</Typography>
             </Box>
@@ -718,7 +756,7 @@ const Dashboard = () => {
             color: statusFilter === 'all' ? (isDarkMode ? '#111a2b' : '#fff') : (isDarkMode ? '#41e3ff' : '#1976d2'),
             border: `1px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
             '&:hover': {
-              bgcolor: statusFilter === 'all' ? (isDarkMode ? '#1ec6e6' : '#1565c0') : (isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25,118,210,0.1)')
+              bgcolor: statusFilter === 'all' ? (isDarkMode ? '#1ec6e6' : '#1565c0') : (isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25, 118, 210, 0.1)')
             },
             fontWeight: 600,
             fontSize: '0.8rem'
@@ -736,7 +774,7 @@ const Dashboard = () => {
             color: statusFilter === 'pending' ? (isDarkMode ? '#111a2b' : '#fff') : (isDarkMode ? '#41e3ff' : '#1976d2'),
             border: `1px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
             '&:hover': {
-              bgcolor: statusFilter === 'pending' ? (isDarkMode ? '#1ec6e6' : '#1565c0') : (isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25,118,210,0.1)')
+              bgcolor: statusFilter === 'pending' ? (isDarkMode ? '#1ec6e6' : '#1565c0') : (isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25, 118, 210, 0.1)')
             },
             fontWeight: 600,
             fontSize: '0.8rem'
@@ -754,7 +792,7 @@ const Dashboard = () => {
             color: statusFilter === 'review' ? (isDarkMode ? '#111a2b' : '#fff') : (isDarkMode ? '#41e3ff' : '#1976d2'),
             border: `1px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
             '&:hover': {
-              bgcolor: statusFilter === 'review' ? (isDarkMode ? '#1ec6e6' : '#1565c0') : (isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25,118,210,0.1)')
+              bgcolor: statusFilter === 'review' ? (isDarkMode ? '#1ec6e6' : '#1565c0') : (isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25, 118, 210, 0.1)')
             },
             fontWeight: 600,
             fontSize: '0.8rem'
@@ -772,7 +810,7 @@ const Dashboard = () => {
             color: statusFilter === 'in_progress' ? (isDarkMode ? '#111a2b' : '#fff') : (isDarkMode ? '#41e3ff' : '#1976d2'),
             border: `1px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
             '&:hover': {
-              bgcolor: statusFilter === 'in_progress' ? (isDarkMode ? '#1ec6e6' : '#1565c0') : (isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25,118,210,0.1)')
+              bgcolor: statusFilter === 'in_progress' ? (isDarkMode ? '#1ec6e6' : '#1565c0') : (isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25, 118, 210, 0.1)')
             },
             fontWeight: 600,
             fontSize: '0.8rem'
@@ -790,7 +828,7 @@ const Dashboard = () => {
             color: statusFilter === 'completed' ? (isDarkMode ? '#111a2b' : '#fff') : (isDarkMode ? '#41e3ff' : '#1976d2'),
             border: `1px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
             '&:hover': {
-              bgcolor: statusFilter === 'completed' ? (isDarkMode ? '#1ec6e6' : '#1565c0') : (isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25,118,210,0.1)')
+              bgcolor: statusFilter === 'completed' ? (isDarkMode ? '#1ec6e6' : '#1565c0') : (isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25, 118, 210, 0.1)')
             },
             fontWeight: 600,
             fontSize: '0.8rem'
@@ -884,135 +922,44 @@ const Dashboard = () => {
                 ) : null}
               </Box>
               
-              {/* Tampilkan Tipe Pengujian */}
-              <Box sx={{ 
-                fontSize: 14, 
-                mb: 0.5, 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                color: isDarkMode ? '#b5eaff' : '#1976d2',
-                p: 0.5,
-                borderRadius: 1,
-                bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)'
-              }}>
-                <span style={{ fontWeight: 500 }}>Tipe Pengujian:</span> 
-                <b style={{ color: isDarkMode ? '#fff' : '#333' }}>
-                  {doc.tipePengujian || 
-                    (doc.mutuBahan && doc.mutuBahan.startsWith('T') ? 'Besi' : 
-                     doc.mutuBahan && doc.mutuBahan.startsWith('K') ? 'Beton' : '-')}
-                </b>
-              </Box>
-              {(() => {
-  // Determine tipePengujian based on mutuBahan if not set
-  const isBesi = doc.tipePengujian === 'Besi' || (doc.mutuBahan && doc.mutuBahan.startsWith('T'));
-  
-  return isBesi ? (
-    <Box sx={{ 
-      fontSize: 14, 
-      mb: 0.5, 
-      display: 'flex', 
-      justifyContent: 'space-between', 
-      color: isDarkMode ? '#b5eaff' : '#1976d2',
-      p: 0.5,
-      borderRadius: 1,
-      bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)'
-    }}>
-      <span style={{ fontWeight: 500 }}>Panjang Ulur (mm):</span> 
-      <b style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25, 118, 210, 0.1)', padding: '0 6px', borderRadius: 4 }}>
-        {doc.bp || '-'}
-      </b>
-    </Box>
-  ) : (
-    <Box sx={{ 
-      fontSize: 14, 
-      mb: 0.5, 
-      display: 'flex', 
-      justifyContent: 'space-between', 
-      color: isDarkMode ? '#b5eaff' : '#1976d2',
-      p: 0.5,
-      borderRadius: 1,
-      bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)'
-    }}>
-      <span style={{ fontWeight: 500 }}>BP (Kg):</span> 
-      <b style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25, 118, 210, 0.1)', padding: '0 6px', borderRadius: 4 }}>
-        {doc.bp || '-'}
-      </b>
-    </Box>
-  );
-})()}
-              {/* Tampilkan Mutu Bahan - diletakkan di atas Tipe Bahan */}
-              <Box sx={{ 
-                fontSize: 14, 
-                mb: 1, 
-                mt: 0.8,
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                color: isDarkMode ? '#b5eaff' : '#1976d2',
-                p: 0.6,
-                borderRadius: 1,
-                bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)'
-              }}>
-                <span style={{ fontWeight: 500 }}>Mutu Bahan:</span> 
-                <b style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25, 118, 210, 0.1)', padding: '0 6px', borderRadius: 4 }}>
-                  {doc.mutuBahan || '-'}
-                </b>
-              </Box>
-              
-              {/* Tampilkan Tipe Bahan dengan styling yang diselaraskan */}
-              {(() => {
-  // Determine tipePengujian based on mutuBahan if not set
-  const isBesi = doc.tipePengujian === 'Besi' || (doc.mutuBahan && doc.mutuBahan.startsWith('T'));
-  
-  return isBesi ? (
-    <Box sx={{ 
-      fontSize: 14, 
-      mb: 1, 
-      mt: 0.8,
-      display: 'flex', 
-      justifyContent: 'space-between', 
-      color: isDarkMode ? '#b5eaff' : '#1976d2',
-      p: 0.6,
-      borderRadius: 1,
-      bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)'
-    }}>
-      <span style={{ fontWeight: 500 }}>Tipe Bahan:</span> 
-      <b style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25, 118, 210, 0.1)', padding: '0 6px', borderRadius: 4 }}>
-        {doc.tipeBahan === 'Silinder' ? 'BJTS (Ulir)' : doc.tipeBahan === 'Kubus' ? 'BJTP (Polos)' : (doc.tipeBahan || '-')}
-      </b>
-    </Box>
-  ) : (
-    <Box sx={{ 
-      fontSize: 14, 
-      mb: 1, 
-      mt: 0.8,
-      display: 'flex', 
-      justifyContent: 'space-between', 
-      color: isDarkMode ? '#b5eaff' : '#1976d2',
-      p: 0.6,
-      borderRadius: 1,
-      bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)'
-    }}>
-      <span style={{ fontWeight: 500 }}>Tipe Bahan:</span> 
-      <b style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25, 118, 210, 0.1)', padding: '0 6px', borderRadius: 4 }}>
-        {doc.tipeBahan ? doc.tipeBahan.charAt(0).toUpperCase() + doc.tipeBahan.slice(1).toLowerCase() : '-'}
-      </b>
-    </Box>
-  );
-})()}
-{/* Show description for tipePengujian in card */}
-{(() => {
-  // Determine tipePengujian based on mutuBahan if not set
-  const derivedTipePengujian = doc.tipePengujian || 
-    (doc.mutuBahan && doc.mutuBahan.startsWith('T') ? 'Besi' : 
-     doc.mutuBahan && doc.mutuBahan.startsWith('K') ? 'Beton' : null);
-  
-  // Only show description for Beton, not for Besi
-  return derivedTipePengujian === 'Beton' && tipePengujianDescriptions[derivedTipePengujian] && (
-  <Box sx={{ fontSize: 13, color: isDarkMode ? '#b5eaff' : '#1976d2', fontStyle: 'italic', mb: 0.5 }}>
-    {tipePengujianDescriptions[derivedTipePengujian]}
-  </Box>
-  );
-})()}
+              {/* Tampilkan semua inputSets jika ada */}
+              {Array.isArray(doc.inputSets) && doc.inputSets.length > 0 ? (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.4 }}>
+                  {renderRowNeutral('Tipe Pengujian:', Array.from(new Set(doc.inputSets.map(s=>s.tipePengujian||'-'))))}
+                  {renderRowNeutral('BP (Kg):', Array.from(new Set(doc.inputSets.map(s=>s.bp||'-'))))}
+                  {renderRowNeutral('Mutu Bahan:', Array.from(new Set(doc.inputSets.map(s=>s.mutuBahan||s.kodeBahan||'-'))))}
+                  {renderRowNeutral('Tipe Bahan:', Array.from(new Set(doc.inputSets.map(s=>s.tipeBahan||'-'))))}
+                </Box>
+              ) : (
+                <>
+                  {/* Tampilan untuk dokumen lama tanpa inputSets */}
+                  <Box sx={{ fontSize: 14, mb: 1, mt: 0.8, display: 'flex', justifyContent: 'space-between', color: isDarkMode ? '#b5eaff' : '#1976d2', p: 0.6, borderRadius: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)' }}>
+                    <span style={{ fontWeight: 500 }}>Mutu Bahan:</span> 
+                    <b style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25, 118, 210, 0.1)', padding: '0 6px', borderRadius: 4 }}>
+                      {doc.mutuBahan || '-'}
+                    </b>
+                  </Box>
+                  {(() => {
+                    const isBesi = doc.tipePengujian === 'Besi' || (doc.mutuBahan && doc.mutuBahan.startsWith('T'));
+                    return isBesi ? (
+                      <Box sx={{ fontSize: 14, mb: 1, mt: 0.8, display: 'flex', justifyContent: 'space-between', color: isDarkMode ? '#b5eaff' : '#1976d2', p: 0.6, borderRadius: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25, 118, 210, 0.05)' }}>
+                        <span style={{ fontWeight: 500 }}>Tipe Bahan:</span> 
+                        <b style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25, 118, 210, 0.1)', padding: '0 6px', borderRadius: 4 }}>
+                          {doc.tipeBahan === 'Silinder' ? 'BJTS (Ulir)' : doc.tipeBahan === 'Kubus' ? 'BJTP (Polos)' : (doc.tipeBahan || '-')}
+                        </b>
+                      </Box>
+                    ) : null;
+                  })()}
+                  {(() => {
+                    const derivedTipePengujian = doc.tipePengujian || (doc.mutuBahan && doc.mutuBahan.startsWith('T') ? 'Besi' : (doc.mutuBahan && doc.mutuBahan.startsWith('K') ? 'Beton' : null));
+                    return derivedTipePengujian === 'Beton' && tipePengujianDescriptions[derivedTipePengujian] && (
+                      <Box sx={{ fontSize: 13, color: isDarkMode ? '#b5eaff' : '#1976d2', fontStyle: 'italic', mb: 0.5 }}>
+                        {tipePengujianDescriptions[derivedTipePengujian]}
+                      </Box>
+                    );
+                  })()}
+                </>
+              )}
               <Box sx={{ 
                 fontSize: 14, 
                 mb: 1, 
@@ -1196,7 +1143,7 @@ const Dashboard = () => {
 
       {/* Dialogs ... */}
       <Dialog 
-        key={`edit-dialog-${selectedDocument?._id}-${newMutuBahan}-${newTipeBahan}-${newStatus}`} 
+        key={`edit-dialog-${selectedDocument?._id}-${inputSets[0]?.mutuBahan}-${inputSets[0]?.tipeBahan}-${newStatus}`} 
         open={editDialog} 
         onClose={() => setEditDialog(false)} 
         maxWidth="md" 
@@ -1213,7 +1160,8 @@ const Dashboard = () => {
     }
   }}
 >
-        <DialogTitle sx={{ color: isDarkMode ? '#41e3ff' : '#1976d2', fontWeight: 700, fontSize: 22, pb: 2, fontFamily: 'Open Sans, Arial, Helvetica, sans-serif' }}>
+
+        <DialogTitle sx={{ color: isDarkMode ? '#41e3ff' : '#1565c0', fontWeight: 700, fontSize: 22, pb: 2, fontFamily: 'Open Sans, Arial, Helvetica, sans-serif' }}>
           Edit Dokumen
         </DialogTitle>
         <DialogContent>
@@ -1310,279 +1258,48 @@ const Dashboard = () => {
                 </Typography>
                 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  {/* Dropdown Tipe Pengujian */}
-                  <FormControl sx={{ flexGrow: 1, minWidth: '200px', mb: 2, bgcolor: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)', borderRadius: 2 }}>
-                    <InputLabel sx={{ color: isDarkMode ? '#b5eaff' : '#1976d2', fontWeight: 600 }}>Tipe Pengujian</InputLabel>
-                    <Select
-                      value={newDocTipePengujian}
-                      label="Tipe Pengujian"
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setNewDocTipePengujian(value);
-                        
-                        // Reset fields when changing test type
-                        if (value === 'Besi') {
-                          // For Besi, set default values for its specific fields
-                          setNewMutuBahan('');
-                          setNewTipeBahan('');
-                        } else if (value === 'Beton') {
-                          // For Beton, reset to default values for concrete
-                          setNewMutuBahan('');
-                          setNewTipeBahan('');
-                        } else {
-                          // For None or any other value, clear all fields
-                          setNewMutuBahan('');
-                          setNewTipeBahan('');
-                        }
-                      }}
-                      sx={{
-                        color: isDarkMode ? '#fff' : '#333',
-                        background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
-                        borderRadius: 2,
-                        fontWeight: 600,
-                        fontFamily: 'Open Sans',
-                        '& .MuiSelect-select': {
-                          color: isDarkMode ? '#fff' : '#333',
-                          background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
-                          borderRadius: 2,
-                          fontWeight: 600,
-                          fontFamily: 'Open Sans',
-                        },
-                        '& fieldset': {
-                          borderColor: isDarkMode ? '#41e3ff' : '#1976d2',
-                        },
-                      }}
-                      MenuProps={{
-                        PaperProps: {
-                          sx: {
-                            background: isDarkMode ? '#162336' : '#ffffff',
-                            color: isDarkMode ? '#fff' : '#333',
-                            borderRadius: 2,
-                          },
-                        },
-                      }}
-                    >
-                      <MenuItem value="" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>None</MenuItem>
-                      <MenuItem value="Beton" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>Beton</MenuItem>
-                      <MenuItem value="Besi" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>Besi</MenuItem>
-                    </Select>
-                  </FormControl>
-                  {/* Campo BP (Kg) */}
-                  <TextField
-                    InputLabelProps={{ style: { color: isDarkMode ? '#b5eaff' : '#1976d2', fontWeight: 600 } }}
-                    InputProps={{
-                      style: {
-                        color: isDarkMode ? '#fff' : '#333',
-                        background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
-                        borderRadius: 8,
-                        border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
-                        fontFamily: 'Open Sans',
-                        fontWeight: 600,
-                        paddingLeft: 8,
-                      },
-                    }}
-                    margin="dense"
-                    label={newDocTipePengujian === 'Besi' ? "Panjang Ulur (mm)" : "BP (Kg)"}
-                    type="number"
-                    inputProps={{ 
-                      step: 'any', 
-                      style: { 
-                        color: isDarkMode ? '#fff' : '#333', 
-                        background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)' 
-                      }, 
-                      autoComplete: 'off' 
-                    }}
-                    value={newBP}
-                    onChange={e => setNewBP(e.target.value)}
-                    autoComplete="off"
-                    sx={{
-                      flexGrow: 1,
-                      minWidth: '200px',
-                      mb: 2,
-                      borderRadius: 2,
-                      bgcolor: '#162336',
-                      '& .MuiOutlinedInput-root': {
-                        color: '#fff',
-                        background: '#162336',
-                        borderRadius: '8px',
-                        border: '1.5px solid #41e3ff',
-                        fontFamily: 'Open Sans',
-                        fontWeight: 600,
-                        paddingLeft: 1,
-                      },
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: isDarkMode ? '#41e3ff' : '#1976d2',
-                      },
-                      '& input': {
-                        color: isDarkMode ? '#fff' : '#333',
-                        background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
-                        borderRadius: '8px',
-                        fontFamily: 'Open Sans',
-                        fontWeight: 600,
-                        '-webkit-text-fill-color': isDarkMode ? '#fff' : '#333',
-                        boxShadow: isDarkMode ? '0 0 0 1000px #162336 inset' : '0 0 0 1000px rgba(255,255,255,0.9) inset',
-                      },
-                      '& input::placeholder': {
-                        color: isDarkMode ? '#b5eaff' : '#757575',
-                        opacity: 1,
-                      },
-                    }}
-                  />
-                  
-                  {/* Campo Mutu Bahan */}
-                  <FormControl sx={{ flexGrow: 1, minWidth: '200px', mb: 2, bgcolor: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)', borderRadius: 2 }} required>
-                    <InputLabel sx={{ color: isDarkMode ? '#b5eaff' : '#1976d2', fontWeight: 600 }}>Mutu Bahan</InputLabel>
-                    <Select
-                      value={newMutuBahan || ''}
-                      label="Mutu Bahan"
-                      onChange={e => {
-                        console.log('Mutu Bahan diubah ke:', e.target.value);
-                        setNewMutuBahan(e.target.value);
-                        
-                        // Detectar tipo de pengujian basado en Mutu Bahan
-                        if (e.target.value.startsWith('T')) {
-                          setNewDocTipePengujian('Besi');
-                        } else if (e.target.value.startsWith('K')) {
-                          setNewDocTipePengujian('Beton');
-                        }
-                      }}
-                      required
-                      sx={{
-                        color: isDarkMode ? '#fff' : '#333',
-                        background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
-                        borderRadius: 2,
-                        fontWeight: 600,
-                        fontFamily: 'Open Sans',
-                        '& .MuiSelect-select': {
-                          color: isDarkMode ? '#fff' : '#333',
-                          background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
-                          borderRadius: 2,
-                          fontWeight: 600,
-                          fontFamily: 'Open Sans',
-                        },
-                        '& fieldset': {
-                          borderColor: isDarkMode ? '#41e3ff' : '#1976d2',
-                        },
-                      }}
-                      MenuProps={{
-                        PaperProps: {
-                          sx: {
-                            background: isDarkMode ? '#162336' : '#ffffff',
-                            color: isDarkMode ? '#fff' : '#333',
-                            borderRadius: 2,
-                          },
-                        },
-                      }}
-                    >
-                      {newDocTipePengujian === 'Besi' ? (
-                        <>
-                          <MenuItem value="T 280" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>T 280</MenuItem>
-                          <MenuItem value="T 420" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>T 420</MenuItem>
-                        </>
-                      ) : (
-                        <>
-                          <MenuItem value="K 125" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 125</MenuItem>
-                          <MenuItem value="K 150" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 150</MenuItem>
-                          <MenuItem value="K 175" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 175</MenuItem>
-                          <MenuItem value="K 200" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 200</MenuItem>
-                          <MenuItem value="K 225" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 225</MenuItem>
-                          <MenuItem value="K 250" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 250</MenuItem>
-                          <MenuItem value="K 300" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 300</MenuItem>
-                          <MenuItem value="K 350" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 350</MenuItem>
-                          <MenuItem value="K 400" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 400</MenuItem>
-                          <MenuItem value="K 450" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 450</MenuItem>
-                          <MenuItem value="K 500" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 500</MenuItem>
-                          <MenuItem value="K 600" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>K 600</MenuItem>
-                        </>
+                  {/* Dynamic input sets editing */}
+                  {inputSets.map((input, idx)=>(
+                    <Box key={idx} sx={{ border:`2px solid ${warnaUtama}`,borderRadius:2,p:2,mb:2,background:warnaUtama+'22',position:'relative' }}>
+                      {idx>0 && (
+                        <IconButton size="small" onClick={()=>handleRemoveInput(idx)} sx={{position:'absolute',top:4,right:4}}>
+                          <CloseIcon fontSize="small"/>
+                        </IconButton>
                       )}
-                    </Select>
-                  </FormControl>
-                  
-                  {/* Campo Tipe Bahan (dropdown) */}
-                  <FormControl sx={{ flexGrow: 1, minWidth: '200px', mt: 1, mb: 2, bgcolor: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)', borderRadius: 2 }}>
-                    <InputLabel sx={{ color: isDarkMode ? '#b5eaff' : '#1976d2', fontWeight: 600 }}>Tipe Bahan</InputLabel>
-                      <Select
-                        value={newTipeBahan || ''}
-                        label="Tipe Bahan"
-                        onChange={e => {
-                          console.log('Tipe Bahan diubah ke:', e.target.value);
-                          setNewTipeBahan(e.target.value);
-                          
-                          // Detectar y ajustar tipo de pengujian basado en Tipe Bahan
-                          if (e.target.value === 'BJTS (Ulir)' || e.target.value === 'BJTP (Polos)') {
-                            setNewDocTipePengujian('Besi');
-                          } else if (e.target.value === 'Silinder' || e.target.value === 'Kubus' || 
-                                   e.target.value === 'Balok' || e.target.value === 'Paving' || 
-                                   e.target.value === 'Scoup') {
-                            setNewDocTipePengujian('Beton');
-                          }
-                        }}
-                        sx={{
-                          color: isDarkMode ? '#fff' : '#333',
-                          background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
-                          borderRadius: 2,
-                          fontWeight: 600,
-                          fontFamily: 'Open Sans',
-                          '& .MuiSelect-select': {
-                            color: isDarkMode ? '#fff' : '#333',
-                            background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
-                            borderRadius: 2,
-                            fontWeight: 600,
-                            fontFamily: 'Open Sans',
-                          },
-                          '& fieldset': {
-                            borderColor: isDarkMode ? '#41e3ff' : '#1976d2',
-                          },
-                        }}
-                        MenuProps={{
-                          PaperProps: {
-                            sx: {
-                              background: isDarkMode ? '#162336' : '#ffffff',
-                              color: isDarkMode ? '#fff' : '#333',
-                              borderRadius: 2,
-                            },
-                          },
-                        }}
-                      >
-                      {newDocTipePengujian === 'Besi' ? (
-                        <>
-                          <MenuItem value="BJTS (Ulir)" sx={{ 
-                            color: isDarkMode ? '#fff' : '#333', 
-                            backgroundColor: 'transparent', 
-                            '&.Mui-selected': { 
-                              backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
-                              color: isDarkMode ? '#41e3ff' : '#1976d2' 
-                            }, 
-                            '&:hover': { 
-                              backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
-                              color: isDarkMode ? '#41e3ff' : '#1976d2' 
-                            } 
-                          }}>BJTS (Ulir)</MenuItem>
-                          <MenuItem value="BJTP (Polos)" sx={{ 
-                            color: isDarkMode ? '#fff' : '#333', 
-                            backgroundColor: 'transparent', 
-                            '&.Mui-selected': { 
-                              backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
-                              color: isDarkMode ? '#41e3ff' : '#1976d2' 
-                            }, 
-                            '&:hover': { 
-                              backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', 
-                              color: isDarkMode ? '#41e3ff' : '#1976d2' 
-                            } 
-                          }}>BJTP (Polos)</MenuItem>
-                        </>
-                      ) : (
-                        <>
-                          <MenuItem value="" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}><em>None</em></MenuItem>
-                          <MenuItem value="Silinder" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>Silinder</MenuItem>
-                          <MenuItem value="Kubus" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>Kubus</MenuItem>
-                          <MenuItem value="Balok" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>Balok</MenuItem>
-                          <MenuItem value="Paving" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>Paving</MenuItem>
-                          <MenuItem value="Scoup" sx={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent', '&.Mui-selected': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' }, '&:hover': { backgroundColor: isDarkMode ? '#22304d' : '#e3f2fd', color: isDarkMode ? '#41e3ff' : '#1976d2' } }}>Scoup</MenuItem>
-                        </>
-                      )}
-                    </Select>
-                  </FormControl>
+                      <Typography sx={{ fontWeight:700,color:warnaUtama,mb:1 }}>Input {idx+1}</Typography>
+                      <Box sx={{display:'flex',flexDirection:{xs:'column',sm:'row'},gap:2}}>
+                        <FormControl fullWidth>
+                          <InputLabel id={`edit-tipepengujian-${idx}`} shrink>Tipe Pengujian</InputLabel>
+                          <Select
+                            labelId={`edit-tipepengujian-${idx}`}
+                            value={input.tipePengujian}
+                            label="Tipe Pengujian"
+                            onChange={e=>handleInputSetChange(idx,'tipePengujian',e.target.value)}
+                            disabled={idx>0}
+                          >
+                            <MenuItem value="Besi">Besi</MenuItem>
+                            <MenuItem value="Beton">Beton</MenuItem>
+                          </Select>
+                        </FormControl>
+                        <TextField fullWidth label={input.tipePengujian==='Besi'?'Panjang Ulur (mm)':'BP (Kg)'} type="number" value={input.bp} onChange={e=>handleInputSetChange(idx,'bp',e.target.value)} />
+                        <FormControl fullWidth>
+                          <InputLabel id={`edit-mutu-${idx}`} shrink>Mutu Bahan</InputLabel>
+                          <Select labelId={`edit-mutu-${idx}`} value={input.kodeBahan} label="Mutu Bahan" onChange={e=>handleInputSetChange(idx,'kodeBahan',e.target.value)}>
+                            {mutuBahanOptions.filter(opt => opt.testType === input.tipePengujian).map(opt => (<MenuItem key={opt._id} value={opt.value}>{opt.value}</MenuItem>))}
+                          </Select>
+                        </FormControl>
+                        <FormControl fullWidth>
+                          <InputLabel id={`edit-tipebahan-${idx}`} shrink>Tipe Bahan</InputLabel>
+                          <Select labelId={`edit-tipebahan-${idx}`} value={input.tipeBahan} label="Tipe Bahan" onChange={e=>handleInputSetChange(idx,'tipeBahan',e.target.value)}>
+                            {tipeBahanOptions.filter(opt => opt.testType === input.tipePengujian).map(opt => (<MenuItem key={opt._id} value={opt.value}>{opt.value}</MenuItem>))}
+                          </Select>
+                        </FormControl>
+                      </Box>
+                    </Box>
+                  ))}
+                  {inlineWarn && (
+                    <Alert severity="warning" onClose={()=>setInlineWarn(false)} sx={{mb:2}}>{alertMessage}</Alert>
+                  )}
                 </Box>
                 
                 <Box sx={{ mt: 2, width: '100%' }}>
@@ -1607,36 +1324,15 @@ const Dashboard = () => {
                       />
                     )}
                     isOptionEqualToValue={(option, value) => option._id === value._id}
-                    sx={{ 
-                      width: '100%',
-                      '& .MuiOutlinedInput-root': {
+                    sx={{ flexGrow: 1, minWidth: '200px', mt: 1 }}
+                    PaperComponent={({ children, ...props }) => (
+                      <Paper {...props} sx={{ background: isDarkMode ? '#162336' : '#ffffff', color: isDarkMode ? '#fff' : '#333', borderRadius: 2, border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}` }}>{children}</Paper>
+                    )}
+                    ListboxProps={{
+                      sx: {
+                        backgroundColor: isDarkMode ? '#162336' : '#ffffff',
                         color: isDarkMode ? '#fff' : '#333',
-                        background: isDarkMode ? 'rgba(22, 35, 54, 0.8)' : 'rgba(255, 255, 255, 0.95)',
-                        borderRadius: '8px',
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: isDarkMode ? 'rgba(65,227,255,0.5)' : 'rgba(25, 118, 210, 0.5)',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: isDarkMode ? '#41e3ff' : '#1976d2',
-                          boxShadow: isDarkMode ? '0 0 0 2px rgba(65,227,255,0.2)' : '0 0 0 2px rgba(25, 118, 210, 0.2)',
-                        }
-                      },
-                      '& .MuiAutocomplete-input': {
-                        color: isDarkMode ? '#fff' : '#1a1a1a',
-                        '&::placeholder': {
-                          color: isDarkMode ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)',
-                          opacity: 1,
-                        }
-                      },
-                      '& .MuiInputLabel-root': {
-                        color: isDarkMode ? '#b5eaff' : '#1565c0',
-                        '&.Mui-focused': {
-                          color: isDarkMode ? '#41e3ff' : '#1976d2'
-                        }
-                      },
-                      '& .MuiAutocomplete-listbox': {
-                        backgroundColor: isDarkMode ? '#142032' : '#ffffff',
-                        color: isDarkMode ? '#ffffff' : '#1a1a1a',
+                        borderRadius: 2,
                         '& .MuiAutocomplete-option': {
                           '&:hover': {
                             backgroundColor: isDarkMode ? 'rgba(65, 227, 255, 0.1)' : 'rgba(25, 118, 210, 0.1)'
@@ -1671,6 +1367,7 @@ const Dashboard = () => {
               <Button 
                 onClick={handleDocumentUpdate} 
                 variant="contained"
+                disabled={loading}
                 sx={{
                   ml: 2,
                   background: isDarkMode ? 'linear-gradient(90deg, #41e3ff 0%, #1ec6e6 100%)' : 'linear-gradient(90deg, #1976d2 0%, #1565c0 100%)',
@@ -1686,7 +1383,17 @@ const Dashboard = () => {
               </Button>
             </DialogActions>
           </Dialog>
-
+          <Snackbar
+            open={inlineWarn}
+            autoHideDuration={4000}
+            onClose={()=>setInlineWarn(false)}
+            anchorOrigin={{vertical:'top',horizontal:'center'}}
+            sx={{ zIndex: 2000 }}
+          >
+            <Alert onClose={()=>setInlineWarn(false)} severity="warning" sx={{width:'100%'}}>
+              {alertMessage}
+            </Alert>
+          </Snackbar>
 
       <Dialog open={addDialog} onClose={() => setAddDialog(false)} maxWidth="md" fullWidth
   PaperProps={{
@@ -1736,260 +1443,129 @@ const Dashboard = () => {
   InputProps={{ style: { color: isDarkMode ? '#fff' : '#333', background: isDarkMode ? 'rgba(65,227,255,0.15)' : 'rgba(25, 118, 210, 0.05)', borderRadius: 2 } }}
 />
 
-            
-            {/* Campos adicionales solo para admin y staff */}
-            {(userRole === 'admin' || userRole === 'staff') && (
-              <>
-                <Typography variant="subnamaProyek1" sx={{ mt: 2, mb: 1 }}>
-                  Informasi Pengujian
-                </Typography>
-                
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  {/* Campo Tipe Pengujian (dropdown nativo) */}
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ 
-                      color: isDarkMode ? '#b5eaff' : '#1565c0', 
-                      mb: 1.5, 
-                      fontWeight: 600,
-                      fontSize: '0.95rem'
-                    }}>
-                      Tipe Pengujian
-                    </Typography>
-                    <Box
-                      component="select"
-                      value={newDocTipePengujian}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setNewDocTipePengujian(value);
-                        
-                        // Reset related fields when tipePengujian changes
-                        setNewDocKodeBahan('');
-                        setNewDocTipeBahan('');
-                      }}
-                      sx={getDropdownStyles(isDarkMode)}
+            {/* Input dinamis untuk BP, Mutu Bahan, Tipe Bahan */}
+            {inputSets.map((input, idx) => (
+              <Box key={idx} sx={{ border:`2px solid ${warnaUtama}`,borderRadius:2,p:2,mb:2,background:warnaUtama+'22',position:'relative' }}>
+                {idx>0 && (
+                  <IconButton size="small" onClick={()=>handleRemoveInput(idx)} sx={{position:'absolute',top:4,right:4}}>
+                    <CloseIcon fontSize="small"/>
+                  </IconButton>
+                )}
+                <Typography sx={{ fontWeight:700,color:warnaUtama,mb:1 }}>Input {idx+1}</Typography>
+                <Box sx={{display:'flex',flexDirection:{xs:'column',sm:'row'},gap:2}}>
+                  {/* Dropdown Tipe Pengujian */}
+                  <FormControl fullWidth>
+                    <InputLabel id={`tipepengujian-label-${idx}`} shrink>Tipe Pengujian</InputLabel>
+                    <Select
+                      labelId={`tipepengujian-label-${idx}`}
+                      value={input.tipePengujian}
+                      label="Tipe Pengujian"
+                      onChange={e=>handleInputSetChange(idx,'tipePengujian',e.target.value)}
+                      displayEmpty
+                      disabled={idx>0}
                     >
-                      <option value="" disabled style={{color: isDarkMode ? '#41e3ff' : '#1976d2'}}>Pilih Tipe Pengujian</option>
-                      <option value="Beton">Beton</option>
-                      <option value="Besi">Besi</option>
-                    </Box>
-                    {/* Show description for selected tipePengujian */}
-                    {newDocTipePengujian && tipePengujianDescriptions[newDocTipePengujian] && (
-                      <Typography variant="body2" sx={{ color: isDarkMode ? '#b5eaff' : '#1976d2', mt: 1, mb: 1, fontStyle: 'italic' }}>
-                        {tipePengujianDescriptions[newDocTipePengujian]}
-                      </Typography>
-                    )}
-                  </Box>
-                  
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ 
-                      color: isDarkMode ? '#b5eaff' : '#1565c0', 
-                      mb: 1.5, 
-                      fontWeight: 600,
-                      fontSize: '0.95rem'
-                    }}>
-                      {newDocTipePengujian === 'Besi' ? "Panjang Ulur (mm)" : "BP (Kg)"}
-                    </Typography>
-                    <TextField
-                      fullWidth
-                      type="number"
-                      inputProps={{ 
-                        step: 'any', 
-                        style: { color: isDarkMode ? '#fff' : '#333' }, 
-                        autoComplete: 'off' 
-                      }}
-                      value={newDocBP}
-                      onChange={e => setNewDocBP(e.target.value)}
-                      required
-                      autoComplete="off"
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          color: isDarkMode ? '#fff' : '#333',
-                          background: isDarkMode ? '#0a1929' : 'rgba(255,255,255,0.9)',
-                          borderRadius: '4px',
-                          border: `1px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
-                          fontFamily: 'inherit',
-                          fontSize: '0.9rem',
-                          transition: 'all 0.2s ease-in-out',
-                          '&:hover': {
-                            background: isDarkMode ? '#102a43' : 'rgba(25,118,210,0.05)',
-                          },
-                          '&.Mui-focused': {
-                            background: isDarkMode ? '#102a43' : 'rgba(25,118,210,0.08)',
-                            boxShadow: isDarkMode ? '0 0 0 2px rgba(65,227,255,0.5)' : '0 0 0 2px rgba(25,118,210,0.3)',
-                          },
-                        },
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: isDarkMode ? '#41e3ff' : '#1976d2',
-                        },
-                        '& input': {
-                          color: isDarkMode ? '#fff' : '#333',
-                          background: isDarkMode ? '#162336' : 'rgba(255,255,255,0.9)',
-                          borderRadius: '8px',
-                          fontFamily: 'Open Sans',
-                          fontWeight: 600,
-                          '-webkit-text-fill-color': isDarkMode ? '#fff' : '#333',
-                          boxShadow: isDarkMode ? '0 0 0 1000px #162336 inset' : '0 0 0 1000px rgba(255,255,255,0.9) inset',
-                        },
-                      }}
-                    />
-                  </Box>
-
-                  <Box sx={{ mb: 2 }}>
-                    <Typography variant="subtitle2" sx={{ color: isDarkMode ? '#b5eaff' : '#1976d2', mb: 1, fontWeight: 600 }}>Mutu Bahan</Typography>
-                    <Box 
-                      component="select"
-                      value={newDocKodeBahan}
-                      onChange={(e) => setNewDocKodeBahan(e.target.value)}
-                      sx={getDropdownStyles(isDarkMode)}
+                      <MenuItem value="" disabled><em>Pilih Tipe Pengujian</em></MenuItem>
+                      <MenuItem value="Besi">Besi</MenuItem>
+                      <MenuItem value="Beton">Beton</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <TextField
+                    fullWidth
+                    label={input.tipePengujian === 'Besi' ? "Panjang Ulur (mm)" : "BP (Kg)"}
+                    type="number"
+                    value={input.bp}
+                    onChange={e=>handleInputSetChange(idx,'bp',e.target.value)}
+                  />
+                  <FormControl fullWidth>
+                    <InputLabel id={`mutu-label-${idx}`} shrink>Mutu Bahan</InputLabel>
+                    <Select
+                      labelId={`mutu-label-${idx}`}
+                      value={input.kodeBahan}
+                      label="Mutu Bahan"
+                      onChange={e=>handleInputSetChange(idx,'kodeBahan',e.target.value)}
                     >
-                      <option value="" disabled style={{color: isDarkMode ? '#41e3ff' : '#1976d2'}}>Pilih Mutu Bahan</option>
-                      {/* Tampilkan data dari API jika ada */}
-                      {mutuBahanOptions.length > 0 && mutuBahanOptions
-                        .filter(option => option.testType === newDocTipePengujian)
-                        .map(option => (
-                          <option key={option._id} value={option.value}>
-                            {option.value}
-                          </option>
-                        ))
-                      }
-                      {/* Tampilkan opsi default jika tidak ada data dari API */}
-                      {(!mutuBahanOptions.length || !mutuBahanOptions.filter(option => option.testType === newDocTipePengujian).length) && (
-                        <>
-                          {newDocTipePengujian === 'Besi' && (
-                            <>
-                              <option value="T 280">T 280</option>
-                              <option value="T 420">T 420</option>
-                            </>
-                          )}
-                          {newDocTipePengujian === 'Beton' && (
-                            <>
-                              <option value="K 225">K 225</option>
-                              <option value="K 250">K 250</option>
-                              <option value="K 300">K 300</option>
-                              <option value="K 350">K 350</option>
-                              <option value="K 400">K 400</option>
-                              <option value="K 450">K 450</option>
-                              <option value="K 500">K 500</option>
-                              <option value="K 600">K 600</option>
-                            </>
-                          )}
-                        </>
-                      )}
-                    </Box>
-                  </Box>
-                  
-                  {/* Campo Tipe Bahan (dropdown nativo) */}
-                  <Box sx={{ mb: 2 }}>
-                    <Typography variant="subtitle2" sx={{ color: isDarkMode ? '#b5eaff' : '#1976d2', mb: 1, fontWeight: 600 }}>Tipe Bahan</Typography>
-                    <Box 
-                      component="select"
-                      value={newDocTipeBahan}
-                      onChange={(e) => setNewDocTipeBahan(e.target.value)}
-                      sx={getDropdownStyles(isDarkMode)}
+                      {mutuBahanOptions.filter(opt => opt.testType === input.tipePengujian).map(opt => (<MenuItem key={opt._id} value={opt.value}>{opt.value}</MenuItem>))}
+                    </Select>
+                  </FormControl>
+                  <FormControl fullWidth>
+                    <InputLabel id={`tipebahan-label-${idx}`} shrink>Tipe Bahan</InputLabel>
+                    <Select
+                      labelId={`tipebahan-label-${idx}`}
+                      value={input.tipeBahan}
+                      label="Tipe Bahan"
+                      onChange={e=>handleInputSetChange(idx,'tipeBahan',e.target.value)}
                     >
-                      <option value="" disabled style={{color: isDarkMode ? '#41e3ff' : '#1976d2'}}>Pilih Tipe Bahan</option>
-                      {/* Tampilkan data dari API jika ada */}
-                      {tipeBahanOptions.length > 0 && tipeBahanOptions
-                        .filter(option => option.testType === newDocTipePengujian)
-                        .map(option => (
-                          <option 
-                            key={option._id} 
-                            value={option.value}
-                            style={{
-                              color: isDarkMode ? '#fff' : '#333',
-                              backgroundColor: 'transparent',
-                            }}
-                          >
-                            {option.value}
-                          </option>
-                        ))
-                      }
-                      {/* Tampilkan opsi default jika tidak ada data dari API */}
-                      {(!tipeBahanOptions.length || !tipeBahanOptions.filter(option => option.testType === newDocTipePengujian).length) && (
-                        <>
-                          {newDocTipePengujian === 'Besi' && (
-                            <>
-                              <option value="BJTS (Ulir)" style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent' }}>BJTS (Ulir)</option>
-                              <option value="BJTP (Polos)" style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent' }}>BJTP (Polos)</option>
-                            </>
-                          )}
-                          {newDocTipePengujian === 'Beton' && (
-                            <>
-                              <option value="KUBUS" style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent' }}>KUBUS</option>
-                              <option value="SILINDER" style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent' }}>SILINDER</option>
-                              <option value="BALOK" style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent' }}>BALOK</option>
-                              <option value="PAVING" style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent' }}>PAVING</option>
-                              <option value="SCOUP" style={{ color: isDarkMode ? '#fff' : '#333', backgroundColor: 'transparent' }}>SCOUP</option>
-                            </>
-                          )}
-                        </>
-                      )}
-                    </Box>
-                  </Box>
+                      {tipeBahanOptions.filter(opt => opt.testType === input.tipePengujian).map(opt => (<MenuItem key={opt._id} value={opt.value}>{opt.value}</MenuItem>))}
+                    </Select>
+                  </FormControl>
                 </Box>
-                
-                {/* Pilih user tujuan dokumen dengan fitur search */}
-                <Autocomplete
-                  options={userList}
-                  getOptionLabel={(option) => `${option.username} - ${option.fullname}`}
-                  value={userList.find(user => user._id === targetUser) || null}
-                  onChange={(_, value) => setTargetUser(value ? value._id : '')}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="User Tujuan"
-                      variant="outlined"
-                      required
-                      InputLabelProps={{ style: { color: isDarkMode ? '#b5eaff' : '#1976d2', fontWeight: 600 } }}
-                      InputProps={{
-                        ...params.InputProps,
-                        style: {
-                          color: isDarkMode ? '#fff' : '#333',
-                          background: isDarkMode ? 'rgba(22, 35, 54, 0.8)' : 'rgba(255, 255, 255, 0.95)',
-                          borderRadius: 2,
-                          fontWeight: 600,
-                          fontFamily: 'Open Sans',
-                          fontSize: '0.9rem',
-                          border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
-                          transition: 'all 0.2s ease-in-out',
-                          '&:hover': {
-                            background: isDarkMode ? 'rgba(65,227,255,0.15)' : 'rgba(25,118,210,0.05)',
-                          },
-                          '&.Mui-focused': {
-                            background: isDarkMode ? 'rgba(65,227,255,0.15)' : 'rgba(25,118,210,0.08)',
-                            boxShadow: isDarkMode ? '0 0 0 2px rgba(65,227,255,0.5)' : '0 0 0 2px rgba(25,118,210,0.3)',
-                          },
-                        },
-                      }}
-                    />
-                  )}
-                  isOptionEqualToValue={(option, value) => option._id === value._id}
-                  sx={{ flexGrow: 1, minWidth: '200px', mt: 1 }}
-                  PaperComponent={({ children, ...props }) => (
-                    <Paper {...props} sx={{ background: isDarkMode ? '#162336' : '#ffffff', color: isDarkMode ? '#fff' : '#333', borderRadius: 2, border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}` }}>{children}</Paper>
-                  )}
-                  ListboxProps={{
-                    sx: {
-                      backgroundColor: isDarkMode ? '#162336' : '#ffffff',
+              </Box>
+            ))}
+            <Button onClick={handleAddInputSet} sx={{ mt: 1, mb: 2, bgcolor: '#41e3ff', color: '#0a1929', fontWeight: 700, '&:hover': { bgcolor: '#ffe082', color: '#333' } }}>
+              + Tambah Input
+            </Button>
+            
+            {addError && <Alert severity="error" sx={{ mt: 2 }}>{addError}</Alert>}
+
+            {/* User Tujuan tetap di bawah input dinamis */}
+            <Autocomplete
+              options={userList}
+              getOptionLabel={(option) => `${option.username} - ${option.fullname}`}
+              value={userList.find(user => user._id === targetUser) || null}
+              onChange={(_, value) => setTargetUser(value ? value._id : '')}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="User Tujuan"
+                  variant="outlined"
+                  required
+                  InputLabelProps={{ style: { color: isDarkMode ? '#b5eaff' : '#1976d2', fontWeight: 600 } }}
+                  InputProps={{
+                    ...params.InputProps,
+                    style: {
                       color: isDarkMode ? '#fff' : '#333',
+                      background: isDarkMode ? 'rgba(22, 35, 54, 0.8)' : 'rgba(255, 255, 255, 0.95)',
                       borderRadius: 2,
-                      '& .MuiAutocomplete-option': {
-                        '&:hover': {
-                          backgroundColor: isDarkMode ? 'rgba(65, 227, 255, 0.1)' : 'rgba(25, 118, 210, 0.1)'
-                        },
-                        '&[data-focus="true"]': {
-                          backgroundColor: isDarkMode ? 'rgba(65, 227, 255, 0.2)' : 'rgba(25, 118, 210, 0.2)'
-                        },
-                        '&[aria-selected="true"]': {
-                          backgroundColor: isDarkMode ? 'rgba(65, 227, 255, 0.15)' : 'rgba(25, 118, 210, 0.15)'
-                        }
-                      }
-                    }
+                      fontWeight: 600,
+                      fontFamily: 'Open Sans',
+                      fontSize: '0.9rem',
+                      border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
+                      transition: 'all 0.2s ease-in-out',
+                      '&:hover': {
+                        background: isDarkMode ? 'rgba(65,227,255,0.15)' : 'rgba(25,118,210,0.05)',
+                      },
+                      '&.Mui-focused': {
+                        background: isDarkMode ? 'rgba(65,227,255,0.15)' : 'rgba(25,118,210,0.08)',
+                        boxShadow: isDarkMode ? '0 0 0 2px rgba(65,227,255,0.5)' : '0 0 0 2px rgba(25, 118, 210, 0.3)',
+                      },
+                    },
                   }}
                 />
-              </>
-            )}
-            {addError && <Alert severity="error" sx={{ mt: 2 }}>{addError}</Alert>}
+              )}
+              isOptionEqualToValue={(option, value) => option._id === value._id}
+              sx={{ flexGrow: 1, minWidth: '200px', mt: 1 }}
+              PaperComponent={({ children, ...props }) => (
+                <Paper {...props} sx={{ background: isDarkMode ? '#162336' : '#ffffff', color: isDarkMode ? '#fff' : '#333', borderRadius: 2, border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}` }}>{children}</Paper>
+              )}
+              ListboxProps={{
+                sx: {
+                  backgroundColor: isDarkMode ? '#162336' : '#ffffff',
+                  color: isDarkMode ? '#fff' : '#333',
+                  borderRadius: 2,
+                  '& .MuiAutocomplete-option': {
+                    '&:hover': {
+                      backgroundColor: isDarkMode ? 'rgba(65, 227, 255, 0.1)' : 'rgba(25, 118, 210, 0.1)'
+                    },
+                    '&[data-focus="true"]': {
+                      backgroundColor: isDarkMode ? 'rgba(65, 227, 255, 0.2)' : 'rgba(25, 118, 210, 0.2)'
+                    },
+                    '&[aria-selected="true"]': {
+                      backgroundColor: isDarkMode ? 'rgba(65, 227, 255, 0.15)' : 'rgba(25, 118, 210, 0.15)'
+                    }
+                  }
+                }
+              }}
+            />
           </Box>
         </DialogContent>
 
@@ -2013,9 +1589,13 @@ const Dashboard = () => {
                 const token = localStorage.getItem('token');
                 
                 // Validasi wajib BP, Mutu Bahan, Tipe Bahan, dan Tipe Pengujian untuk admin dan staff
-                if ((userRole === 'admin' || userRole === 'staff') && (!newDocBP || !newDocKodeBahan || !newDocTipeBahan || !newDocTipePengujian)) {
-                  setAddError('BP, Mutu Bahan, Tipe Bahan, dan Tipe Pengujian wajib diisi!');
-                  return;
+                for (let i = 0; i < inputSets.length; i++) {
+                  const set = inputSets[i];
+                  if (!set.bp || !set.kodeBahan || !set.tipeBahan || !set.tipePengujian) {
+                    setAddError(`Semua kolom wajib diisi pada Input ${i + 1}`);
+                    setAddLoading(false);
+                    return;
+                  }
                 }
                 
                 // Tambahkan log untuk debugging
@@ -2057,35 +1637,39 @@ const tipeBahanEnumValues = {
 };
 
 // Gunakan mapping untuk mendapatkan nilai yang benar
-let fixedTipeBahan = tipeBahanEnumValues[newDocTipeBahan] || newDocTipeBahan;
+let fixedTipeBahan = tipeBahanEnumValues[inputSets[0]?.tipeBahan] || inputSets[0]?.tipeBahan;
 
 // Log untuk debugging
 console.log('Tipe Pengujian:', newDocTipePengujian);
-console.log('Tipe Bahan asli:', newDocTipeBahan);
+console.log('Tipe Bahan asli:', inputSets[0]?.tipeBahan);
 console.log('Tipe Bahan yang akan dikirim:', fixedTipeBahan);
 
 // Pastikan semua data dalam format yang benar
 // Ensure tipePengujian is set based on mutuBahan if not explicitly selected
-                let derivedTipePengujian = newDocTipePengujian;
-                if (!derivedTipePengujian && newDocKodeBahan) {
-                  if (newDocKodeBahan.startsWith('T')) {
-                    derivedTipePengujian = 'Besi';
-                  } else if (newDocKodeBahan.startsWith('K')) {
-                    derivedTipePengujian = 'Beton';
+                // Validasi semua inputSets
+                for (let i = 0; i < inputSets.length; i++) {
+                  const set = inputSets[i];
+                  if (!set.bp || !set.kodeBahan || !set.tipeBahan || !set.tipePengujian) {
+                    setAddError(`Semua kolom wajib diisi pada Input ${i + 1}`);
+                    setAddLoading(false);
+                    return;
                   }
                 }
-                
+                // Siapkan array inputSets untuk backend
+                const inputSetsPayload = inputSets.map(set => ({
+                  bp: set.bp ? parseFloat(set.bp) : 0,
+                  mutuBahan: set.kodeBahan,
+                  tipeBahan: set.tipeBahan,
+                  tipePengujian: set.tipePengujian,
+                  warna: set.warna
+                }));
                 const documentData = {
                   namaProyek: newNamaProyek,
-                  bp: newDocBP ? parseFloat(newDocBP) : 0,
-                  mutuBahan: newDocKodeBahan,
-                  tipeBahan: fixedTipeBahan,
-                  tipePengujian: derivedTipePengujian,
+                  inputSets: inputSetsPayload,
                   targetUser: targetUser || null
                 };
 
 console.log('Data yang akan dikirim:', documentData);
-console.log('tipeBahan yang dikirim:', newDocTipeBahan);
 
 try {
   const response = await axios.post(`${API_URL}/api/documents/manual`, documentData, {
@@ -2103,10 +1687,8 @@ try {
                 setAddDialog(false);
                 // Resetear todos los campos
                 setNewNamaProyek('');
-                setNewDocBP('');
-                setNewDocKodeBahan('');
-                setNewDocTipeBahan('');
-                setNewDocTipePengujian('');
+                setInputSets([{ tipePengujian: '', bp: '', kodeBahan: '', tipeBahan: '', warna: warnaUtama }]);
+                
                 setTargetUser('');
                 fetchDocumentsDebounced();
               } catch (err) {

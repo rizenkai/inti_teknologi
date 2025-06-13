@@ -1,0 +1,45 @@
+# -------------------------------------------------------------
+# Global ignores for this mono-repo (backend & frontend)
+# -------------------------------------------------------------
+
+# Node dependencies
+node_modules/
+
+# Build / dist artifacts
+frontend/build/
+frontend/dist/
+backend/dist/
+coverage/
+
+# Local uploads folder (now using cloud storage)
+uploads/
+
+# Environment & secret files
+.env
+*.env.local
+*.env.development*
+*.env.production*
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS & editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Misc
+*.tgz
+*.zip
+
+# Ignore generated lock files from other package managers
+pnpm-lock.yaml
+
+# Ignore jest snapshots
+**/__snapshots__/
+
+# Ignore artisan storage (if present)
+storage/

@@ -342,17 +342,17 @@ const UserManagement = () => {
         <Dialog open={addDialog} onClose={() => setAddDialog(false)} maxWidth="md" fullWidth
   PaperProps={{
     sx: {
-      background: theme.background.card,
-      color: theme.text.primary,
+      background: isDarkMode ? 'rgba(20,32,54,0.92)' : 'rgba(255,255,255,0.95)',
+      color: isDarkMode ? '#fff' : '#333',
       borderRadius: 3,
-      boxShadow: theme.shadows.card,
-      border: `1.5px solid ${theme.border.main}`,
+      boxShadow: isDarkMode ? '0 8px 32px 0 rgba(65,227,255,0.10)' : '0 8px 32px 0 rgba(0,0,0,0.10)',
+      border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
       backdropFilter: 'blur(8px)',
       p: { xs: 2, md: 4 },
     }
   }}
 >
-          <DialogTitle sx={{ color: theme.primary.main, fontWeight: 700, fontSize: 22, pb: 2, fontFamily: 'Open Sans, Arial, Helvetica, sans-serif' }}>
+          <DialogTitle sx={{ color: isDarkMode ? '#41e3ff' : '#1565c0', fontWeight: 700, fontSize: 22, pb: 2, fontFamily: 'Open Sans, Arial, Helvetica, sans-serif' }}>
             Add New User
           </DialogTitle>
           <DialogContent>
@@ -365,22 +365,22 @@ const UserManagement = () => {
               fullWidth
               value={newUser.username}
               onChange={handleNewUserChange}
-              InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+              InputLabelProps={{ style: { color: isDarkMode ? '#b5eaff' : '#1565c0', fontWeight: 600 } }}
               InputProps={{
                 style: {
-                  color: '#fff',
-                  background: 'rgba(65,227,255,0.15)',
+                  color: isDarkMode ? '#fff' : '#333',
+                  background: isDarkMode ? 'rgba(65,227,255,0.15)' : 'rgba(25,118,210,0.05)',
                   borderRadius: 8,
-                  border: '1.5px solid #41e3ff',
+                  border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
                   fontFamily: 'Open Sans',
                   fontWeight: 600,
                 },
                 sx: {
-                  '& input': { color: '#fff' },
-                  '& input::placeholder': { color: '#bdbdbd', opacity: 1 },
+                  '& input': { color: isDarkMode ? '#fff' : '#333' },
+                  '& input::placeholder': { color: isDarkMode ? '#bdbdbd' : '#333', opacity: 1 },
                 }
               }}
-              sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' } }}
+              sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: isDarkMode ? '#41e3ff' : '#1976d2' } }}
             />
             <TextField
               margin="dense"
@@ -390,22 +390,22 @@ const UserManagement = () => {
               fullWidth
               value={newUser.fullname}
               onChange={handleNewUserChange}
-              InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+              InputLabelProps={{ style: { color: isDarkMode ? '#b5eaff' : '#1565c0', fontWeight: 600 } }}
               InputProps={{
                 style: {
-                  color: '#fff',
-                  background: 'rgba(65,227,255,0.15)',
+                  color: isDarkMode ? '#fff' : '#333',
+                  background: isDarkMode ? 'rgba(65,227,255,0.15)' : 'rgba(25,118,210,0.05)',
                   borderRadius: 8,
-                  border: '1.5px solid #41e3ff',
+                  border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
                   fontFamily: 'Open Sans',
                   fontWeight: 600,
                 },
                 sx: {
-                  '& input': { color: '#fff' },
-                  '& input::placeholder': { color: '#bdbdbd', opacity: 1 },
+                  '& input': { color: isDarkMode ? '#fff' : '#333' },
+                  '& input::placeholder': { color: isDarkMode ? '#bdbdbd' : '#333', opacity: 1 },
                 }
               }}
-              sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' } }}
+              sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: isDarkMode ? '#41e3ff' : '#1976d2' } }}
             />
             <TextField
               margin="dense"
@@ -415,52 +415,52 @@ const UserManagement = () => {
               fullWidth
               value={newUser.password}
               onChange={handleNewUserChange}
-              InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+              InputLabelProps={{ style: { color: isDarkMode ? '#b5eaff' : '#1565c0', fontWeight: 600 } }}
               InputProps={{
                 style: {
-                  color: '#fff',
-                  background: 'rgba(65,227,255,0.15)',
+                  color: isDarkMode ? '#fff' : '#333',
+                  background: isDarkMode ? 'rgba(65,227,255,0.15)' : 'rgba(25,118,210,0.05)',
                   borderRadius: 8,
-                  border: '1.5px solid #41e3ff',
+                  border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
                   fontFamily: 'Open Sans',
                   fontWeight: 600,
                 },
                 sx: {
-                  '& input': { color: '#fff' },
-                  '& input::placeholder': { color: '#bdbdbd', opacity: 1 },
+                  '& input': { color: isDarkMode ? '#fff' : '#333' },
+                  '& input::placeholder': { color: isDarkMode ? '#bdbdbd' : '#333', opacity: 1 },
                 }
               }}
-              sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' } }}
+              sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: isDarkMode ? '#41e3ff' : '#1976d2' } }}
             />
-            <FormControl fullWidth sx={{ mb: 2, bgcolor: '#162336', borderRadius: 2 }}>
-              <InputLabel sx={{ color: '#b5eaff', fontWeight: 600 }}>Role</InputLabel>
+            <FormControl fullWidth sx={{ mb: 2, bgcolor: isDarkMode ? '#162336' : '#ffffff', borderRadius: 2 }}>
+              <InputLabel sx={{ color: isDarkMode ? '#b5eaff' : '#1565c0', fontWeight: 600 }}>Role</InputLabel>
               <Select
                 name="role"
                 value={newUser.role}
                 label="Role"
                 onChange={handleNewUserChange}
                 sx={{
-                  color: '#fff',
-                  background: '#162336',
+                  color: isDarkMode ? '#fff' : '#333',
+                  background: isDarkMode ? '#162336' : '#ffffff',
                   borderRadius: 2,
                   fontWeight: 600,
                   fontFamily: 'Open Sans',
                   '& .MuiSelect-select': {
-                    color: '#fff',
-                    background: '#162336',
+                    color: isDarkMode ? '#fff' : '#333',
+                    background: isDarkMode ? '#162336' : '#ffffff',
                     borderRadius: 2,
                     fontWeight: 600,
                     fontFamily: 'Open Sans',
                   },
                   '& fieldset': {
-                    borderColor: '#41e3ff',
+                    borderColor: isDarkMode ? '#41e3ff' : '#1976d2',
                   },
                 }}
                 MenuProps={{
                   PaperProps: {
                     sx: {
-                      background: '#162336',
-                      color: '#fff',
+                      background: isDarkMode ? '#162336' : '#ffffff',
+                      color: isDarkMode ? '#fff' : '#333',
                       borderRadius: 2,
                     },
                   },
@@ -480,9 +480,9 @@ const UserManagement = () => {
               onClick={() => setAddDialog(false)}
               variant="outlined"
               sx={{ 
-                color: '#41e3ff', 
-                borderColor: '#41e3ff',
-                '&:hover': { borderColor: '#41e3ff', background: 'rgba(65,227,255,0.08)' }
+                color: isDarkMode ? '#41e3ff' : '#1976d2', 
+                borderColor: isDarkMode ? '#41e3ff' : '#1976d2',
+                '&:hover': { borderColor: isDarkMode ? '#41e3ff' : '#1976d2', background: isDarkMode ? 'rgba(65,227,255,0.08)' : 'rgba(25,118,210,0.08)' }
               }}
             >
               Cancel
@@ -493,13 +493,13 @@ const UserManagement = () => {
               disabled={addLoading || !newUser.username || !newUser.fullname || !newUser.password}
               sx={{
                 ml: 2,
-                background: 'linear-gradient(90deg, #41e3ff 0%, #1ec6e6 100%)',
-                color: '#0a1929',
+                background: isDarkMode ? 'linear-gradient(90deg, #41e3ff 0%, #1ec6e6 100%)' : 'linear-gradient(90deg, #1976d2 0%, #1565c0 100%)',
+                color: isDarkMode ? '#0a1929' : '#fff',
                 fontWeight: 700,
                 borderRadius: 2,
-                boxShadow: '0 2px 8px 0 rgba(65,227,255,0.12)',
-                '&:hover': { background: '#65e7ff' },
-                '&.Mui-disabled': { background: 'rgba(65,227,255,0.3)', color: '#193549' }
+                boxShadow: isDarkMode ? '0 2px 8px 0 rgba(65,227,255,0.12)' : '0 2px 8px 0 rgba(25,118,210,0.12)',
+                '&:hover': { background: isDarkMode ? '#65e7ff' : '#1565c0' },
+                '&.Mui-disabled': { background: isDarkMode ? 'rgba(65,227,255,0.3)' : 'rgba(25,118,210,0.3)', color: isDarkMode ? '#193549' : '#fff' }
               }}
             >
               {addLoading ? <CircularProgress size={22} color="inherit" /> : 'Add User'}
@@ -513,17 +513,17 @@ const UserManagement = () => {
         <Dialog open={editDialog} onClose={() => setEditDialog(false)} maxWidth="md" fullWidth
   PaperProps={{
     sx: {
-      background: theme.background.card,
-      color: theme.text.primary,
+      background: isDarkMode ? 'rgba(20,32,54,0.92)' : 'rgba(255,255,255,0.95)',
+      color: isDarkMode ? '#fff' : '#333',
       borderRadius: 3,
-      boxShadow: theme.shadows.card,
-      border: `1.5px solid ${theme.border.main}`,
+      boxShadow: isDarkMode ? '0 8px 32px 0 rgba(65,227,255,0.10)' : '0 8px 32px 0 rgba(0,0,0,0.10)',
+      border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
       backdropFilter: 'blur(8px)',
       p: { xs: 2, md: 4 },
     }
   }}
 >
-          <DialogTitle sx={{ color: theme.primary.main, fontWeight: 700, fontSize: 22, pb: 2, fontFamily: 'Open Sans, Arial, Helvetica, sans-serif' }}>
+          <DialogTitle sx={{ color: isDarkMode ? '#41e3ff' : '#1565c0', fontWeight: 700, fontSize: 22, pb: 2, fontFamily: 'Open Sans, Arial, Helvetica, sans-serif' }}>
             Edit User
           </DialogTitle>
           <DialogContent>
@@ -535,22 +535,22 @@ const UserManagement = () => {
   fullWidth
   value={selectedUser?.username || ''}
   disabled
-  InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+  InputLabelProps={{ style: { color: isDarkMode ? '#b5eaff' : '#1565c0', fontWeight: 600 } }}
   InputProps={{
     style: {
-      color: '#fff',
-      background: 'rgba(65,227,255,0.15)',
+      color: isDarkMode ? '#fff' : '#333',
+      background: isDarkMode ? 'rgba(65,227,255,0.15)' : 'rgba(25,118,210,0.05)',
       borderRadius: 8,
-      border: '1.5px solid #41e3ff',
+      border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
       fontFamily: 'Open Sans',
       fontWeight: 600,
     },
     sx: {
-      '& input': { color: '#fff' },
-      '& input::placeholder': { color: '#bdbdbd', opacity: 1 },
+      '& input': { color: isDarkMode ? '#fff' : '#333' },
+      '& input::placeholder': { color: isDarkMode ? '#bdbdbd' : '#333', opacity: 1 },
     }
   }}
-  sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' } }}
+  sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: isDarkMode ? '#41e3ff' : '#1976d2' } }}
 />
             <TextField
   margin="dense"
@@ -560,22 +560,22 @@ const UserManagement = () => {
   fullWidth
   value={selectedUser?.fullname || ''}
   onChange={handleEditUserChange}
-  InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+  InputLabelProps={{ style: { color: isDarkMode ? '#b5eaff' : '#1565c0', fontWeight: 600 } }}
   InputProps={{
     style: {
-      color: '#fff',
-      background: 'rgba(65,227,255,0.15)',
+      color: isDarkMode ? '#fff' : '#333',
+      background: isDarkMode ? 'rgba(65,227,255,0.15)' : 'rgba(25,118,210,0.05)',
       borderRadius: 8,
-      border: '1.5px solid #41e3ff',
+      border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
       fontFamily: 'Open Sans',
       fontWeight: 600,
     },
     sx: {
-      '& input': { color: '#fff' },
-      '& input::placeholder': { color: '#bdbdbd', opacity: 1 },
+      '& input': { color: isDarkMode ? '#fff' : '#333' },
+      '& input::placeholder': { color: isDarkMode ? '#bdbdbd' : '#333', opacity: 1 },
     }
   }}
-  sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' } }}
+  sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: isDarkMode ? '#41e3ff' : '#1976d2' } }}
 />
             <TextField
   margin="dense"
@@ -585,52 +585,52 @@ const UserManagement = () => {
   fullWidth
   value={selectedUser?.password || ''}
   onChange={handleEditUserChange}
-  InputLabelProps={{ style: { color: '#b5eaff', fontWeight: 600 } }}
+  InputLabelProps={{ style: { color: isDarkMode ? '#b5eaff' : '#1565c0', fontWeight: 600 } }}
   InputProps={{
     style: {
-      color: '#fff',
-      background: 'rgba(65,227,255,0.15)',
+      color: isDarkMode ? '#fff' : '#333',
+      background: isDarkMode ? 'rgba(65,227,255,0.15)' : 'rgba(25,118,210,0.05)',
       borderRadius: 8,
-      border: '1.5px solid #41e3ff',
+      border: `1.5px solid ${isDarkMode ? '#41e3ff' : '#1976d2'}`,
       fontFamily: 'Open Sans',
       fontWeight: 600,
     },
     sx: {
-      '& input': { color: '#fff' },
-      '& input::placeholder': { color: '#bdbdbd', opacity: 1 },
+      '& input': { color: isDarkMode ? '#fff' : '#333' },
+      '& input::placeholder': { color: isDarkMode ? '#bdbdbd' : '#333', opacity: 1 },
     }
   }}
-  sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#41e3ff' } }}
+  sx={{ mb: 2, borderRadius: 2, '& .MuiOutlinedInput-notchedOutline': { borderColor: isDarkMode ? '#41e3ff' : '#1976d2' } }}
 />
-            <FormControl fullWidth sx={{ mb: 2, bgcolor: '#162336', borderRadius: 2 }}>
-              <InputLabel sx={{ color: '#b5eaff', fontWeight: 600 }}>Role</InputLabel>
+            <FormControl fullWidth sx={{ mb: 2, bgcolor: isDarkMode ? '#162336' : '#ffffff', borderRadius: 2 }}>
+              <InputLabel sx={{ color: isDarkMode ? '#b5eaff' : '#1565c0', fontWeight: 600 }}>Role</InputLabel>
               <Select
                 name="role"
                 value={selectedUser?.role || ''}
                 label="Role"
                 onChange={handleEditUserChange}
                 sx={{
-                  color: '#fff',
-                  background: '#162336',
+                  color: isDarkMode ? '#fff' : '#333',
+                  background: isDarkMode ? '#162336' : '#ffffff',
                   borderRadius: 2,
                   fontWeight: 600,
                   fontFamily: 'Open Sans',
                   '& .MuiSelect-select': {
-                    color: '#fff',
-                    background: '#162336',
+                    color: isDarkMode ? '#fff' : '#333',
+                    background: isDarkMode ? '#162336' : '#ffffff',
                     borderRadius: 2,
                     fontWeight: 600,
                     fontFamily: 'Open Sans',
                   },
                   '& fieldset': {
-                    borderColor: '#41e3ff',
+                    borderColor: isDarkMode ? '#41e3ff' : '#1976d2',
                   },
                 }}
                 MenuProps={{
                   PaperProps: {
                     sx: {
-                      background: '#162336',
-                      color: '#fff',
+                      background: isDarkMode ? '#162336' : '#ffffff',
+                      color: isDarkMode ? '#fff' : '#333',
                       borderRadius: 2,
                     },
                   },
@@ -650,9 +650,9 @@ const UserManagement = () => {
               onClick={() => setEditDialog(false)}
               variant="outlined"
               sx={{ 
-                color: '#41e3ff', 
-                borderColor: '#41e3ff',
-                '&:hover': { borderColor: '#41e3ff', background: 'rgba(65,227,255,0.08)' }
+                color: isDarkMode ? '#41e3ff' : '#1976d2', 
+                borderColor: isDarkMode ? '#41e3ff' : '#1976d2',
+                '&:hover': { borderColor: isDarkMode ? '#41e3ff' : '#1976d2', background: isDarkMode ? 'rgba(65,227,255,0.08)' : 'rgba(25,118,210,0.08)' }
               }}
             >
               Cancel
@@ -663,13 +663,13 @@ const UserManagement = () => {
               disabled={editLoading || !selectedUser?.fullname}
               sx={{
                 ml: 2,
-                background: 'linear-gradient(90deg, #41e3ff 0%, #1ec6e6 100%)',
-                color: '#0a1929',
+                background: isDarkMode ? 'linear-gradient(90deg, #41e3ff 0%, #1ec6e6 100%)' : 'linear-gradient(90deg, #1976d2 0%, #1565c0 100%)',
+                color: isDarkMode ? '#0a1929' : '#fff',
                 fontWeight: 700,
                 borderRadius: 2,
-                boxShadow: '0 2px 8px 0 rgba(65,227,255,0.12)',
-                '&:hover': { background: '#65e7ff' },
-                '&.Mui-disabled': { background: 'rgba(65,227,255,0.3)', color: '#193549' }
+                boxShadow: isDarkMode ? '0 2px 8px 0 rgba(65,227,255,0.12)' : '0 2px 8px 0 rgba(25,118,210,0.12)',
+                '&:hover': { background: isDarkMode ? '#65e7ff' : '#1565c0' },
+                '&.Mui-disabled': { background: isDarkMode ? 'rgba(65,227,255,0.3)' : 'rgba(25,118,210,0.3)', color: isDarkMode ? '#193549' : '#fff' }
               }}
             >
               {editLoading ? <CircularProgress size={22} color="inherit" /> : 'Update User'}

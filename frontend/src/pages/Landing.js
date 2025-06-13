@@ -703,50 +703,7 @@ const Landing = () => {
 
       {/* Dialog untuk layanan */}
       {/* Mobile Menu Drawer */}
-      <Drawer
-        anchor="right"
-        open={mobileMenuOpen}
-        onClose={handleCloseMobileMenu}
-        PaperProps={{
-          sx: {
-            width: 250,
-            bgcolor: themeColors.dialogBg,
-            color: themeColors.text,
-          }
-        }}
-      >
-        <Box sx={{ p: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, color: themeColors.primary, mb: 3 }}>
-            INTI TEKNOLOGI
-          </Typography>
-          <List>
-            <ListItem button onClick={() => {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-              handleCloseMobileMenu();
-            }}>
-              <ListItemText primary="Beranda" sx={{ color: themeColors.text }} />
-            </ListItem>
-            <ListItem button onClick={() => {
-              scrollToSection(programRef);
-              handleCloseMobileMenu();
-            }}>
-              <ListItemText primary="Program Kami" sx={{ color: themeColors.text }} />
-            </ListItem>
-            <ListItem button onClick={() => {
-              scrollToSection(contactRef);
-              handleCloseMobileMenu();
-            }}>
-              <ListItemText primary="Kontak" sx={{ color: themeColors.text }} />
-            </ListItem>
-            <ListItem button onClick={() => {
-              navigate('/login');
-              handleCloseMobileMenu();
-            }}>
-              <ListItemText primary="Masuk" sx={{ color: themeColors.primary, fontWeight: 'bold' }} />
-            </ListItem>
-          </List>
-        </Box>
-      </Drawer>
+      
 
       <Dialog
         open={openServiceDialog}
