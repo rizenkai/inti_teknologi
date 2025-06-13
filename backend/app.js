@@ -9,13 +9,18 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
-const corsOptions = {
-  origin: 'http://localhost:3000',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+// Middleware - Konfigurasi CORS untuk mendukung credentials
+app.use(cors({
+  origin: [
+    'https://intiteknologi.netlify.app',
+    'https://itiutama.com',
+    'https://www.itiutama.com',
+    'http://localhost:3000'
+  ],
   credentials: true,
-};
-app.use(cors(corsOptions));
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -34,6 +39,23 @@ const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/users');
 const activityLogRoutes = require('./routes/activityLog');
 const inputRoutes = require('./routes/inputs');
+
+// Root route for API status
+app.get('/', (req, res) => {
+  res.json({
+    status: 'online',
+    message: 'Inti Teknologi API is running',
+    version: '1.0.0',
+    endpoints: [
+      '/api/auth',
+      '/api/documents',
+      '/api/admin',
+      '/api/users',
+      '/api/activity-log',
+      '/api/inputs'
+    ]
+  });
+});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);

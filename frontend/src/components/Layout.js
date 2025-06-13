@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import API_URL from '../utils/api';
 import {
   Box,
   Typography,
@@ -17,8 +18,6 @@ import {
   Dashboard as DashboardIcon,
   Description as DocumentIcon,
   People as PeopleIcon,
-  Logout as LogoutIcon,
-  History as HistoryIcon,
   Menu as MenuIcon,
   Close as CloseIcon,
   Edit as EditIcon,
@@ -61,7 +60,7 @@ const Layout = ({ children }) => {
         // Get token from localStorage
         const token = localStorage.getItem('token');
         if (!token) {
-          navigate('/login');
+          navigate('/intidocs/login');
           return;
         }
         
@@ -71,7 +70,7 @@ const Layout = ({ children }) => {
           setUser(JSON.parse(userData));
         } else {
           // If not in localStorage, fetch from API
-          const response = await axios.get('http://localhost:5000/api/users/me', {
+          const response = await axios.get(`${API_URL}/api/users/me`, {
             headers: {
               Authorization: `Bearer ${token}`
             }
@@ -88,7 +87,7 @@ const Layout = ({ children }) => {
         if (error.response && error.response.status === 401) {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
-          navigate('/login');
+          navigate('/intidocs/login');
         }
       }
     };
@@ -99,18 +98,18 @@ const Layout = ({ children }) => {
   // Mendapatkan menu berdasarkan peran pengguna
   const getMenuItems = () => {
     const baseItems = [
-      { text: 'Beranda', icon: <DashboardIcon />, path: '/dashboard' },
-      { text: 'Dokumen', icon: <DocumentIcon />, path: '/documents' },
+      { text: 'Beranda', icon: <DashboardIcon />, path: '/intidocs/dashboard' },
+      { text: 'Dokumen', icon: <DocumentIcon />, path: '/intidocs/documents' },
     ];
     
     // Menambahkan opsi Pengguna untuk admin, staff dan owner
     if (user && user.role && (user.role === 'admin' || user.role === 'staff' || user.role === 'owner')) {
-      baseItems.push({ text: 'Pengguna', icon: <PeopleIcon />, path: '/users' });
+      baseItems.push({ text: 'Pengguna', icon: <PeopleIcon />, path: '/intidocs/users' });
     }
 
     // Menambahkan opsi Edit Input hanya untuk admin
     if (user && user.role && user.role === 'admin') {
-      baseItems.push({ text: 'Edit Input', icon: <EditIcon />, path: '/edit-input' });
+      baseItems.push({ text: 'Edit Input', icon: <EditIcon />, path: '/intidocs/edit-input' });
     }
     
     return baseItems;
@@ -120,7 +119,7 @@ const Layout = ({ children }) => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    navigate('/login');
+    navigate('/intidocs/login');
   };
 
   return (
@@ -162,7 +161,7 @@ const Layout = ({ children }) => {
         }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <img src="/logo.png" alt="Inti Teknologi Logo" style={{ height: '32px', marginRight: '10px' }} />
-            <Typography variant="h6" sx={{ color: muiTheme.palette.primary.main, fontWeight: 700, fontSize: 20 }}>IntiDocs</Typography>
+            <Typography variant="h6" sx={{ color: muiTheme.palette.primary.main, fontWeight: 700, fontSize: 18 }}>ITI Utama</Typography>
           </Box>
           <IconButton
             onClick={() => setSidebarOpen(false)}

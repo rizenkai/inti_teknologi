@@ -1,0 +1,3458 @@
+[{
+  "_id": {
+    "$oid": "6815c0a214bdfa8020b4c758"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (A)",
+  "documentId": {
+    "$oid": "6815be98bd5af549cac55a6e"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-03T07:07:14.336Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6815c3f014bdfa8020b4c806"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 85049 (test alva)",
+  "documentId": {
+    "$oid": "6815c3f014bdfa8020b4c804"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-03T07:21:20.766Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6819b9f502a4b6e9693a6bcc"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (test alva)",
+  "documentId": {
+    "$oid": "6815c3f014bdfa8020b4c804"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-06T07:27:49.070Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681ac26cda710f8e4210fda5"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 16938 (Test Alva)",
+  "documentId": {
+    "$oid": "681ac26cda710f8e4210fda3"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T02:16:12.612Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681ac273da710f8e4210fdaf"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Test Alva) dari pending ke completed",
+  "documentId": {
+    "$oid": "681ac26cda710f8e4210fda3"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T02:16:19.044Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681ac27eda710f8e4210fdc7"
+  },
+  "action": "upload_file",
+  "description": "Anwar mengupload file dokumen baru (Test Alva)",
+  "documentId": {
+    "$oid": "681ac26cda710f8e4210fda3"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T02:16:30.715Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681acfb1da710f8e4210fe64"
+  },
+  "action": "delete_placeholder",
+  "description": "Admin menghapus placeholder/dokumen (Test Alva)",
+  "documentId": {
+    "$oid": "681ac26cda710f8e4210fda3"
+  },
+  "userId": {
+    "$oid": "6815c1f714bdfa8020b4c7b0"
+  },
+  "username": "Admin",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T03:12:49.374Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681ad55bda710f8e4210ff06"
+  },
+  "action": "create_placeholder",
+  "description": "Staff membuat placeholder 33248 (pengujian apa nih)",
+  "documentId": {
+    "$oid": "681ad55bda710f8e4210ff04"
+  },
+  "userId": {
+    "$oid": "6815c21f14bdfa8020b4c7bc"
+  },
+  "username": "Staff",
+  "userRole": "staff",
+  "timestamp": {
+    "$date": "2025-05-07T03:36:59.541Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681ad5bcda710f8e4210ff48"
+  },
+  "action": "edit_status",
+  "description": "Admin mengubah status dokumen (pengujian apa nih) dari pending ke completed",
+  "documentId": {
+    "$oid": "681ad55bda710f8e4210ff04"
+  },
+  "userId": {
+    "$oid": "6815c1f714bdfa8020b4c7b0"
+  },
+  "username": "Admin",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T03:38:36.651Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681ad5e9da710f8e4210ff74"
+  },
+  "action": "upload_file",
+  "description": "Admin mengupload file dokumen baru (pengujian apa nih)",
+  "documentId": {
+    "$oid": "681ad55bda710f8e4210ff04"
+  },
+  "userId": {
+    "$oid": "6815c1f714bdfa8020b4c7b0"
+  },
+  "username": "Admin",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T03:39:21.320Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681ad7cada710f8e4210fff0"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 95705 (test sandi)",
+  "documentId": {
+    "$oid": "681ad7cada710f8e4210ffee"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T03:47:22.587Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681ad7e0da710f8e42110005"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (test sandi) dari pending ke completed",
+  "documentId": {
+    "$oid": "681ad7cada710f8e4210ffee"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T03:47:44.696Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681ad801da710f8e4211002a"
+  },
+  "action": "upload_file",
+  "description": "Anwar mengupload file dokumen baru (test sandi)",
+  "documentId": {
+    "$oid": "681ad7cada710f8e4210ffee"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T03:48:17.942Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681ae5ccda710f8e42110126"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (test sandi)",
+  "documentId": {
+    "$oid": "681ad7cada710f8e4210ffee"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T04:47:08.534Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681ae5cfda710f8e42110130"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (pengujian apa nih)",
+  "documentId": {
+    "$oid": "681ad55bda710f8e4210ff04"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T04:47:11.133Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681ae5e5da710f8e42110139"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 37137 (Test Sandi)",
+  "documentId": {
+    "$oid": "681ae5e5da710f8e42110137"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T04:47:33.722Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681aea5e07a229dba97b15f5"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 17639 (test kedua)",
+  "documentId": {
+    "$oid": "681aea5e07a229dba97b15f3"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T05:06:38.116Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681aee2805f224d442ff2bdd"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 69300 (Pengujian Jembatan)",
+  "documentId": {
+    "$oid": "681aee2805f224d442ff2bdb"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T05:22:48.889Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681aee4a05f224d442ff2bef"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (undefined)",
+  "documentId": {
+    "$oid": "681aea5e07a229dba97b15f3"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T05:23:22.676Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681aee4c05f224d442ff2bf9"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (undefined)",
+  "documentId": {
+    "$oid": "681ae5e5da710f8e42110137"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T05:23:24.922Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681af7c3daf4a2875363cf03"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian Jembatan) dari pending ke completed",
+  "documentId": {
+    "$oid": "681aee2805f224d442ff2bdb"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T06:03:47.517Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681af7cedaf4a2875363cf1b"
+  },
+  "action": "replace_file",
+  "description": "Anwar mengganti file dokumen (Pengujian Jembatan) dengan file baru",
+  "documentId": {
+    "$oid": "681aee2805f224d442ff2bdb"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T06:03:58.723Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681aff45daf4a2875363cf76"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 58674 (Pengujian paving perum citra)",
+  "documentId": {
+    "$oid": "681aff45daf4a2875363cf74"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T06:35:49.712Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681aff5adaf4a2875363cf80"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Pengujian Jembatan)",
+  "documentId": {
+    "$oid": "681aee2805f224d442ff2bdb"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T06:36:10.346Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681aff64daf4a2875363cf8a"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Pengujian paving perum citra)",
+  "documentId": {
+    "$oid": "681aff45daf4a2875363cf74"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T06:36:20.696Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681aff86daf4a2875363cf9e"
+  },
+  "action": "create_placeholder",
+  "description": "Staff membuat placeholder 75843 (Pengujian Jembatan)",
+  "documentId": {
+    "$oid": "681aff86daf4a2875363cf9c"
+  },
+  "userId": {
+    "$oid": "6815c21f14bdfa8020b4c7bc"
+  },
+  "username": "Staff",
+  "userRole": "staff",
+  "timestamp": {
+    "$date": "2025-05-07T06:36:54.987Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681affa9daf4a2875363cfa8"
+  },
+  "action": "edit_status",
+  "description": "Staff mengubah status dokumen (Pengujian Jembatan) dari pending ke completed",
+  "documentId": {
+    "$oid": "681aff86daf4a2875363cf9c"
+  },
+  "userId": {
+    "$oid": "6815c21f14bdfa8020b4c7bc"
+  },
+  "username": "Staff",
+  "userRole": "staff",
+  "timestamp": {
+    "$date": "2025-05-07T06:37:29.889Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681b0b12daf4a2875363d069"
+  },
+  "action": "replace_file",
+  "description": "Anwar mengganti file dokumen (Pengujian Jembatan) dengan file baru",
+  "documentId": {
+    "$oid": "681aff86daf4a2875363cf9c"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T07:26:10.036Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681b6aff6ee0e17f3688324c"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 81453 (Pengujian Tol)",
+  "documentId": {
+    "$oid": "681b6aff6ee0e17f3688324a"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T14:15:27.920Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681b6c1f6ee0e17f3688327a"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 63662 (Pengujian Beton)",
+  "documentId": {
+    "$oid": "681b6c1f6ee0e17f36883278"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T14:20:15.658Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681b6d2a6ee0e17f368832ac"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 35452 (Pengujian Besi)",
+  "documentId": {
+    "$oid": "681b6d2a6ee0e17f368832aa"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T14:24:42.355Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681b716e6ee0e17f368832d9"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian Beton) dari pending ke in_progress",
+  "documentId": {
+    "$oid": "681b6c1f6ee0e17f36883278"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T14:42:54.950Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681b71766ee0e17f368832e3"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian Tol) dari pending ke review",
+  "documentId": {
+    "$oid": "681b6aff6ee0e17f3688324a"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T14:43:02.640Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681b91346ee0e17f36883679"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian Beton) dari in_progress ke completed",
+  "documentId": {
+    "$oid": "681b6c1f6ee0e17f36883278"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T16:58:28.172Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "681b914d6ee0e17f36883683"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian Beton) dari completed ke in_progress",
+  "documentId": {
+    "$oid": "681b6c1f6ee0e17f36883278"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-07T16:58:53.793Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682379b1957dd4e37bf68355"
+  },
+  "action": "replace_file",
+  "description": "Anwar mengganti file dokumen (Pengujian Jembatan) dengan file baru",
+  "documentId": {
+    "$oid": "681aff86daf4a2875363cf9c"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-13T16:56:17.083Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6823fa85957dd4e37bf68404"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 77563 (Pengujian di Serpong)",
+  "documentId": {
+    "$oid": "6823fa85957dd4e37bf68402"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T02:05:57.170Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6823fa99957dd4e37bf6840e"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian di Serpong) dari pending ke in_progress",
+  "documentId": {
+    "$oid": "6823fa85957dd4e37bf68402"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T02:06:17.981Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6823fb2b957dd4e37bf68418"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian di Serpong) dari in_progress ke completed",
+  "documentId": {
+    "$oid": "6823fa85957dd4e37bf68402"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T02:08:43.684Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6823fb9c957dd4e37bf68422"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian di Serpong) dari completed ke review",
+  "documentId": {
+    "$oid": "6823fa85957dd4e37bf68402"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T02:10:36.210Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6823fbd8957dd4e37bf68433"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian di Serpong) dari review ke completed",
+  "documentId": {
+    "$oid": "6823fa85957dd4e37bf68402"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T02:11:36.817Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6823fbe7957dd4e37bf6844b"
+  },
+  "action": "replace_file",
+  "description": "Anwar mengganti file dokumen (Pengujian di Serpong) dengan file baru",
+  "documentId": {
+    "$oid": "6823fa85957dd4e37bf68402"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T02:11:51.758Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6823fe4f957dd4e37bf68541"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Pengujian Besi)",
+  "documentId": {
+    "$oid": "681b6d2a6ee0e17f368832aa"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T02:22:07.351Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68240644957dd4e37bf687ed"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Pengujian Tol)",
+  "documentId": {
+    "$oid": "681b6aff6ee0e17f3688324a"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T02:56:04.763Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682406f4957dd4e37bf68862"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 90678 (Pengujian Muncul)",
+  "documentId": {
+    "$oid": "682406f4957dd4e37bf68860"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T02:59:00.119Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682406fd957dd4e37bf6886c"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian Muncul) dari pending ke in_progress",
+  "documentId": {
+    "$oid": "682406f4957dd4e37bf68860"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T02:59:09.967Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68240704957dd4e37bf68876"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian Muncul) dari in_progress ke review",
+  "documentId": {
+    "$oid": "682406f4957dd4e37bf68860"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T02:59:16.168Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68240a76957dd4e37bf6889c"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian Muncul) dari review ke completed",
+  "documentId": {
+    "$oid": "682406f4957dd4e37bf68860"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T03:13:58.688Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682422fd957dd4e37bf68ab3"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 81721 (test kedua)",
+  "documentId": {
+    "$oid": "682422fd957dd4e37bf68ab1"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T04:58:37.202Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682424b7957dd4e37bf68ae1"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 86342 (Pengujian Bekasi)",
+  "documentId": {
+    "$oid": "682424b7957dd4e37bf68adf"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T05:05:59.067Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682432c2957dd4e37bf68b1d"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 88490 (Mochamad Masdarul Anwar)",
+  "documentId": {
+    "$oid": "682432c2957dd4e37bf68b1b"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T06:05:54.600Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682432ce957dd4e37bf68b27"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Pengujian Bekasi)",
+  "documentId": {
+    "$oid": "682424b7957dd4e37bf68adf"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T06:06:06.429Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682432d1957dd4e37bf68b31"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (test kedua)",
+  "documentId": {
+    "$oid": "682422fd957dd4e37bf68ab1"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T06:06:09.769Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682433ae957dd4e37bf68b3b"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Mochamad Masdarul Anwar)",
+  "documentId": {
+    "$oid": "682432c2957dd4e37bf68b1b"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T06:09:50.353Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68243409957dd4e37bf68b61"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Pengujian Muncul)",
+  "documentId": {
+    "$oid": "682406f4957dd4e37bf68860"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T06:11:21.109Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6824343b957dd4e37bf68b7a"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 69435 (test kedua)",
+  "documentId": {
+    "$oid": "6824343b957dd4e37bf68b78"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T06:12:11.952Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6824351d957dd4e37bf68b99"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (test kedua)",
+  "documentId": {
+    "$oid": "6824343b957dd4e37bf68b78"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T06:15:57.098Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6824352a957dd4e37bf68ba4"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 38316 (test kedua)",
+  "documentId": {
+    "$oid": "6824352a957dd4e37bf68ba2"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T06:16:10.441Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682438f0957dd4e37bf68c10"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (test kedua)",
+  "documentId": {
+    "$oid": "6824352a957dd4e37bf68ba2"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T06:32:16.444Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6824395c957dd4e37bf68c3a"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 26883 (Mochamad Masdarul Anwar)",
+  "documentId": {
+    "$oid": "6824395c957dd4e37bf68c38"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T06:34:04.397Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68243b83957dd4e37bf68c75"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Mochamad Masdarul Anwar) dari pending ke review",
+  "documentId": {
+    "$oid": "6824395c957dd4e37bf68c38"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T06:43:15.150Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68243bb5957dd4e37bf68c86"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 37372 (uji kedua)",
+  "documentId": {
+    "$oid": "68243bb5957dd4e37bf68c84"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T06:44:05.949Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68243d57957dd4e37bf68cc1"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (uji kedua)",
+  "documentId": {
+    "$oid": "68243bb5957dd4e37bf68c84"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T06:51:03.813Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68243d5b957dd4e37bf68ccb"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Mochamad Masdarul Anwar)",
+  "documentId": {
+    "$oid": "6824395c957dd4e37bf68c38"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T06:51:07.269Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68243da9957dd4e37bf68cdd"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 60661 (Uji Pertama)",
+  "documentId": {
+    "$oid": "68243da9957dd4e37bf68cdb"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T06:52:25.084Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244465957dd4e37bf68d3b"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 45059 (test)",
+  "documentId": {
+    "$oid": "68244465957dd4e37bf68d39"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T07:21:09.969Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6824446e957dd4e37bf68d45"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (test)",
+  "documentId": {
+    "$oid": "68244465957dd4e37bf68d39"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T07:21:18.407Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244471957dd4e37bf68d4f"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Uji Pertama)",
+  "documentId": {
+    "$oid": "68243da9957dd4e37bf68cdb"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T07:21:21.723Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244575957dd4e37bf68da6"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 15929 (test kedua)",
+  "documentId": {
+    "$oid": "68244575957dd4e37bf68da4"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T07:25:41.239Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244584957dd4e37bf68db1"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 89123 (A)",
+  "documentId": {
+    "$oid": "68244584957dd4e37bf68daf"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T07:25:56.251Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6824458f957dd4e37bf68dbb"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (A)",
+  "documentId": {
+    "$oid": "68244584957dd4e37bf68daf"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T07:26:07.465Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244592957dd4e37bf68dc5"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (test kedua)",
+  "documentId": {
+    "$oid": "68244575957dd4e37bf68da4"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T07:26:10.174Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6824471f957dd4e37bf68dec"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 33419 (100)",
+  "documentId": {
+    "$oid": "6824471f957dd4e37bf68dea"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T07:32:47.333Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244729957dd4e37bf68df6"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (100)",
+  "documentId": {
+    "$oid": "6824471f957dd4e37bf68dea"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T07:32:57.289Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244940957dd4e37bf68e55"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 14168 (Pengujian di Cikupa)",
+  "documentId": {
+    "$oid": "68244940957dd4e37bf68e53"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T07:41:52.501Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6824494a957dd4e37bf68e5f"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian di Cikupa) dari pending ke review",
+  "documentId": {
+    "$oid": "68244940957dd4e37bf68e53"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T07:42:02.123Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244966957dd4e37bf68e86"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 10731 (Pengujian di Subang)",
+  "documentId": {
+    "$oid": "68244966957dd4e37bf68e84"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T07:42:30.668Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6824496f957dd4e37bf68e90"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Pengujian di Cikupa)",
+  "documentId": {
+    "$oid": "68244940957dd4e37bf68e53"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T07:42:39.279Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244971957dd4e37bf68e9a"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Pengujian di Subang)",
+  "documentId": {
+    "$oid": "68244966957dd4e37bf68e84"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T07:42:41.759Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244998957dd4e37bf68ea4"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Pengujian Jembatan)",
+  "documentId": {
+    "$oid": "681aff86daf4a2875363cf9c"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T07:43:20.987Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6824499b957dd4e37bf68eae"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Pengujian Beton)",
+  "documentId": {
+    "$oid": "681b6c1f6ee0e17f36883278"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T07:43:23.260Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244cae957dd4e37bf68eb9"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 87816 (Pengujian Besi)",
+  "documentId": {
+    "$oid": "68244cae957dd4e37bf68eb7"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T07:56:30.126Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244dfd957dd4e37bf68ed1"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian Besi) dari pending ke in_progress",
+  "documentId": {
+    "$oid": "68244cae957dd4e37bf68eb7"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T08:02:05.419Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244e13957dd4e37bf68edb"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Pengujian Besi)",
+  "documentId": {
+    "$oid": "68244cae957dd4e37bf68eb7"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T08:02:27.670Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244e4ba8b468cec95a46b8"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 23206 (test kedua)",
+  "documentId": {
+    "$oid": "68244e4ba8b468cec95a46b6"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T08:03:23.356Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244eafa8b468cec95a46c2"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (test kedua) dari pending ke in_progress",
+  "documentId": {
+    "$oid": "68244e4ba8b468cec95a46b6"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T08:05:03.125Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244eb6a8b468cec95a46cc"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (test kedua) dari in_progress ke completed",
+  "documentId": {
+    "$oid": "68244e4ba8b468cec95a46b6"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T08:05:10.830Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244ebfa8b468cec95a46d6"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (test kedua) dari completed ke in_progress",
+  "documentId": {
+    "$oid": "68244e4ba8b468cec95a46b6"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T08:05:19.443Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244ee1a8b468cec95a46e0"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (test kedua)",
+  "documentId": {
+    "$oid": "68244e4ba8b468cec95a46b6"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T08:05:53.398Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244f03a8b468cec95a46f9"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 61751 (100)",
+  "documentId": {
+    "$oid": "68244f03a8b468cec95a46f7"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T08:06:27.242Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244f11a8b468cec95a4703"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (100) dari pending ke review",
+  "documentId": {
+    "$oid": "68244f03a8b468cec95a46f7"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T08:06:41.375Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244f15a8b468cec95a470d"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (100)",
+  "documentId": {
+    "$oid": "68244f03a8b468cec95a46f7"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T08:06:45.942Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68244f2aa8b468cec95a4718"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 83744 (Pengujian Besi)",
+  "documentId": {
+    "$oid": "68244f2aa8b468cec95a4716"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T08:07:06.395Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682450c2a8b468cec95a473f"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 52864 (pengujian)",
+  "documentId": {
+    "$oid": "682450c2a8b468cec95a473d"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T08:13:54.333Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682450d4a8b468cec95a474a"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 5530 (test)",
+  "documentId": {
+    "$oid": "682450d4a8b468cec95a4748"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T08:14:12.210Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682450dda8b468cec95a4754"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (test)",
+  "documentId": {
+    "$oid": "682450d4a8b468cec95a4748"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T08:14:21.779Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682450e3a8b468cec95a475e"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (pengujian)",
+  "documentId": {
+    "$oid": "682450c2a8b468cec95a473d"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T08:14:27.786Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6824527ca8b468cec95a4769"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 71186 (test)",
+  "documentId": {
+    "$oid": "6824527ca8b468cec95a4767"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T08:21:16.721Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68245281a8b468cec95a4773"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (test)",
+  "documentId": {
+    "$oid": "6824527ca8b468cec95a4767"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T08:21:21.588Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68245988a8b468cec95a47ae"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian Besi) dari pending ke review",
+  "documentId": {
+    "$oid": "68244f2aa8b468cec95a4716"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T08:51:20.870Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6824598fa8b468cec95a47b8"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian Besi) dari review ke completed",
+  "documentId": {
+    "$oid": "68244f2aa8b468cec95a4716"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T08:51:27.566Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68245d8fa8b468cec95a47f0"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian Besi) dari completed ke review",
+  "documentId": {
+    "$oid": "68244f2aa8b468cec95a4716"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T09:08:31.188Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68245d95a8b468cec95a47fa"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian Besi) dari review ke completed",
+  "documentId": {
+    "$oid": "68244f2aa8b468cec95a4716"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T09:08:37.070Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682463dba8b468cec95a4821"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 39758 (uji besi syech)",
+  "documentId": {
+    "$oid": "682463dba8b468cec95a481f"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T09:35:23.584Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68246402a8b468cec95a482b"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (uji besi syech) dari pending ke review",
+  "documentId": {
+    "$oid": "682463dba8b468cec95a481f"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-14T09:36:02.893Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682c8c7577a5f516fa8b55c6"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (uji besi syech)",
+  "documentId": {
+    "$oid": "682463dba8b468cec95a481f"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-20T14:06:45.576Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682c907477a5f516fa8b56b1"
+  },
+  "action": "replace_file",
+  "description": "Anwar mengganti file dokumen (Pengujian Besi) dengan file baru",
+  "documentId": {
+    "$oid": "68244f2aa8b468cec95a4716"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-20T14:23:48.545Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682c909b77a5f516fa8b56eb"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian Besi) dari completed ke review",
+  "documentId": {
+    "$oid": "68244f2aa8b468cec95a4716"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-20T14:24:27.317Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682c95ab77a5f516fa8b5821"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 84315 (test)",
+  "documentId": {
+    "$oid": "682c95ab77a5f516fa8b581f"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-20T14:46:03.731Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682c95dcebfae47c1205552e"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (test)",
+  "documentId": {
+    "$oid": "682c95ab77a5f516fa8b581f"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-20T14:46:52.452Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682c95f3ebfae47c12055539"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 64591 (profile)",
+  "documentId": {
+    "$oid": "682c95f3ebfae47c12055537"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-20T14:47:15.718Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682c9672ebfae47c12055578"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 11557 (test 1)",
+  "documentId": {
+    "$oid": "682c9672ebfae47c12055576"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-20T14:49:22.142Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682c9675ebfae47c12055582"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (profile)",
+  "documentId": {
+    "$oid": "682c95f3ebfae47c12055537"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-20T14:49:25.962Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682c9679ebfae47c1205558c"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (test 1)",
+  "documentId": {
+    "$oid": "682c9672ebfae47c12055576"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-20T14:49:29.835Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682c96b1ebfae47c120555c3"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 52533 (11)",
+  "documentId": {
+    "$oid": "682c96b1ebfae47c120555c1"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-20T14:50:25.146Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682c978cebfae47c12055636"
+  },
+  "action": "delete_placeholder",
+  "description": "Staff menghapus placeholder/dokumen (11)",
+  "documentId": {
+    "$oid": "682c96b1ebfae47c120555c1"
+  },
+  "userId": {
+    "$oid": "6815c21f14bdfa8020b4c7bc"
+  },
+  "username": "Staff",
+  "userRole": "staff",
+  "timestamp": {
+    "$date": "2025-05-20T14:54:04.409Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682c99b8ebfae47c12055790"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 8541 (Test Syech)",
+  "documentId": {
+    "$oid": "682c99b8ebfae47c1205578e"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-20T15:03:20.839Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682c99bfebfae47c1205579a"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Test Syech)",
+  "documentId": {
+    "$oid": "682c99b8ebfae47c1205578e"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-20T15:03:27.763Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682d20f4ebfae47c12055914"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Pengujian Besi) dari review ke completed",
+  "documentId": {
+    "$oid": "68244f2aa8b468cec95a4716"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T00:40:20.506Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682d21bcebfae47c12055969"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 77138 (UJI BAHAN BARU)",
+  "documentId": {
+    "$oid": "682d21bcebfae47c12055967"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T00:43:40.836Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682d2234ebfae47c120559e1"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (UJI BAHAN BARU) dari pending ke review",
+  "documentId": {
+    "$oid": "682d21bcebfae47c12055967"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T00:45:40.900Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682d3fbeebfae47c120561f4"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (UJI BAHAN BARU) dari review ke completed",
+  "documentId": {
+    "$oid": "682d21bcebfae47c12055967"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T02:51:42.375Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682d401febfae47c120561fe"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (UJI BAHAN BARU) dari completed ke review",
+  "documentId": {
+    "$oid": "682d21bcebfae47c12055967"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T02:53:19.690Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682d6b8977d150856ba85826"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 71005 (A)",
+  "documentId": {
+    "$oid": "682d6b8977d150856ba85824"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T05:58:33.664Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682d6b9277d150856ba85830"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (A)",
+  "documentId": {
+    "$oid": "682d6b8977d150856ba85824"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T05:58:42.157Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682d6f3b77d150856ba858fa"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (UJI BAHAN BARU)",
+  "documentId": {
+    "$oid": "682d21bcebfae47c12055967"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T06:14:19.746Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682d6f9377d150856ba85945"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 37550 (Test Alva)",
+  "documentId": {
+    "$oid": "682d6f9377d150856ba85943"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T06:15:47.842Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682d7cad77d150856ba85c70"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 92577 (Test Dimas)",
+  "documentId": {
+    "$oid": "682d7cad77d150856ba85c6e"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T07:11:41.634Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682d7eda77d150856ba85d72"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Test Dimas) dari pending ke completed",
+  "documentId": {
+    "$oid": "682d7cad77d150856ba85c6e"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T07:20:58.147Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682d80aa77d150856ba85d9f"
+  },
+  "action": "replace_file",
+  "description": "Anwar mengganti file dokumen (Test Dimas) dengan file baru",
+  "documentId": {
+    "$oid": "682d7cad77d150856ba85c6e"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T07:28:42.341Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682d940e526ec6efda382946"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Test Alva) dari pending ke completed",
+  "documentId": {
+    "$oid": "682d6f9377d150856ba85943"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T08:51:26.773Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682ddf0ded862b9dcde0b7d5"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Test Dimas) dari completed ke pending",
+  "documentId": {
+    "$oid": "682d7cad77d150856ba85c6e"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T14:11:25.673Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682de6bfed862b9dcde0b912"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 95992 (Test 1)",
+  "documentId": {
+    "$oid": "682de6bfed862b9dcde0b910"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T14:44:15.340Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682de6d4ed862b9dcde0b91d"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 58877 (Test 2)",
+  "documentId": {
+    "$oid": "682de6d4ed862b9dcde0b91b"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T14:44:36.192Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682de71ced862b9dcde0b928"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 81374 (Test 3)",
+  "documentId": {
+    "$oid": "682de71ced862b9dcde0b926"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T14:45:48.065Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682de734ed862b9dcde0b933"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 75312 (Test 4)",
+  "documentId": {
+    "$oid": "682de734ed862b9dcde0b931"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T14:46:12.053Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682de74fed862b9dcde0b93e"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 24376 (Test 5)",
+  "documentId": {
+    "$oid": "682de74fed862b9dcde0b93c"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T14:46:39.805Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682de765ed862b9dcde0b949"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 73585 (Test 6)",
+  "documentId": {
+    "$oid": "682de765ed862b9dcde0b947"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T14:47:01.825Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682df87bed862b9dcde0b9f3"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Test Dimas) dari pending ke review",
+  "documentId": {
+    "$oid": "682d7cad77d150856ba85c6e"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-21T15:59:55.990Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6831b49e4675a6988ad43458"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Test Dimas) dari review ke completed",
+  "documentId": {
+    "$oid": "682d7cad77d150856ba85c6e"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-24T11:59:26.955Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6831b4c74675a6988ad43473"
+  },
+  "action": "replace_file",
+  "description": "Anwar mengganti file dokumen (Pengujian Besi) dengan file baru",
+  "documentId": {
+    "$oid": "68244f2aa8b468cec95a4716"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-24T12:00:07.016Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6831b4ee4675a6988ad43485"
+  },
+  "action": "replace_file",
+  "description": "Anwar mengganti file dokumen (Pengujian di Serpong) dengan file baru",
+  "documentId": {
+    "$oid": "6823fa85957dd4e37bf68402"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-24T12:00:46.500Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6831b6e64675a6988ad43496"
+  },
+  "action": "replace_file",
+  "description": "Anwar mengganti file dokumen (Pengujian di Serpong) dengan file baru",
+  "documentId": {
+    "$oid": "6823fa85957dd4e37bf68402"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-24T12:09:10.921Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6831b6f64675a6988ad434a2"
+  },
+  "action": "replace_file",
+  "description": "Anwar mengganti file dokumen (Pengujian di Serpong) dengan file baru",
+  "documentId": {
+    "$oid": "6823fa85957dd4e37bf68402"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-24T12:09:26.987Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6835cdca64b338ef8bec0976"
+  },
+  "action": "replace_file",
+  "description": "Anwar mengganti file dokumen (Test Alva) dengan file baru",
+  "documentId": {
+    "$oid": "682d6f9377d150856ba85943"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-27T14:35:54.590Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6835d3ae64b338ef8bec0a7a"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Test 1) dari pending ke review",
+  "documentId": {
+    "$oid": "682de6bfed862b9dcde0b910"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-27T15:01:02.274Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6835dde364b338ef8bec0e17"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 54769 (Sandi)",
+  "documentId": {
+    "$oid": "6835dde364b338ef8bec0e15"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-27T15:44:35.637Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6835ddf464b338ef8bec0e35"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Sandi) dari pending ke review",
+  "documentId": {
+    "$oid": "6835dde364b338ef8bec0e15"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-27T15:44:52.052Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6835de9b64b338ef8bec0f5b"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (Sandi) dari review ke completed",
+  "documentId": {
+    "$oid": "6835dde364b338ef8bec0e15"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-27T15:47:39.466Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6835dec364b338ef8bec0f91"
+  },
+  "action": "replace_file",
+  "description": "Anwar mengganti file dokumen (Sandi) dengan file baru",
+  "documentId": {
+    "$oid": "6835dde364b338ef8bec0e15"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-27T15:48:19.476Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6835dee264b338ef8bec0fdb"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Sandi)",
+  "documentId": {
+    "$oid": "6835dde364b338ef8bec0e15"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-27T15:48:50.403Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6835f62064b338ef8bec1154"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Test 6)",
+  "documentId": {
+    "$oid": "682de765ed862b9dcde0b947"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-27T17:28:00.480Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6835f62364b338ef8bec115e"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Test 5)",
+  "documentId": {
+    "$oid": "682de74fed862b9dcde0b93c"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-27T17:28:03.454Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6835f62564b338ef8bec1168"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Test 4)",
+  "documentId": {
+    "$oid": "682de734ed862b9dcde0b931"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-27T17:28:05.987Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6835f62964b338ef8bec1172"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Test 3)",
+  "documentId": {
+    "$oid": "682de71ced862b9dcde0b926"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-27T17:28:09.435Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6835f62b64b338ef8bec117c"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Test 2)",
+  "documentId": {
+    "$oid": "682de6d4ed862b9dcde0b91b"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-27T17:28:11.872Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6835f62e64b338ef8bec1186"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Test 1)",
+  "documentId": {
+    "$oid": "682de6bfed862b9dcde0b910"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-27T17:28:14.280Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6835f63064b338ef8bec1190"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Test Dimas)",
+  "documentId": {
+    "$oid": "682d7cad77d150856ba85c6e"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-27T17:28:16.680Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6835f63364b338ef8bec119a"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Test Alva)",
+  "documentId": {
+    "$oid": "682d6f9377d150856ba85943"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-27T17:28:19.430Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6835f63664b338ef8bec11a4"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Pengujian Besi)",
+  "documentId": {
+    "$oid": "68244f2aa8b468cec95a4716"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-27T17:28:22.552Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6835f63864b338ef8bec11ae"
+  },
+  "action": "delete_placeholder",
+  "description": "Anwar menghapus placeholder/dokumen (Pengujian di Serpong)",
+  "documentId": {
+    "$oid": "6823fa85957dd4e37bf68402"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-27T17:28:24.819Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366d11ca39e2327f116174"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 2068 (PT apasajalah)",
+  "documentId": {
+    "$oid": "68366d11ca39e2327f116172"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T01:55:29.121Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366d38ca39e2327f11617f"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 5344 (PT Mutu beton)",
+  "documentId": {
+    "$oid": "68366d38ca39e2327f11617d"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T01:56:08.021Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366d6fca39e2327f11618a"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 53743 (PT Besi Jaya)",
+  "documentId": {
+    "$oid": "68366d6fca39e2327f116188"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T01:57:03.188Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366d8eca39e2327f116195"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 27295 (PT BESTOR)",
+  "documentId": {
+    "$oid": "68366d8eca39e2327f116193"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T01:57:34.203Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366db3ca39e2327f1161a0"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 94190 (PT BETONS)",
+  "documentId": {
+    "$oid": "68366db3ca39e2327f11619e"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T01:58:11.849Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366ddcca39e2327f1161ab"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 25820 (PT TYS BEST)",
+  "documentId": {
+    "$oid": "68366ddcca39e2327f1161a9"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T01:58:52.761Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366e00ca39e2327f1161b6"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 12101 (PT TOPS)",
+  "documentId": {
+    "$oid": "68366e00ca39e2327f1161b4"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T01:59:28.742Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366e27ca39e2327f1161c1"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 99038 (PT SPOTS)",
+  "documentId": {
+    "$oid": "68366e27ca39e2327f1161bf"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T02:00:07.589Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366e46ca39e2327f1161cc"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 9868 (PT YES)",
+  "documentId": {
+    "$oid": "68366e46ca39e2327f1161ca"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T02:00:38.958Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366e81ca39e2327f1161d7"
+  },
+  "action": "create_placeholder",
+  "description": "Anwar membuat placeholder 4184 (PT KOST)",
+  "documentId": {
+    "$oid": "68366e81ca39e2327f1161d5"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T02:01:37.573Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366eb8ca39e2327f1161e1"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (PT apasajalah) dari pending ke completed",
+  "documentId": {
+    "$oid": "68366d11ca39e2327f116172"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T02:02:32.349Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366ec4ca39e2327f1161eb"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (PT Mutu beton) dari pending ke completed",
+  "documentId": {
+    "$oid": "68366d38ca39e2327f11617d"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T02:02:44.878Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366ecdca39e2327f1161f5"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (PT Besi Jaya) dari pending ke completed",
+  "documentId": {
+    "$oid": "68366d6fca39e2327f116188"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T02:02:53.000Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366ed6ca39e2327f1161ff"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (PT BESTOR) dari pending ke completed",
+  "documentId": {
+    "$oid": "68366d8eca39e2327f116193"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T02:03:02.419Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366ef5ca39e2327f116209"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (PT TOPS) dari pending ke in_progress",
+  "documentId": {
+    "$oid": "68366e00ca39e2327f1161b4"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T02:03:33.127Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366efbca39e2327f116213"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (PT SPOTS) dari pending ke in_progress",
+  "documentId": {
+    "$oid": "68366e27ca39e2327f1161bf"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T02:03:39.629Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366f04ca39e2327f11621d"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (PT YES) dari pending ke review",
+  "documentId": {
+    "$oid": "68366e46ca39e2327f1161ca"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T02:03:48.722Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366f17ca39e2327f116227"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (PT KOST) dari pending ke review",
+  "documentId": {
+    "$oid": "68366e81ca39e2327f1161d5"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T02:04:07.831Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366f1eca39e2327f116231"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (PT BETONS) dari pending ke completed",
+  "documentId": {
+    "$oid": "68366db3ca39e2327f11619e"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T02:04:14.324Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68366f27ca39e2327f11623b"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (PT TYS BEST) dari pending ke in_progress",
+  "documentId": {
+    "$oid": "68366ddcca39e2327f1161a9"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T02:04:23.114Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "683685b892ce23f714da386c"
+  },
+  "action": "edit_status",
+  "description": "Anwar mengubah status dokumen (PT SPOTS) dari in_progress ke review",
+  "documentId": {
+    "$oid": "68366e27ca39e2327f1161bf"
+  },
+  "userId": {
+    "$oid": "6810dd6b8d854caa63376b88"
+  },
+  "username": "Anwar",
+  "userRole": "admin",
+  "timestamp": {
+    "$date": "2025-05-28T03:40:40.624Z"
+  },
+  "__v": 0
+}]

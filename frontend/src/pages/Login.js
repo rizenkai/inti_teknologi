@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_URL from '../utils/api';
 import { FaEye, FaRegEyeSlash, FaArrowLeft } from 'react-icons/fa';
 import {
   Box,
@@ -12,6 +13,7 @@ import {
   IconButton,
   Container,
   Paper,
+  CircularProgress,
 } from '@mui/material';
 import { useTheme as useAppTheme } from '../context/ThemeContext';
 
@@ -24,6 +26,7 @@ const Login = () => {
   });
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   
   // Warna tema konsisten dengan landing page
   const themeColors = {
@@ -43,7 +46,7 @@ const Login = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      navigate('/dashboard');
+      navigate('/intidocs/dashboard');
     }
   }, [navigate]);
 
@@ -59,20 +62,47 @@ const Login = () => {
     e.preventDefault();
     try {
       setError('');
+      setLoading(true);
+      
+      // Tampilkan informasi debugging
+      console.log('Login attempt with:', {
+        username: formData.username.trim(),
+        passwordLength: formData.password.length,
+        apiUrl: API_URL
+      });
       
       if (!formData.username || !formData.password) {
         setError('Please enter both username and password');
         return;
       }
 
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      // Tampilkan URL lengkap untuk debugging
+      const loginUrl = `${API_URL}/api/auth/login`;
+      console.log('Sending request to:', loginUrl);
+      
+      const response = await axios.post(loginUrl, {
         username: formData.username.trim(),
         password: formData.password
+      }, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      console.log('Response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers,
+        hasData: !!response.data,
+        hasToken: !!(response.data && response.data.token)
       });
 
       const { data } = response;
       
       if (data && data.token) {
+        console.log('Login successful, saving token and user data');
         localStorage.setItem('token', data.token);
         // Simpan data user lengkap termasuk fullname
         localStorage.setItem('user', JSON.stringify({
@@ -81,13 +111,25 @@ const Login = () => {
           fullname: data.fullname,
           role: data.role,
         }));
-        navigate('/dashboard');
+        navigate('/intidocs/dashboard');
       } else {
+        console.error('Invalid response structure:', data);
         setError('Invalid response from server');
       }
+      setLoading(false);
     } catch (error) {
-      console.error('Login error:', error.response || error);
+      console.error('Login error details:', {
+        message: error.message,
+        response: error.response ? {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          data: error.response.data
+        } : 'No response',
+        request: error.request ? 'Request was made but no response received' : 'No request',
+        config: error.config
+      });
       setError(error.response?.data?.message || 'Failed to login');
+      setLoading(false);
     }
   };
 
@@ -113,7 +155,27 @@ const Login = () => {
       scrollbarWidth: 'thin',
       scrollbarColor: `${isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} transparent`,
     }}>
-      {/* Tidak ada navbar di halaman login */}
+      {/* Tombol kembali ke beranda */}
+      <Box sx={{ 
+        position: 'absolute', 
+        top: 20, 
+        left: 20, 
+        zIndex: 10 
+      }}>
+        <Button
+          startIcon={<FaArrowLeft />}
+          onClick={() => navigate('/')}
+          sx={{
+            color: themeColors.primary,
+            fontWeight: 600,
+            '&:hover': {
+              backgroundColor: isDarkMode ? 'rgba(65,227,255,0.1)' : 'rgba(25,118,210,0.1)',
+            },
+          }}
+        >
+          Kembali ke Beranda
+        </Button>
+      </Box>
 
       {/* Login Content */}
       <Container maxWidth="sm" sx={{ 
@@ -262,19 +324,33 @@ const Login = () => {
               type="submit"
               fullWidth
               variant="contained"
+              disabled={loading}
               sx={{
                 mt: 2,
                 py: 1.5,
-                bgcolor: themeColors.buttonBg,
+                bgcolor: loading ? (isDarkMode ? 'rgba(65,227,255,0.5)' : 'rgba(25,118,210,0.5)') : themeColors.buttonBg,
                 color: themeColors.buttonText,
                 fontWeight: 600,
                 borderRadius: 2,
                 '&:hover': {
-                  bgcolor: isDarkMode ? '#1ec6e6' : '#1565c0',
+                  bgcolor: loading ? (isDarkMode ? 'rgba(65,227,255,0.5)' : 'rgba(25,118,210,0.5)') : (isDarkMode ? '#1ec6e6' : '#1565c0'),
                 },
+                position: 'relative',
               }}
             >
-              Masuk
+              {loading ? (
+                <>
+                  <CircularProgress 
+                    size={24} 
+                    sx={{ 
+                      color: isDarkMode ? '#090d1f' : '#ffffff',
+                      position: 'absolute',
+                      left: 'calc(50% - 12px)',
+                    }} 
+                  />
+                  <span style={{ visibility: 'hidden' }}>Masuk</span>
+                </>
+              ) : 'Masuk'}
             </Button>
           </Box>
         </Paper>

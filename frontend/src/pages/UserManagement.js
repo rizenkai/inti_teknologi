@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../utils/api';
 import { useTheme } from '../context/ThemeContext';
 import { getTheme } from '../theme/lightDarkTheme';
 import {
@@ -89,7 +90,7 @@ const UserManagement = () => {
     setError('');
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/users', {
+      const response = await axios.get(`${API_URL}/api/users`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(response.data || []);
@@ -140,7 +141,7 @@ const UserManagement = () => {
     setAddError('');
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/users', newUser, {
+      await axios.post(`${API_URL}/api/users`, newUser, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAddDialog(false);
@@ -175,7 +176,7 @@ const UserManagement = () => {
         updateData.password = selectedUser.password;
       }
       
-      await axios.put(`http://localhost:5000/api/users/${selectedUser._id}`, updateData, {
+      await axios.put(`${API_URL}/api/users/${selectedUser._id}`, updateData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setEditDialog(false);
@@ -193,7 +194,7 @@ const UserManagement = () => {
     setDeleteLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/users/${deleteUserId}`, {
+      await axios.delete(`${API_URL}/api/users/${deleteUserId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDeleteDialog(false);

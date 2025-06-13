@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../utils/api';
 import { useTheme } from '../context/ThemeContext';
-import { useTheme as useMuiTheme } from '@mui/material';
-import { getTheme, getStatusColor, getStatusTextColor } from '../theme/lightDarkTheme';
+import { getTheme } from '../theme/lightDarkTheme';
 import {
   Box,
   Container,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Paper,
   Button,
   TextField,
@@ -26,14 +20,11 @@ import {
   MenuItem,
   CircularProgress,
   Alert,
-  IconButton,
   Grid,
   Pagination,
-  Stack,
 } from '@mui/material';
 import { 
   CloudDownload as DownloadIcon, 
-  Add as AddIcon,
   Search as SearchIcon,
   CloudUpload as UploadIcon
 } from '@mui/icons-material';
@@ -43,7 +34,7 @@ import { format } from 'date-fns';
 const Documents = () => {
   // Theme context
   const { isDarkMode } = useTheme();
-  const muiTheme = useMuiTheme();
+  // eslint-disable-next-line no-unused-vars
   const theme = getTheme(isDarkMode);
   
   // State for documents
@@ -58,7 +49,8 @@ const Documents = () => {
     status: 'All',
     dateRange: 'All'
   });
-  const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
+  // eslint-disable-next-line no-unused-vars
+  const [showAdvancedFilter] = useState(false);
   
   // State for pagination
   const [page, setPage] = useState(0);
@@ -67,12 +59,13 @@ const Documents = () => {
   
   // State for upload dialog
   const [uploadDialog, setUploadDialog] = useState(false);
-  const [openUploadDialog, setOpenUploadDialog] = useState(false);
+  // eslint-disable-next-line no-unused-vars
+  const [openUploadDialog] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [selectedDocument, setSelectedDocument] = useState(null); // For updating existing document
   const [selectedFile, setSelectedFile] = useState(null);
-  const [loadingDownload, setLoadingDownload] = useState({});
+  const [loadingDownload] = useState({});
   const [documentData, setDocumentData] = useState({
     title: '',
     description: '',
@@ -100,7 +93,7 @@ const Documents = () => {
     setError('');
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/documents', {
+      const response = await axios.get(`${API_URL}/api/documents`, {
         headers: { Authorization: `Bearer ${token}` },
         // Add cache buster to avoid browser caching
         params: { _t: new Date().getTime() }
@@ -125,7 +118,7 @@ const Documents = () => {
   useEffect(() => {
     if (userRole === 'admin' || userRole === 'staff') {
       const token = localStorage.getItem('token');
-      axios.get('http://localhost:5000/api/auth/regular-users', {
+      axios.get(`${API_URL}/api/auth/regular-users`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(res => setUserList(res.data))
@@ -160,7 +153,7 @@ const Documents = () => {
         downloadButton.disabled = true;
       }
       // Make API request to download the document
-      const response = await axios.get(`http://localhost:5000/api/documents/${documentId}/download`, {
+      const response = await axios.get(`${API_URL}/api/documents/${documentId}/download`, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob'
       });
@@ -241,7 +234,7 @@ const Documents = () => {
       const timestamp = new Date().getTime();
       formData.append('timestamp', timestamp);
       
-      const response = await axios.post('http://localhost:5000/api/documents', formData, {
+      const response = await axios.post(`${API_URL}/api/documents`, formData, {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'

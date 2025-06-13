@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Typography, Button, Grid, Paper, Container, Card, CardContent, CardMedia, CardActionArea, Divider, useTheme, TextField, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, IconButton, Menu, MenuItem, Drawer, List, ListItem, ListItemText } from '@mui/material';
+import { Box, Typography, Button, Grid, Container, Card, CardContent, CardMedia, Divider, useTheme, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, IconButton, Drawer, List, ListItem, ListItemText } from '@mui/material';
 import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaBuilding, FaFlask, FaTools, FaHardHat, FaAward, FaChartLine, FaArrowRight, FaBars } from 'react-icons/fa';
@@ -41,6 +41,7 @@ const services = [
 
 const Landing = () => {
   const navigate = useNavigate();
+  // eslint-disable-next-line no-unused-vars
   const muiTheme = useTheme();
   const { isDarkMode } = useAppTheme();
   
@@ -170,7 +171,7 @@ const Landing = () => {
               <Button sx={{ color: themeColors.text, fontWeight: 600 }} onClick={() => scrollToSection(contactRef)}>Kontak</Button>
               <Button 
                 variant="contained" 
-                onClick={() => navigate('/login')} 
+                onClick={() => navigate('/intidocs/login')} 
                 sx={{ 
                   bgcolor: themeColors.buttonBg,
                   color: themeColors.buttonText,
@@ -194,8 +195,7 @@ const Landing = () => {
           </Box>
         </Container>
       </Box>
-
-      {/* Mobile Menu Drawer */}
+      
       <Drawer
         anchor="right"
         open={mobileMenuOpen}
@@ -237,7 +237,7 @@ const Landing = () => {
             <ListItemText primary="Kontak" sx={{ color: themeColors.text }} />
           </ListItem>
           <ListItem button onClick={() => {
-            navigate('/login');
+            navigate('/intidocs/login');
             handleCloseMobileMenu();
           }}>
             <ListItemText 

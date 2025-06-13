@@ -1,19 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { GlobalStyles, useTheme as useMuiTheme } from '@mui/material';
+import { useTheme as useMuiTheme } from '@mui/material';
 import { debounce } from 'lodash';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import API_URL from '../utils/api';
 import { useTheme } from '../context/ThemeContext';
 import {
   Box,
-  Container,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Paper,
   Button,
   TextField,
@@ -27,11 +20,8 @@ import {
   MenuItem,
   CircularProgress,
   Alert,
-  IconButton,
-  Autocomplete,
-  Avatar
+  Autocomplete
 } from '@mui/material';
-import DownloadIcon from '@mui/icons-material/Download';
 import { format } from 'date-fns';
 import { Pie } from 'react-chartjs-2';
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
@@ -59,7 +49,6 @@ const Dashboard = () => {
     Beton: '',
     Besi: ''
   };
-  const navigate = useNavigate();
   // NEW: State for Add Document Dialog
   const [addDialog, setAddDialog] = useState(false);
 
@@ -110,7 +99,7 @@ const Dashboard = () => {
     // Fetch user list only for admin/staff
     if (userRole === 'admin' || userRole === 'staff') {
       const token = localStorage.getItem('token');
-      axios.get('http://localhost:5000/api/auth/regular-users', {
+      axios.get(`${API_URL}/api/auth/regular-users`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(response => {
@@ -157,7 +146,7 @@ const Dashboard = () => {
       const token = localStorage.getItem('token');
       
       // Fetch mutu bahan options
-      const mutuBahanResponse = await axios.get('http://localhost:5000/api/inputs/values?category=mutuBahan', {
+      const mutuBahanResponse = await axios.get(`${API_URL}/api/inputs/values?category=mutuBahan`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -179,7 +168,7 @@ const Dashboard = () => {
       setMutuBahanOptions(combinedMutuBahan);
       
       // Fetch tipe bahan options
-      const tipeBahanResponse = await axios.get('http://localhost:5000/api/inputs/values?category=tipeBahan', {
+      const tipeBahanResponse = await axios.get(`${API_URL}/api/inputs/values?category=tipeBahan`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -231,11 +220,7 @@ const Dashboard = () => {
     }
   };
 
-  const statusOptions = [
-    'in_progress',
-    'review',
-    'completed',
-  ];
+  // Status options sudah digunakan melalui statusLabels
 
   useEffect(() => {
     fetchDocuments();
@@ -251,7 +236,7 @@ const Dashboard = () => {
     setError('');
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/documents', {
+      const response = await axios.get(`${API_URL}/api/documents`, {
         headers: { Authorization: `Bearer ${token}` },
         // Add cache buster to avoid browser caching
         params: { _t: new Date().getTime() }
@@ -329,53 +314,14 @@ const Dashboard = () => {
     setDeleteDialog(true);
   };
 
-  // Handle document download
-  const handleDownloadDocument = async (documentId) => {
-    try {
-      const token = localStorage.getItem('token');
-      setLoading(true);
-      // Make API request to download the document
-      const response = await axios.get(`http://localhost:5000/api/documents/${documentId}/download`, {
-        headers: { Authorization: `Bearer ${token}` },
-        responseType: 'blob' // Important for file downloads
-      });
-      // Get filename from Content-Disposition header
-      let filename = 'document';
-      const disposition = response.headers['content-disposition'];
-      if (disposition && disposition.indexOf('filename=') !== -1) {
-        filename = decodeURIComponent(disposition.split('filename=')[1].replace(/['"\s]/g, ''));
-      } else {
-        // fallback: cari nama file di state dokumen
-        const doc = documents.find(doc => doc._id === documentId);
-        if (doc && doc.fileName) filename = doc.fileName;
-      }
-      // Create a blob URL and trigger download
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = window.document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', filename);
-      window.document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error downloading document:', error);
-      setError('Failed to download document: ' + (error.response?.data?.message || 'Unknown error'));
-      if (error.response && error.response.status === 401) {
-        localStorage.removeItem('token');
-        navigate('/login');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Fungsi download dokumen telah dipindahkan ke komponen lain
 
   const confirmDelete = async () => {
     setDeleteLoading(true);
     try {
       const token = localStorage.getItem('token');
       await axios.delete(
-        `http://localhost:5000/api/documents/${selectedDocument._id}`,
+        `${API_URL}/api/documents/${selectedDocument._id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setDeleteDialog(false);
@@ -414,7 +360,7 @@ const Dashboard = () => {
       }
       
       await axios.put(
-        `http://localhost:5000/api/documents/${selectedDocument._id}`,
+        `${API_URL}/api/documents/${selectedDocument._id}`,
         updateData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -546,8 +492,6 @@ const Dashboard = () => {
     maintainAspectRatio: false,
   };
 
-  // Ringkasan dokumen terbaru (ambil dokumen paling baru dari filteredDocuments)
-  const latestDoc = filteredDocuments[0];
   // Hitung statistik
   const totalDocs = documents.length;
   // const storageUsed = 85; // Sudah tidak dipakai
@@ -623,7 +567,7 @@ const Dashboard = () => {
             }}
             onClick={() => setAddDialog(true)}
           >
-            Add New Document
+            Tambah Dokumen Baru
           </Button>
         )}
       </Box>
@@ -650,19 +594,19 @@ const Dashboard = () => {
               <Typography variant="body2" sx={{ fontWeight: 700 }}>{totalDocs}</Typography>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25,118,210,0.05)', borderRadius: 1 }}>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>Pending:</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>Menunggu:</Typography>
               <Typography variant="body2" sx={{ fontWeight: 700 }}>{statusCounts['pending'] || 0}</Typography>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25,118,210,0.05)', borderRadius: 1 }}>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>In Progress:</Typography>
-              <Typography variant="body2" sx={{ fontWeight: 700 }}>{statusCounts['in_progress'] || 0}</Typography>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25,118,210,0.05)', borderRadius: 1 }}>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>Review:</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>Ditinjau:</Typography>
               <Typography variant="body2" sx={{ fontWeight: 700 }}>{statusCounts['review'] || 0}</Typography>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25,118,210,0.05)', borderRadius: 1 }}>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>Completed:</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>Dalam Proses:</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 700 }}>{statusCounts['in_progress'] || 0}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: isDarkMode ? 'rgba(0,0,0,0.1)' : 'rgba(25,118,210,0.05)', borderRadius: 1 }}>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>Selesai:</Typography>
               <Typography variant="body2" sx={{ fontWeight: 700 }}>{statusCounts['completed'] || 0}</Typography>
             </Box>
           </Box>
@@ -2144,7 +2088,7 @@ console.log('Data yang akan dikirim:', documentData);
 console.log('tipeBahan yang dikirim:', newDocTipeBahan);
 
 try {
-  const response = await axios.post('http://localhost:5000/api/documents/manual', documentData, {
+  const response = await axios.post(`${API_URL}/api/documents/manual`, documentData, {
     headers: { Authorization: `Bearer ${token}` }
   });
   console.log('Response dari server:', response.data);

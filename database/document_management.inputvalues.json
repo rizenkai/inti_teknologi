@@ -1,0 +1,85 @@
+[{
+  "_id": {
+    "$oid": "682c83c2dd4b13925250a90e"
+  },
+  "name": "T 280",
+  "typeId": null,
+  "value": "T 280",
+  "category": "mutuBahan",
+  "testType": "Besi",
+  "createdAt": {
+    "$date": "2025-05-20T13:29:38.930Z"
+  },
+  "updatedAt": {
+    "$date": "2025-05-20T13:29:38.930Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682c83d1dd4b13925250a914"
+  },
+  "name": "T 420",
+  "typeId": null,
+  "value": "T 420",
+  "category": "mutuBahan",
+  "testType": "Besi",
+  "createdAt": {
+    "$date": "2025-05-20T13:29:53.139Z"
+  },
+  "updatedAt": {
+    "$date": "2025-05-20T13:29:53.139Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682c99a2ebfae47c1205576a"
+  },
+  "name": "bulet",
+  "typeId": null,
+  "value": "bulet",
+  "category": "tipeBahan",
+  "testType": "Beton",
+  "createdAt": {
+    "$date": "2025-05-20T15:02:58.072Z"
+  },
+  "updatedAt": {
+    "$date": "2025-05-20T15:02:58.072Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682d216aebfae47c1205593b"
+  },
+  "name": "T 750",
+  "typeId": null,
+  "value": "T 750",
+  "category": "mutuBahan",
+  "testType": "Besi",
+  "createdAt": {
+    "$date": "2025-05-21T00:42:18.153Z"
+  },
+  "updatedAt": {
+    "$date": "2025-05-21T00:42:18.153Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "682d688377d150856ba8578e"
+  },
+  "name": "T 100",
+  "typeId": null,
+  "value": "T 100",
+  "category": "mutuBahan",
+  "testType": "Besi",
+  "createdAt": {
+    "$date": "2025-05-21T05:45:39.903Z"
+  },
+  "updatedAt": {
+    "$date": "2025-05-21T05:45:39.903Z"
+  },
+  "__v": 0
+}]
