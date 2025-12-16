@@ -16,7 +16,7 @@ import ActivityLog from './pages/ActivityLog';
 import Landing from './pages/Landing';
 import EditInput from './pages/EditInput';
 
-// Protected Route Component
+// Protected Route C
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
   return token ? children : <Navigate to="/intidocs/login" />;

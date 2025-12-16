@@ -141,54 +141,15 @@ const Documents = () => {
   };
   
   // Handle document download
-  const handleDownloadDocument = async (documentId) => {
-    let originalContent = null;
-    try {
-      const token = localStorage.getItem('token');
-      // Show loading indicator
-      const downloadButton = window.document.getElementById(`download-${documentId}`);
-      if (downloadButton) {
-        originalContent = downloadButton.innerHTML;
-        downloadButton.innerHTML = '...';
-        downloadButton.disabled = true;
-      }
-      // Make API request to download the document
-      const response = await axios.get(`${API_URL}/api/documents/${documentId}/download`, {
-        headers: { Authorization: `Bearer ${token}` },
-        responseType: 'blob'
-      });
-      // Get filename from Content-Disposition header
-      let filename = 'document';
-      const disposition = response.headers['content-disposition'];
-      if (disposition && disposition.indexOf('filename=') !== -1) {
-        filename = decodeURIComponent(disposition.split('filename=')[1].replace(/['"\s]/g, ''));
-      } else {
-        // fallback: cari nama file di state dokumen
-        const doc = documents.find(doc => doc._id === documentId);
-        if (doc && doc.fileName) filename = doc.fileName;
-      }
-      // Create a blob URL and trigger download
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = window.document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', filename);
-      window.document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error downloading document:', error);
-      alert('Failed to download document: ' + (error.response?.data?.message || 'Unknown error'));
-    } finally {
-      // Reset download button
-      const downloadButton = window.document.getElementById(`download-${documentId}`);
-      if (downloadButton) {
-        // Restore button
-        downloadButton.innerHTML = originalContent || '';
-        downloadButton.disabled = false;
-      }
+  const handleDownloadDocument = (documentId) => {
+    const doc = documents.find(doc => doc._id === documentId);
+    if (doc && doc.filePath && doc.filePath.startsWith('http')) {
+      window.open(doc.filePath, '_blank');
+      return;
     }
+    alert('File tidak tersedia. Silakan upload ulang dokumen.');
   };
+
   
   // Handle document upload
   const handleUploadDocument = async () => {
@@ -211,8 +172,14 @@ const Documents = () => {
       const token = localStorage.getItem('token');
       const formData = new FormData();
       
+      // Debug: cek nama file yang akan diupload
+      console.log('DEBUG upload: selectedFile.name =', selectedFile && selectedFile.name, selectedFile);
       // Append file
-      formData.append('file', selectedFile);
+      if (selectedFile && selectedFile.name) {
+        formData.append('file', selectedFile, selectedFile.name);
+      } else {
+        formData.append('file', selectedFile);
+      }
       
       // If we're updating an existing document
       if (selectedDocument) {
